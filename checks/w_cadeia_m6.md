@@ -124,3 +124,34 @@ errados.** Com a correção (intercalar e desintercalar por amostra):
   - os caminhos AVX-512 não foram traduzidos e param com o RVA se forem executados;
   - o motor ainda lê as constantes do dump em tempo de execução;
   - o desempenho é ~2× mais lento que tempo real.
+
+## 6. Desempenho do motor traduzido (2026-11-25)
+
+Todas as mudanças são só de runtime e codegen; a aritmética e a ordem das instruções não
+mudam. Depois de cada rodada, o null-test contra o soothe3 original segue **bit a bit** nas
+5 configurações da §5. Nos modos low latency, high e ultra, a saída é idêntica à da rodada
+anterior.
+
+| Rodada (commit) | Mudança | 1 s a 48 kHz, padrão | Ultra |
+|---|---|---|---|
+| base (`8144e0f`) | `HashMap` de páginas, cópia por byte | 1,55 s | — |
+| `a2f4d4f` | páginas em vetores e cache direto; despacho de blocos denso; chamadas diretas | ~0,25 s | ~0,93 s |
+| `52c67d4` | AVX2/FMA habilitados no compilador; intrinsics inline | ~0,21 s | ~0,73 s |
+| `0bb9844` | cache (tag, ponteiro) unificado; caminhos frios fora de linha; flags mortas eliminadas | ~0,20 s | ~0,58 s (melhor de 6) |
+
+- **Latência pela API (`0x863020`):**
+  - padrão = 2304;
+  - **Low latency** (parâmetro 1 = 1) = **0**.
+- **Custo relativo, em instruções executadas por 1 s de áudio:**
+  - padrão: 103 M;
+  - low latency: 270 M;
+  - high (parâmetro 3 = 0,5): 197 M;
+  - ultra (parâmetro 3 = 1): 384 M;
+  - 96 kHz, padrão: 324 M.
+- **Ferramentas:**
+  - `M6_SET="i=norm,…"` aplica parâmetros depois dos defaults;
+  - `M6_PROF=<arquivo>` grava o perfil por bloco (RVA, execuções, instruções);
+  - `lifted_extra/.cargo/config.toml` e `resonia/app/.cargo/config.toml` ligam
+    `+avx2,+fma`.
+- **Pendente:** a validação bit a bit dos modos low latency, high e ultra contra o oráculo
+  ainda não foi feita (o host oráculo roda só com os defaults).
