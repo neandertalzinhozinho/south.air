@@ -269,7 +269,11 @@ fn hard_exit_if_windows(code: i32) -> ! {
     std::process::exit(code)
 }
 
+/// Carimbo de build (só muda o hash do .exe; contorno do Smart App Control, os error 4551).
+const BUILD_STAMP: Option<&str> = option_env!("RESONIA_STAMP");
+
 fn main() {
+    let _ = BUILD_STAMP;
     let args: Vec<String> = std::env::args().skip(1).collect();
     let mut screenshot = None;
     let mut i = 0;

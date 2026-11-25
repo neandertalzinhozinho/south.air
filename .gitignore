@@ -40,3 +40,4 @@ __pycache__/
 
 # Worktrees de agentes do Claude Code
 /.claude/
+/resonia/app/_preview/

@@ -26,6 +26,8 @@ nih_plug_egui = { git = "https://github.com/robbert-vdh/nih-plug.git" }
 eframe = { version = "0.31.1", default-features = false, features = ["default_fonts", "glow"] }
 image = { version = "0.25", default-features = false, features = ["png"] }
 hound = "3.5"
+# Rasteriza os ícones SVG dos recursos recuperados (só na tela).
+resvg = { version = "0.45", default-features = false }
 # Motor (opcional): so entra com `--features motor`.
 soultree_lifted = { path = "../../lifted", optional = true }
 soultree_lifted_extra = { path = "../../lifted_extra", optional = true }
