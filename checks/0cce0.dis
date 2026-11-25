@@ -1,0 +1,22 @@
+﻿# function 0xCCE0..0xCD20  size=64
+0000CCE0  endbr64  
+0000CCE4  sub      rsp, 0x28
+0000CCE8  test     rcx, rcx
+0000CCEB  je       0xcd12
+0000CCED  test     rdx, rdx
+0000CCF0  je       0xcd12
+0000CCF2  test     r8, r8
+0000CCF5  je       0xcd12
+0000CCF7  test     r9d, r9d
+0000CCFA  jg       0xcd06
+0000CCFC  mov      eax, 0xfffffffa
+0000CD01  add      rsp, 0x28
+0000CD05  ret      
+0000CD06  call     0x65ea0
+0000CD0B  xor      eax, eax
+0000CD0D  add      rsp, 0x28
+0000CD11  ret      
+0000CD12  mov      eax, 0xfffffff8
+0000CD17  add      rsp, 0x28
+0000CD1B  ret      
+0000CD1C  nop      dword ptr [rax]

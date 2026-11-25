@@ -1,0 +1,54 @@
+00884640  mov        qword ptr [rsp + 0x18], r8
+00884645  mov        qword ptr [rsp + 0x10], rdx
+0088464A  push       rbp
+0088464B  push       rbx
+0088464C  push       rsi
+0088464D  push       rdi
+0088464E  push       r12
+00884650  push       r13
+00884652  push       r14
+00884654  push       r15
+00884656  lea        rbp, [rsp - 0x1458]
+0088465E  mov        eax, 0x1558
+00884663  call       0x17978c0
+00884668  sub        rsp, rax
+0088466B  movsxd     r14, dword ptr [rcx + 0x50]
+0088466F  xor        edi, edi
+00884671  mov        rbx, qword ptr [rbp + 0x14c0]
+00884678  mov        r13, r9
+0088467B  mov        r10d, dword ptr [rcx + 0x48]
+0088467F  mov        r15, rcx
+00884682  mov        r11d, dword ptr [rcx + 0x2c90]
+00884689  mov        r8d, edi
+0088468C  mov        dword ptr [rbp + 0x14a0], r14d
+00884693  mov        eax, dword ptr [rbx + 0x18]
+00884696  mov        dword ptr [rsp + 0x50], eax
+0088469A  mov        dword ptr [rbp + 0x14b8], r10d
+008846A1  mov        dword ptr [rsp + 0x40], r11d
+008846A6  test       r14d, r14d
+008846A9  jle        0x8846eb
+008846AB  mov        edx, eax
+008846AD  nop        dword ptr [rax]
+008846B0  mov        rax, qword ptr [rbx]
+008846B3  movsxd     rcx, edx
+008846B6  lea        rcx, [rax + rcx*4]
+008846BA  lea        eax, [rdx + r10]
+008846BE  mov        qword ptr [rbp + r8*8 + 0xc30], rcx
+008846C6  movsxd     rcx, eax
+008846C9  mov        rax, rcx
+008846CC  mov        rdx, rcx
+008846CF  and        eax, 0xf
+008846D2  sub        rdx, rax
+008846D5  add        rdx, 0x10
+008846D9  test       cl, 0xf
+008846DC  cmove      rdx, rcx
+008846E0  inc        r8
+008846E3  mov        dword ptr [rbx + 0x18], edx
+008846E6  cmp        r8, r14
+008846E9  jl         0x8846b0
+008846EB  mov        eax, dword ptr [rbx + 0x18]
+008846EE  mov        r8, rdi
+008846F1  test       r14d, r14d
+008846F4  jle        0x88473b
+008846F6  mov        edx, eax
+008846F8  nop        dword ptr [rax + rax]

@@ -1,0 +1,30 @@
+0088F5A4  xor        eax, eax
+0088F5A6  mov        qword ptr [rbp + 0x8c8], rax
+0088F5AD  mov        rax, rsi
+0088F5B0  shl        rax, 2
+0088F5B4  mov        qword ptr [rbp + 0x8d8], rax
+0088F5BB  test       edx, edx
+0088F5BD  jle        0x88f5ef
+0088F5BF  lea        rax, [rbp + 0x850]
+0088F5C6  sub        r9, rax
+0088F5C9  lea        rcx, [rbp + 0x850]
+0088F5D0  mov        rax, qword ptr [r9 + rcx]
+0088F5D4  inc        r8d
+0088F5D7  mov        qword ptr [rcx], rax
+0088F5DA  lea        rcx, [rcx + 8]
+0088F5DE  mov        edx, dword ptr [rbp + 0x8d0]
+0088F5E4  cmp        r8d, edx
+0088F5E7  jl         0x88f5d0
+0088F5E9  mov        esi, dword ptr [rbp + 0x8d4]
+0088F5EF  movaps     xmmword ptr [rbp + 0x30], xmm7
+0088F5F3  movaps     xmmword ptr [rbp + 0x40], xmm8
+0088F5F8  movaps     xmmword ptr [rbp + 0x50], xmm9
+0088F5FD  movaps     xmmword ptr [rbp + 0x60], xmm10
+0088F602  movaps     xmmword ptr [rbp + 0x70], xmm11
+0088F607  movaps     xmmword ptr [rbp + 0x80], xmm12
+0088F60F  movaps     xmmword ptr [rbp + 0x90], xmm13
+0088F617  movaps     xmmword ptr [rbp + 0xa0], xmm14
+0088F61F  movaps     xmmword ptr [rbp + 0xb0], xmm15
+0088F627  movups     xmm0, xmmword ptr [rbp + 0x850]
+0088F62E  movups     xmm1, xmmword ptr [rbp + 0x860]
+0088F635  movaps     xmmword ptr [rbp + 0x440], xmm0

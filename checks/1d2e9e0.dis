@@ -1,0 +1,86 @@
+# function 0x1D2E9E0..0x1D2EB3E  size=350
+01D2E9E0  push     rsi
+01D2E9E1  push     rdi
+01D2E9E2  mov      rdi, rcx
+01D2E9E5  mov      rsi, rdx
+01D2E9E8  mov      rax, rdi
+01D2E9EB  movsxd   rsi, esi
+01D2E9EE  vxorps   ymm0, ymm0, ymm0
+01D2E9F2  xor      rdx, rdx
+01D2E9F5  cmp      rsi, 0x100
+01D2E9FC  jge      0x1d2eac5
+01D2EA02  test     rsi, 0x80
+01D2EA09  je       0x1d2ea32
+01D2EA0B  vmovdqu  ymmword ptr [rdi], ymm0
+01D2EA0F  vmovdqu  ymmword ptr [rdi + 0x20], ymm0
+01D2EA14  vmovdqu  ymmword ptr [rdi + 0x40], ymm0
+01D2EA19  vmovdqu  ymmword ptr [rdi + 0x60], ymm0
+01D2EA1E  add      rdi, 0x80
+01D2EA25  sub      rsi, 0x80
+01D2EA2C  je       0x1d2eabf
+01D2EA32  test     rsi, 0x40
+01D2EA39  je       0x1d2ea4e
+01D2EA3B  vmovdqu  ymmword ptr [rdi], ymm0
+01D2EA3F  vmovdqu  ymmword ptr [rdi + 0x20], ymm0
+01D2EA44  add      rdi, 0x40
+01D2EA48  sub      rsi, 0x40
+01D2EA4C  je       0x1d2eabf
+01D2EA4E  test     rsi, 0x20
+01D2EA55  je       0x1d2ea65
+01D2EA57  vmovdqu  ymmword ptr [rdi], ymm0
+01D2EA5B  add      rdi, 0x20
+01D2EA5F  sub      rsi, 0x20
+01D2EA63  je       0x1d2eabf
+01D2EA65  test     rsi, 0x10
+01D2EA6C  je       0x1d2ea7c
+01D2EA6E  vmovdqu  xmmword ptr [rdi], xmm0
+01D2EA72  add      rdi, 0x10
+01D2EA76  sub      rsi, 0x10
+01D2EA7A  je       0x1d2eabf
+01D2EA7C  test     rsi, 8
+01D2EA83  je       0x1d2ea92
+01D2EA85  mov      qword ptr [rdi], rdx
+01D2EA88  add      rdi, 8
+01D2EA8C  sub      rsi, 8
+01D2EA90  je       0x1d2eabf
+01D2EA92  test     rsi, 4
+01D2EA99  je       0x1d2eaa7
+01D2EA9B  mov      dword ptr [rdi], edx
+01D2EA9D  add      rdi, 4
+01D2EAA1  sub      rsi, 4
+01D2EAA5  je       0x1d2eabf
+01D2EAA7  test     rsi, 2
+01D2EAAE  je       0x1d2eabd
+01D2EAB0  mov      word ptr [rdi], dx
+01D2EAB3  add      rdi, 2
+01D2EAB7  sub      rsi, 2
+01D2EABB  je       0x1d2eabf
+01D2EABD  mov      byte ptr [rdi], dl
+01D2EABF  vzeroupper 
+01D2EAC2  pop      rdi
+01D2EAC3  pop      rsi
+01D2EAC4  ret      
+01D2EAC5  test     rdi, 0x1f
+01D2EACC  je       0x1d2eae3
+01D2EACE  mov      rcx, rdi
+01D2EAD1  vmovdqu  ymmword ptr [rdi], ymm0
+01D2EAD5  and      rcx, 0x1f
+01D2EAD9  sub      rcx, 0x20
+01D2EADD  sub      rdi, rcx
+01D2EAE0  add      rsi, rcx
+01D2EAE3  sub      rsi, 0x100
+01D2EAEA  jl       0x1d2eb2f
+01D2EAEC  vmovdqa  ymmword ptr [rdi + 0xe0], ymm0
+01D2EAF4  vmovdqa  ymmword ptr [rdi + 0xc0], ymm0
+01D2EAFC  vmovdqa  ymmword ptr [rdi + 0xa0], ymm0
+01D2EB04  vmovdqa  ymmword ptr [rdi + 0x80], ymm0
+01D2EB0C  vmovdqa  ymmword ptr [rdi + 0x60], ymm0
+01D2EB11  vmovdqa  ymmword ptr [rdi + 0x40], ymm0
+01D2EB16  vmovdqa  ymmword ptr [rdi + 0x20], ymm0
+01D2EB1B  vmovdqa  ymmword ptr [rdi], ymm0
+01D2EB1F  add      rdi, 0x100
+01D2EB26  sub      rsi, 0x100
+01D2EB2D  jge      0x1d2eaec
+01D2EB2F  add      rsi, 0x100
+01D2EB36  jne      0x1d2ea02
+01D2EB3C  jmp      0x1d2eabf

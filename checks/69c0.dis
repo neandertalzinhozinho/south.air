@@ -1,0 +1,210 @@
+# function 0x69C0..0x6D00  size=832
+000069C0  endbr64  
+000069C4  push     rbx
+000069C5  test     rcx, rcx
+000069C8  je       0x6cf9
+000069CE  test     rdx, rdx
+000069D1  je       0x6cf9
+000069D7  test     r8d, r8d
+000069DA  jle      0x6cf2
+000069E0  mov      eax, dword ptr [rsp + 0x30]
+000069E4  test     eax, eax
+000069E6  je       0x6b5b
+000069EC  cmp      eax, 4
+000069EF  je       0x69f8
+000069F1  mov      eax, 0xfffffffb
+000069F6  pop      rbx
+000069F7  ret      
+000069F8  cmp      r8d, 0x10
+000069FC  jl       0x6cc4
+00006A02  cmp      r8d, 0x1d
+00006A06  jl       0x6ccb
+00006A0C  mov      r10, rdx
+00006A0F  and      r10, 0x1f
+00006A13  test     r10d, r10d
+00006A16  je       0x6a30
+00006A18  test     r10d, 3
+00006A1F  jne      0x6cc4
+00006A25  neg      r10d
+00006A28  add      r10d, 0x20
+00006A2C  shr      r10d, 2
+00006A30  lea      eax, [r10 + 0x10]
+00006A34  cmp      r8d, eax
+00006A37  jl       0x6cc4
+00006A3D  mov      eax, r8d
+00006A40  xor      ebx, ebx
+00006A42  sub      eax, r10d
+00006A45  and      eax, 0xf
+00006A48  neg      eax
+00006A4A  add      eax, r8d
+00006A4D  mov      r9d, r10d
+00006A50  test     r10d, r10d
+00006A53  jbe      0x6a76
+00006A55  nop      dword ptr [rax]
+00006A59  nop      dword ptr [rax]
+00006A60  vmovss   xmm0, dword ptr [rcx + rbx*4]
+00006A65  vminss   xmm0, xmm0, xmm3
+00006A69  vmovss   dword ptr [rdx + rbx*4], xmm0
+00006A6E  inc      rbx
+00006A71  cmp      rbx, r9
+00006A74  jb       0x6a60
+00006A76  vbroadcastss ymm0, xmm3
+00006A7B  movsxd   rbx, eax
+00006A7E  nop      
+00006A80  vmovups  ymm1, ymmword ptr [rcx + r9*4]
+00006A86  vmovups  ymm4, ymmword ptr [rcx + r9*4 + 0x20]
+00006A8D  vminps   ymm2, ymm1, ymm0
+00006A91  vminps   ymm5, ymm4, ymm0
+00006A95  vmovups  ymmword ptr [rdx + r9*4], ymm2
+00006A9B  vmovups  ymmword ptr [rdx + r9*4 + 0x20], ymm5
+00006AA2  add      r9, 0x10
+00006AA6  cmp      r9, rbx
+00006AA9  jb       0x6a80
+00006AAB  lea      ebx, [rax + 1]
+00006AAE  cmp      ebx, r8d
+00006AB1  ja       0x6cb6
+00006AB7  movsxd   rax, eax
+00006ABA  movsxd   r8, r8d
+00006ABD  sub      r8, rax
+00006AC0  cmp      r8, 4
+00006AC4  jl       0x6cbd
+00006ACA  mov      ebx, r8d
+00006ACD  xor      r11d, r11d
+00006AD0  and      ebx, 0xfffffffc
+00006AD3  lea      r10, [rdx + rax*4]
+00006AD7  movsxd   rbx, ebx
+00006ADA  lea      r9, [rcx + rax*4]
+00006ADE  vbroadcastss xmm0, xmm3
+00006AE3  nop      dword ptr [rax + rax]
+00006AEB  nop      dword ptr [rax]
+00006AF2  nop      dword ptr [rax]
+00006AF9  nop      dword ptr [rax]
+00006B00  vmovups  xmm1, xmmword ptr [r9 + r11*4]
+00006B06  vminps   xmm2, xmm1, xmm0
+00006B0A  vmovups  xmmword ptr [r10 + r11*4], xmm2
+00006B10  add      r11, 4
+00006B14  cmp      r11, rbx
+00006B17  jb       0x6b00
+00006B19  cmp      rbx, r8
+00006B1C  jae      0x6cb6
+00006B22  lea      rdx, [rdx + rax*4]
+00006B26  lea      rax, [rcx + rax*4]
+00006B2A  nop      dword ptr [rax + rax]
+00006B32  nop      dword ptr [rax]
+00006B39  nop      dword ptr [rax]
+00006B40  vmovss   xmm0, dword ptr [rax + rbx*4]
+00006B45  vminss   xmm0, xmm0, xmm3
+00006B49  vmovss   dword ptr [rdx + rbx*4], xmm0
+00006B4E  inc      rbx
+00006B51  cmp      rbx, r8
+00006B54  jb       0x6b40
+00006B56  jmp      0x6cb6
+00006B5B  cmp      r8d, 0x10
+00006B5F  jl       0x6cdd
+00006B65  cmp      r8d, 0x1d
+00006B69  jl       0x6ce4
+00006B6F  mov      r10, rdx
+00006B72  and      r10, 0x1f
+00006B76  test     r10d, r10d
+00006B79  je       0x6b93
+00006B7B  test     r10d, 3
+00006B82  jne      0x6cdd
+00006B88  neg      r10d
+00006B8B  add      r10d, 0x20
+00006B8F  shr      r10d, 2
+00006B93  lea      eax, [r10 + 0x10]
+00006B97  cmp      r8d, eax
+00006B9A  jl       0x6cdd
+00006BA0  mov      eax, r8d
+00006BA3  xor      ebx, ebx
+00006BA5  sub      eax, r10d
+00006BA8  and      eax, 0xf
+00006BAB  neg      eax
+00006BAD  add      eax, r8d
+00006BB0  mov      r9d, r10d
+00006BB3  test     r10d, r10d
+00006BB6  jbe      0x6bd6
+00006BB8  nop      dword ptr [rax + rax]
+00006BC0  vmovss   xmm0, dword ptr [rcx + rbx*4]
+00006BC5  vmaxss   xmm0, xmm0, xmm3
+00006BC9  vmovss   dword ptr [rdx + rbx*4], xmm0
+00006BCE  inc      rbx
+00006BD1  cmp      rbx, r9
+00006BD4  jb       0x6bc0
+00006BD6  vbroadcastss ymm0, xmm3
+00006BDB  movsxd   rbx, eax
+00006BDE  nop      
+00006BE0  vmovups  ymm1, ymmword ptr [rcx + r9*4]
+00006BE6  vmovups  ymm4, ymmword ptr [rcx + r9*4 + 0x20]
+00006BED  vmaxps   ymm2, ymm1, ymm0
+00006BF1  vmaxps   ymm5, ymm4, ymm0
+00006BF5  vmovups  ymmword ptr [rdx + r9*4], ymm2
+00006BFB  vmovups  ymmword ptr [rdx + r9*4 + 0x20], ymm5
+00006C02  add      r9, 0x10
+00006C06  cmp      r9, rbx
+00006C09  jb       0x6be0
+00006C0B  lea      ebx, [rax + 1]
+00006C0E  cmp      ebx, r8d
+00006C11  ja       0x6cb6
+00006C17  movsxd   rax, eax
+00006C1A  movsxd   r8, r8d
+00006C1D  sub      r8, rax
+00006C20  cmp      r8, 4
+00006C24  jl       0x6cd9
+00006C2A  mov      ebx, r8d
+00006C2D  xor      r11d, r11d
+00006C30  and      ebx, 0xfffffffc
+00006C33  lea      r10, [rdx + rax*4]
+00006C37  movsxd   rbx, ebx
+00006C3A  lea      r9, [rcx + rax*4]
+00006C3E  vbroadcastss xmm0, xmm3
+00006C43  nop      dword ptr [rax + rax]
+00006C4B  nop      dword ptr [rax]
+00006C52  nop      dword ptr [rax]
+00006C59  nop      dword ptr [rax]
+00006C60  vmovups  xmm1, xmmword ptr [r9 + r11*4]
+00006C66  vmaxps   xmm2, xmm1, xmm0
+00006C6A  vmovups  xmmword ptr [r10 + r11*4], xmm2
+00006C70  add      r11, 4
+00006C74  cmp      r11, rbx
+00006C77  jb       0x6c60
+00006C79  cmp      rbx, r8
+00006C7C  jae      0x6cb6
+00006C7E  lea      rdx, [rdx + rax*4]
+00006C82  lea      rax, [rcx + rax*4]
+00006C86  nop      dword ptr [rax + rax]
+00006C8E  nop      dword ptr [rax]
+00006C95  nop      dword ptr [rax]
+00006C99  nop      dword ptr [rax]
+00006CA0  vmovss   xmm0, dword ptr [rax + rbx*4]
+00006CA5  vmaxss   xmm0, xmm0, xmm3
+00006CA9  vmovss   dword ptr [rdx + rbx*4], xmm0
+00006CAE  inc      rbx
+00006CB1  cmp      rbx, r8
+00006CB4  jb       0x6ca0
+00006CB6  xor      eax, eax
+00006CB8  vzeroupper 
+00006CBB  pop      rbx
+00006CBC  ret      
+00006CBD  xor      ebx, ebx
+00006CBF  jmp      0x6b19
+00006CC4  xor      eax, eax
+00006CC6  jmp      0x6aab
+00006CCB  mov      eax, r8d
+00006CCE  xor      r9d, r9d
+00006CD1  and      eax, 0xfffffff0
+00006CD4  jmp      0x6a76
+00006CD9  xor      ebx, ebx
+00006CDB  jmp      0x6c79
+00006CDD  xor      eax, eax
+00006CDF  jmp      0x6c0b
+00006CE4  mov      eax, r8d
+00006CE7  xor      r9d, r9d
+00006CEA  and      eax, 0xfffffff0
+00006CED  jmp      0x6bd6
+00006CF2  mov      eax, 0xfffffffa
+00006CF7  pop      rbx
+00006CF8  ret      
+00006CF9  mov      eax, 0xfffffff8
+00006CFE  pop      rbx
+00006CFF  ret      

@@ -1,0 +1,33 @@
+0086BDD0  lea        rcx, [rcx + 0x80]
+0086BDD7  movups     xmm0, xmmword ptr [rax]
+0086BDDA  movups     xmm1, xmmword ptr [rax + 0x10]
+0086BDDE  lea        rax, [rax + 0x80]
+0086BDE5  movups     xmmword ptr [rcx - 0x80], xmm0
+0086BDE9  movups     xmm0, xmmword ptr [rax - 0x60]
+0086BDED  movups     xmmword ptr [rcx - 0x70], xmm1
+0086BDF1  movups     xmm1, xmmword ptr [rax - 0x50]
+0086BDF5  movups     xmmword ptr [rcx - 0x60], xmm0
+0086BDF9  movups     xmm0, xmmword ptr [rax - 0x40]
+0086BDFD  movups     xmmword ptr [rcx - 0x50], xmm1
+0086BE01  movups     xmm1, xmmword ptr [rax - 0x30]
+0086BE05  movups     xmmword ptr [rcx - 0x40], xmm0
+0086BE09  movups     xmm0, xmmword ptr [rax - 0x20]
+0086BE0D  movups     xmmword ptr [rcx - 0x30], xmm1
+0086BE11  movups     xmm1, xmmword ptr [rax - 0x10]
+0086BE15  movups     xmmword ptr [rcx - 0x20], xmm0
+0086BE19  movups     xmmword ptr [rcx - 0x10], xmm1
+0086BE1D  sub        r12, 1
+0086BE21  jne        0x86bdd0
+0086BE23  movups     xmm0, xmmword ptr [rax]
+0086BE26  mov        rax, qword ptr [rax + 0x10]
+0086BE2A  mov        rdx, r15
+0086BE2D  movups     xmmword ptr [rcx], xmm0
+0086BE30  mov        qword ptr [rcx + 0x10], rax
+0086BE34  lea        rax, [rbp + 0x780]
+0086BE3B  lea        rcx, [rbp + 0xb90]
+0086BE42  lea        rax, [rax + 0x80]
+0086BE49  movups     xmm0, xmmword ptr [rcx]
+0086BE4C  movups     xmm1, xmmword ptr [rcx + 0x10]
+0086BE50  lea        rcx, [rcx + 0x80]
+0086BE57  movups     xmmword ptr [rax - 0x80], xmm0
+0086BE5B  movups     xmm0, xmmword ptr [rcx - 0x60]

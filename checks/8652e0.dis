@@ -1,0 +1,50 @@
+008652E0  sub        edx, eax
+008652E2  add        rdx, 0x10
+008652E6  test       cl, 0xf
+008652E9  cmove      rdx, rcx
+008652ED  inc        r8
+008652F0  mov        dword ptr [rbp + 0x18], edx
+008652F3  cmp        r8, r11
+008652F6  jl         0x8652c0
+008652F8  movups     xmm1, xmmword ptr [rbx]
+008652FB  lea        rax, [rbp]
+008652FF  movaps     xmm0, xmmword ptr [rbp + 0x140]
+00865306  lea        rcx, [r15 + 0x258]
+0086530D  movaps     xmmword ptr [rbp + 0x1bf0], xmm1
+00865314  lea        r9, [rbp + 0x1bf0]
+0086531B  movups     xmm1, xmmword ptr [rbx + 0x20]
+0086531F  lea        r8, [rbp + 0x1c80]
+00865326  mov        qword ptr [rsp + 0x28], rax
+0086532B  movdqa     xmmword ptr [rbp + 0x920], xmm0
+00865333  lea        rax, [rbp + 0x920]
+0086533A  movups     xmm0, xmmword ptr [rbx + 0x10]
+0086533E  lea        rdx, [rbp + 0x1d10]
+00865345  mov        qword ptr [rsp + 0x20], rax
+0086534A  movaps     xmmword ptr [rbp + 0x1c10], xmm1
+00865351  movups     xmm1, xmmword ptr [rbx + 0x40]
+00865355  movaps     xmmword ptr [rbp + 0x1c00], xmm0
+0086535C  movups     xmm0, xmmword ptr [rbx + 0x30]
+00865360  movaps     xmmword ptr [rbp + 0x1c30], xmm1
+00865367  movups     xmm1, xmmword ptr [rbx + 0x60]
+0086536B  movaps     xmmword ptr [rbp + 0x1c20], xmm0
+00865372  movups     xmm0, xmmword ptr [rbx + 0x50]
+00865376  movaps     xmmword ptr [rbp + 0x1c50], xmm1
+0086537D  movups     xmm1, xmmword ptr [rbx + 0x80]
+00865384  movaps     xmmword ptr [rbp + 0x1c40], xmm0
+0086538B  movups     xmm0, xmmword ptr [rbx + 0x70]
+0086538F  movaps     xmmword ptr [rbp + 0x1c70], xmm1
+00865396  movaps     xmm1, xmmword ptr [rbp + 0x80]
+0086539D  movaps     xmmword ptr [rbp + 0x1c60], xmm0
+008653A4  movaps     xmm0, xmmword ptr [rbp + 0x70]
+008653A8  movaps     xmmword ptr [rbp + 0x1c90], xmm1
+008653AF  movaps     xmm1, xmmword ptr [rbp + 0xa0]
+008653B6  movaps     xmmword ptr [rbp + 0x1c80], xmm0
+008653BD  movaps     xmm0, xmmword ptr [rbp + 0x90]
+008653C4  movaps     xmmword ptr [rbp + 0x1cb0], xmm1
+008653CB  movaps     xmm1, xmmword ptr [rbp + 0xc0]
+008653D2  movaps     xmmword ptr [rbp + 0x1ca0], xmm0
+008653D9  movaps     xmm0, xmmword ptr [rbp + 0xb0]
+008653E0  movaps     xmmword ptr [rbp + 0x1cd0], xmm1
+008653E7  movaps     xmm1, xmmword ptr [rbp + 0xe0]
+008653EE  movaps     xmmword ptr [rbp + 0x1cc0], xmm0
+008653F5  movaps     xmm0, xmmword ptr [rbp + 0xd0]

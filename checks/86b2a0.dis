@@ -1,0 +1,27 @@
+0086B2A0  mov        qword ptr [rsp + 0x10], rdx
+0086B2A5  push       rbp
+0086B2A6  push       rdi
+0086B2A7  push       r14
+0086B2A9  lea        rbp, [rsp - 0x1c80]
+0086B2B1  mov        eax, 0x1d80
+0086B2B6  call       0x17978c0
+0086B2BB  sub        rsp, rax
+0086B2BE  cmp        qword ptr [rcx + 0x10], 1
+0086B2C3  mov        r14, r9
+0086B2C6  mov        rdi, rcx
+0086B2C9  jne        0x86b42e
+0086B2CF  movaps     xmm0, xmmword ptr [r9]
+0086B2D3  movaps     xmm1, xmmword ptr [r9 + 0x10]
+0086B2D8  mov        rax, qword ptr [rbp + 0x1cc8]
+0086B2DF  mov        rcx, qword ptr [rbp + 0x1cc0]
+0086B2E6  movaps     xmmword ptr [rbp + 0x780], xmm0
+0086B2ED  movaps     xmm0, xmmword ptr [r9 + 0x20]
+0086B2F2  movaps     xmmword ptr [rbp + 0x7a0], xmm0
+0086B2F9  movaps     xmm0, xmmword ptr [r9 + 0x40]
+0086B2FE  movaps     xmmword ptr [rbp + 0x790], xmm1
+0086B305  movaps     xmm1, xmmword ptr [r9 + 0x30]
+0086B30A  movaps     xmmword ptr [rbp + 0x7c0], xmm0
+0086B311  movaps     xmm0, xmmword ptr [r9 + 0x60]
+0086B316  movaps     xmmword ptr [rbp + 0x7b0], xmm1
+0086B31D  movaps     xmm1, xmmword ptr [r9 + 0x50]
+0086B322  movaps     xmmword ptr [rbp + 0x7e0], xmm0

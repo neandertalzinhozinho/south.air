@@ -1,0 +1,32 @@
+00862C00  push       rbx
+00862C01  mov        r12, 4
+00862C08  xor        r13, r13
+00862C0B  add        r13, 0xc38e
+00862C12  mov        r12, 0xc34f
+00862C19  xchg       r9, rax
+00862C1B  xor        r9, rax
+00862C1E  add        r9, 0x3a4db7f4
+00862C25  jmp        0x862c2f
+00862C27  sub        eax, dword ptr [rsp]
+00862C2A  add        eax, dword ptr [rsp - 8]
+00862C2E  ret        
+00862C2F  sub        r9, 0x3a4db7f4
+00862C36  xor        rax, r9
+00862C39  cmp        r9, 0x3bd5b042
+00862C40  xor        r9, rax
+00862C43  sub        r13, r12
+00862C46  add        r10, 0x1684af68
+00862C4D  cmp        r15, r9
+00862C50  cmp        r8, 0x2b321ccc
+00862C57  sub        r10, 0x1684af68
+00862C5E  lea        r12, [rip - 0x1d]  ; [0x862C48] f32=-4.1238507135653696e-36
+00862C65  add        r13, r12
+00862C68  sub        rsp, rcx
+00862C6B  neg        r14
+00862C6E  test       r8, 0x19ea79bb
+00862C75  neg        r14
+00862C78  jmp        r13
+00862C7B  pop        rbp
+00862C7C  jle        0x862cbd
+00862C7E  mov        esp, 0xa2ab22b2
+00862C83  imul       esp, ebx, 0x87496053

@@ -1,0 +1,126 @@
+# function 0x50E0..0x52C0  size=480
+000050E0  endbr64  
+000050E4  push     rsi
+000050E5  push     rdi
+000050E6  push     rbp
+000050E7  mov      rbp, rdx
+000050EA  test     rcx, rcx
+000050ED  je       0x52a1
+000050F3  test     rbp, rbp
+000050F6  je       0x52a1
+000050FC  test     r8, r8
+000050FF  je       0x52a1
+00005105  test     r9d, r9d
+00005108  jle      0x5298
+0000510E  cmp      r9d, 0x10
+00005112  jl       0x5284
+00005118  cmp      r9d, 0x1d
+0000511C  jl       0x528b
+00005122  mov      rsi, r8
+00005125  and      rsi, 0x1f
+00005129  mov      esi, esi
+0000512B  test     esi, esi
+0000512D  je       0x5143
+0000512F  test     esi, 3
+00005135  jne      0x5284
+0000513B  neg      esi
+0000513D  add      esi, 0x20
+00005140  shr      esi, 2
+00005143  lea      eax, [rsi + 0x10]
+00005146  cmp      r9d, eax
+00005149  jl       0x5284
+0000514F  mov      edx, r9d
+00005152  xor      eax, eax
+00005154  sub      edx, esi
+00005156  and      edx, 0xf
+00005159  neg      edx
+0000515B  add      edx, r9d
+0000515E  test     esi, esi
+00005160  jbe      0x5199
+00005162  nop      dword ptr [rax + rax]
+0000516A  nop      dword ptr [rax]
+00005171  nop      dword ptr [rax + rax]
+00005179  nop      dword ptr [rax]
+00005180  vmovss   xmm0, dword ptr [rbp + rax*4]
+00005186  vsubss   xmm1, xmm0, dword ptr [rcx + rax*4]
+0000518B  vmovss   dword ptr [r8 + rax*4], xmm1
+00005191  inc      rax
+00005194  cmp      rax, rsi
+00005197  jb       0x5180
+00005199  movsxd   rax, edx
+0000519C  nop      dword ptr [rax]
+000051A0  vmovups  ymm0, ymmword ptr [rbp + rsi*4]
+000051A6  vmovups  ymm2, ymmword ptr [rbp + rsi*4 + 0x20]
+000051AC  vsubps   ymm1, ymm0, ymmword ptr [rcx + rsi*4]
+000051B1  vsubps   ymm3, ymm2, ymmword ptr [rcx + rsi*4 + 0x20]
+000051B7  vmovups  ymmword ptr [r8 + rsi*4], ymm1
+000051BD  vmovups  ymmword ptr [r8 + rsi*4 + 0x20], ymm3
+000051C4  add      rsi, 0x10
+000051C8  cmp      rsi, rax
+000051CB  jb       0x51a0
+000051CD  lea      eax, [rdx + 1]
+000051D0  cmp      eax, r9d
+000051D3  ja       0x5277
+000051D9  movsxd   rdx, edx
+000051DC  movsxd   r9, r9d
+000051DF  sub      r9, rdx
+000051E2  cmp      r9, 4
+000051E6  jl       0x5280
+000051EC  mov      eax, r9d
+000051EF  xor      r11d, r11d
+000051F2  and      eax, 0xfffffffc
+000051F5  lea      r10, [r8 + rdx*4]
+000051F9  movsxd   rax, eax
+000051FC  lea      rdi, [rcx + rdx*4]
+00005200  lea      rsi, [rbp + rdx*4]
+00005205  nop      dword ptr [rax + rax]
+0000520D  nop      dword ptr [rax]
+00005214  nop      dword ptr [rax + rax]
+00005219  nop      dword ptr [rax]
+00005220  vmovups  xmm0, xmmword ptr [rsi + r11*4]
+00005226  vsubps   xmm1, xmm0, xmmword ptr [rdi + r11*4]
+0000522C  vmovups  xmmword ptr [r10 + r11*4], xmm1
+00005232  add      r11, 4
+00005236  cmp      r11, rax
+00005239  jb       0x5220
+0000523B  cmp      rax, r9
+0000523E  jae      0x5277
+00005240  lea      rsi, [r8 + rdx*4]
+00005244  lea      rcx, [rcx + rdx*4]
+00005248  lea      rdx, [rbp + rdx*4]
+0000524D  nop      dword ptr [rax + rax]
+00005255  nop      dword ptr [rax]
+0000525C  nop      dword ptr [rax]
+00005260  vmovss   xmm0, dword ptr [rdx + rax*4]
+00005265  vsubss   xmm1, xmm0, dword ptr [rcx + rax*4]
+0000526A  vmovss   dword ptr [rsi + rax*4], xmm1
+0000526F  inc      rax
+00005272  cmp      rax, r9
+00005275  jb       0x5260
+00005277  xor      eax, eax
+00005279  vzeroupper 
+0000527C  pop      rbp
+0000527D  pop      rdi
+0000527E  pop      rsi
+0000527F  ret      
+00005280  xor      eax, eax
+00005282  jmp      0x523b
+00005284  xor      edx, edx
+00005286  jmp      0x51cd
+0000528B  mov      edx, r9d
+0000528E  xor      esi, esi
+00005290  and      edx, 0xfffffff0
+00005293  jmp      0x5199
+00005298  mov      eax, 0xfffffffa
+0000529D  pop      rbp
+0000529E  pop      rdi
+0000529F  pop      rsi
+000052A0  ret      
+000052A1  mov      eax, 0xfffffff8
+000052A6  pop      rbp
+000052A7  pop      rdi
+000052A8  pop      rsi
+000052A9  ret      
+000052AA  nop      dword ptr [rax + rax]
+000052B2  nop      dword ptr [rax]
+000052B9  nop      dword ptr [rax]

@@ -1,0 +1,25 @@
+imagebase=0x180000000 hexrays=True
+func=True start=0x1808c3c20 end=0x1808c3df1
+first byte=0x48 disasm_before='mov     [rsp+arg_8], rsi'
+plan_and_wait=1 secs=0.0
+disasm_after='mov     [rsp+arg_8], rsi'
+chars=2418
+void __fastcall sub_1808C3C20(__int64 a1)
+{
+  __int64 v1; // rsi
+  __int64 v2; // r11
+  __int64 v3; // r10
+  __int64 v5; // rbx
+  float *v6; // rdx
+  __int64 v7; // rax
+  float v8; // xmm2_4
+  float *v9; // rcx
+  unsigned __int64 v10; // r8
+  float v11; // xmm2_4
+  float v12; // xmm0_4
+  float v13; // xmm1_4
+  float v14; // xmm2_4
+  float v15; // xmm1_4
+  float v16; // xmm2_4
+  __int64 v17; // rcx
+DONE

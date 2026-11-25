@@ -1,0 +1,20 @@
+[package]
+name = "soultree_host"
+version = "0.1.0"
+edition = "2021"
+description = "Host VST3 somente leitura para o oracle da etapa I (soothe3)"
+publish = false
+
+# Sem dependencias externas: apenas std + FFI crua (kernel32 + vtables COM/VST3).
+[dependencies]
+
+[[bin]]
+name = "host"
+path = "src/main.rs"
+
+[[bin]]
+name = "gen_sine"
+path = "src/bin/gen_sine.rs"
+
+[profile.release]
+panic = "abort"

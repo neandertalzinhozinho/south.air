@@ -1,0 +1,34 @@
+﻿# function 0x86AD70..0x86ADF7  size=135
+0086AD70  mov      qword ptr [rsp + 0x10], rbx
+0086AD75  mov      qword ptr [rsp + 0x18], rbp
+0086AD7A  push     rdi
+0086AD7B  sub      rsp, 0x20
+0086AD7F  xor      ebp, ebp
+0086AD81  mov      rbx, rcx
+0086AD84  mov      edi, ebp
+0086AD86  cmp      dword ptr [rcx + 0x8c], ebp
+0086AD8C  jle      0x86ade0
+0086AD8E  mov      qword ptr [rsp + 0x30], rsi
+0086AD93  mov      rsi, rcx
+0086AD96  nop      word ptr [rax + rax]
+0086ADA0  mov      edx, dword ptr [rbx + 0x88]
+0086ADA6  mov      rcx, qword ptr [rsi]
+0086ADA9  call     0x10d0
+0086ADAE  inc      edi
+0086ADB0  lea      rsi, [rsi + 8]
+0086ADB4  cmp      edi, dword ptr [rbx + 0x8c]
+0086ADBA  jl       0x86ada0
+0086ADBC  mov      rsi, qword ptr [rsp + 0x30]
+0086ADC1  mov      qword ptr [rbx + 0x80], rbp
+0086ADC8  mov      rbx, qword ptr [rsp + 0x38]
+0086ADCD  mov      rbp, qword ptr [rsp + 0x40]
+0086ADD2  add      rsp, 0x20
+0086ADD6  pop      rdi
+0086ADD7  ret      
+0086ADD8  nop      dword ptr [rax + rax]
+0086ADE0  mov      rbx, qword ptr [rsp + 0x38]
+0086ADE5  mov      qword ptr [rcx + 0x80], rbp
+0086ADEC  mov      rbp, qword ptr [rsp + 0x40]
+0086ADF1  add      rsp, 0x20
+0086ADF5  pop      rdi
+0086ADF6  ret      

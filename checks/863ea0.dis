@@ -1,0 +1,36 @@
+00863EA0  add        byte ptr [rax], al
+00863EA2  mov        r15d, edi
+00863EA5  mov        dword ptr [rsi + 0x88], r14d
+00863EAC  test       ebx, ebx
+00863EAE  jle        0x863f0f
+00863EB0  lea        r12, [rsi + 0x88]
+00863EB7  lea        rbx, [rsi + 0x8c]
+00863EBE  nop        
+00863EC0  movsxd     rcx, dword ptr [r12]
+00863EC4  shl        rcx, 2
+00863EC8  test       rcx, rcx
+00863ECB  je         0x863efd
+00863ECD  add        rcx, 3
+00863ED1  and        rcx, 0xfffffffffffffffc
+00863ED5  add        rcx, 0x40
+00863ED9  call       qword ptr [rip + 0x1529851]  ; [0x1D8D730] f32=-1.4703392415691857e+24
+00863EDF  mov        r8, rax
+00863EE2  test       rax, rax
+00863EE5  je         0x863efd
+00863EE7  lea        rdx, [rax + 0x40]
+00863EEB  and        rdx, 0xffffffffffffffc0
+00863EEF  lea        rcx, [rdx - 1]
+00863EF3  movzx      eax, cl
+00863EF6  sub        al, r8b
+00863EF9  mov        byte ptr [rcx], al
+00863EFB  jmp        0x863f00
+00863EFD  mov        rdx, rdi
+00863F00  mov        qword ptr [rsi], rdx
+00863F03  inc        r15d
+00863F06  add        rsi, 8
+00863F0A  cmp        r15d, dword ptr [rbx]
+00863F0D  jl         0x863ec0
+00863F0F  add        r13, 8
+00863F13  lea        rax, [rbp - 0x38]
+00863F17  cmp        r13, rax
+00863F1A  jne        0x863e80

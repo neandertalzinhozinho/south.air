@@ -1,0 +1,102 @@
+﻿# function 0x6CE80..0x6D029  size=425
+0006CE80  endbr64  
+0006CE84  push     rbp
+0006CE85  sub      rsp, 0x30
+0006CE89  mov      rax, r8
+0006CE8C  and      rax, 0x3c
+0006CE90  test     eax, eax
+0006CE92  je       0x6cf29
+0006CE98  shr      eax, 2
+0006CE9B  neg      eax
+0006CE9D  add      eax, 0x10
+0006CEA0  cmp      eax, r9d
+0006CEA3  cmovge   eax, r9d
+0006CEA7  sub      r9d, eax
+0006CEAA  cmp      eax, 8
+0006CEAD  jl       0x6ced0
+0006CEAF  vmovups  ymm1, ymmword ptr [rcx]
+0006CEB3  add      rcx, 0x20
+0006CEB7  vmovups  ymm0, ymmword ptr [rdx]
+0006CEBB  vfmadd213ps ymm1, ymm0, ymmword ptr [r8]
+0006CEC0  add      rdx, 0x20
+0006CEC4  vmovups  ymmword ptr [r8], ymm1
+0006CEC9  add      r8, 0x20
+0006CECD  add      eax, -8
+0006CED0  test     eax, eax
+0006CED2  je       0x6cf29
+0006CED4  mov      r10d, eax
+0006CED7  neg      r10d
+0006CEDA  vmovdqu  xmm1, xmmword ptr [rip + 0x1d8d16e]   ; 0x1DFA050 [.rdata]
+0006CEE2  movsxd   rax, eax
+0006CEE5  lea      ebp, [r10 + 8]
+0006CEE9  add      r10d, 0xc
+0006CEED  vmovd    xmm2, ebp
+0006CEF1  vmovd    xmm0, r10d
+0006CEF6  vpsllw   xmm4, xmm1, xmm0
+0006CEFA  vpsllw   xmm3, xmm1, xmm2
+0006CEFE  vperm2f128 ymm1, ymm3, ymm4, 0x20
+0006CF04  vmaskmovps ymm2, ymm1, ymmword ptr [rcx]
+0006CF09  lea      rcx, [rcx + rax*4]
+0006CF0D  vmaskmovps ymm5, ymm1, ymmword ptr [rdx]
+0006CF12  lea      rdx, [rdx + rax*4]
+0006CF16  vmaskmovps ymm0, ymm1, ymmword ptr [r8]
+0006CF1B  vfmadd213ps ymm2, ymm5, ymm0
+0006CF20  vmaskmovps ymmword ptr [r8], ymm1, ymm2
+0006CF25  lea      r8, [r8 + rax*4]
+0006CF29  mov      rax, rcx
+0006CF2C  mov      ebp, dword ptr [rsp + 0x60]
+0006CF30  or       rax, rdx
+0006CF33  or       ebp, dword ptr [rsp + 0x70]
+0006CF37  test     rax, 0x1f
+0006CF3D  jne      0x6d0b0
+0006CF43  test     ebp, ebp
+0006CF45  jne      0x6d014
+0006CF4B  mov      eax, r9d
+0006CF4E  xor      ebp, ebp
+0006CF50  sar      r9d, 5
+0006CF54  and      eax, 0x1f
+0006CF57  test     r9d, r9d
+0006CF5A  jle      0x6cfd0
+0006CF60  vmovups  ymm3, ymmword ptr [rcx]
+0006CF64  inc      ebp
+0006CF66  vmovups  ymm1, ymmword ptr [rcx + 0x20]
+0006CF6B  vmovups  ymm0, ymmword ptr [rdx]
+0006CF6F  vmovups  ymm5, ymmword ptr [rdx + 0x20]
+0006CF74  vmovups  ymm4, ymmword ptr [rcx + 0x40]
+0006CF79  vmovups  ymm2, ymmword ptr [rcx + 0x60]
+0006CF7E  vfmadd213ps ymm3, ymm0, ymmword ptr [r8]
+0006CF83  vfmadd213ps ymm1, ymm5, ymmword ptr [r8 + 0x20]
+0006CF89  vmovups  ymm0, ymmword ptr [rdx + 0x40]
+0006CF8E  vmovups  ymm5, ymmword ptr [rdx + 0x60]
+0006CF93  vmovups  ymmword ptr [r8], ymm3
+0006CF98  vmovups  ymmword ptr [r8 + 0x20], ymm1
+0006CF9E  vfmadd213ps ymm4, ymm0, ymmword ptr [r8 + 0x40]
+0006CFA4  vfmadd213ps ymm2, ymm5, ymmword ptr [r8 + 0x60]
+0006CFAA  vmovups  ymmword ptr [r8 + 0x40], ymm4
+0006CFB0  vmovups  ymmword ptr [r8 + 0x60], ymm2
+0006CFB6  add      rcx, 0x80
+0006CFBD  add      rdx, 0x80
+0006CFC4  add      r8, 0x80
+0006CFCB  cmp      ebp, r9d
+0006CFCE  jl       0x6cf60
+0006CFD0  test     al, 0x10
+0006CFD2  je       0x6d2e8
+0006CFD8  vmovups  ymm2, ymmword ptr [rcx]
+0006CFDC  add      eax, -0x10
+0006CFDF  vmovups  ymm3, ymmword ptr [rcx + 0x20]
+0006CFE4  vmovups  ymm0, ymmword ptr [rdx]
+0006CFE8  vmovups  ymm1, ymmword ptr [rdx + 0x20]
+0006CFED  vfmadd213ps ymm2, ymm0, ymmword ptr [r8]
+0006CFF2  vfmadd213ps ymm3, ymm1, ymmword ptr [r8 + 0x20]
+0006CFF8  vmovups  ymmword ptr [r8], ymm2
+0006CFFD  vmovups  ymmword ptr [r8 + 0x20], ymm3
+0006D003  add      rcx, 0x40
+0006D007  add      rdx, 0x40
+0006D00B  add      r8, 0x40
+0006D00F  jmp      0x6d2e8
+0006D014  mov      eax, r9d
+0006D017  xor      ebp, ebp
+0006D019  sar      r9d, 4
+0006D01D  and      eax, 0xf
+0006D020  test     r9d, r9d
+0006D023  jle      0x6d2e8

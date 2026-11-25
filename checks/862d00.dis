@@ -1,0 +1,42 @@
+00862D00  scasd      eax, dword ptr [rdi]
+00862D01  test       eax, 0xc7480042
+00862D06  ret        0xe037
+00862D09  or         eax, dword ptr [rax]
+00862D0B  not        r10
+00862D0E  inc        r10
+00862D11  add        r10, r11
+00862D14  sub        r11, r10
+00862D17  cmp        r11, 0x33aed27c
+00862D1E  not        r11
+00862D21  add        r11, 1
+00862D25  jmp        0x862d2b
+00862D27  add        ah, byte ptr [rsp]
+00862D2A  ret        
+00862D2B  sub        r10, r11
+00862D2E  xor        r10, r11
+00862D31  jmp        0x862d3b
+00862D33  sub        eax, dword ptr [rsp]
+00862D36  add        eax, dword ptr [rsp - 8]
+00862D3A  ret        
+00862D3B  xor        r11, r10
+00862D3E  xor        r10, r11
+00862D41  xor        r10, 0xffffffffffffffff
+00862D45  lea        r10, [r10 + 1]
+00862D49  add        r9, rdx
+00862D4C  cmp        r14, 0x2478ad5e
+00862D53  test       r13, 0x4e68ba8a
+00862D5A  test       r15, r13
+00862D5D  lea        rdx, [rip - 0x2a]  ; [0x862D3A] f32=-1.2617380186292224e+16
+00862D64  add        r9, rdx
+00862D67  xor        r10, r11
+00862D6A  test       r11, 0x7cd8508e
+00862D71  xor        r11, r10
+00862D74  jmp        0x862d7a
+00862D76  sub        al, byte ptr [rsp]
+00862D79  ret        
+00862D7A  xor        r10, r11
+00862D7D  xor        r10, r11
+00862D80  xor        r11, r10
+00862D83  xor        r10, r11
+00862D86  sub        rsp, rcx
+00862D89  jmp        r9

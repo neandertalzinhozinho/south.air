@@ -1,0 +1,30 @@
+# Binarios de terceiros (soothe3) e dumps: nunca versionar
+/dumpsooth/
+/original/
+/archive/agent2/oracle_bundle_1.0.5/
+*.dll
+*.vst3
+*.vst3/
+*.bin
+*.bits
+*.i64
+*.idb
+*.exe
+*.pdb
+
+# Registros de sessao (podem conter dados sensiveis)
+/resonia/_fontes_recuperacao/
+*.jsonl
+*.sqlite
+
+# Segredos
+.env
+.env.*
+*.pem
+*.key
+
+# Gerados
+target/
+/checks/.build/
+__pycache__/
+*.pyc

@@ -1,0 +1,144 @@
+﻿
+### .rdata: 533 runs
+  run 83 @ 0x201560C
+           0 pad=463633904 idx=   0 pad=   1 type=  1 pad=0
+           0 pad=463634000 idx=   0 pad=   2 type=  1 pad=0
+           0 pad=463634384 idx=   0 pad=   2 type=  1 pad=0
+           0 pad=463634360 idx=   0 pad=   2 type=  1 pad=0
+           0 pad=463634344 idx=   0 pad=   2 type=  1 pad=0
+           0 pad=463634448 idx=   0 pad=   1 type=  1 pad=0
+           0 pad=463634016 idx=   0 pad=   1 type=  1 pad=0
+           0 pad=463634040 idx=   0 pad=   1 type=  1 pad=0
+  run 44 @ 0x1F74B64
+           2 pad=35054848 idx=  32 pad=   0 type=  1 pad=429065506
+           4 pad=35054900 idx=   0 pad=   0 type=  6 pad=35054936
+         128 pad=       0 idx=   1 pad=429065506 type=  2 pad=34972672
+           1 pad=35055004 idx=   2 pad=35055048 type= 32 pad=0
+           1 pad=429065506 idx=   2 pad=34972672 type=  1 pad=35055100
+           2 pad=35055144 idx=  32 pad=   0 type=  1 pad=429065506
+           2 pad=34972672 idx=   1 pad=35055196 type=  2 pad=35055240
+          32 pad=       0 idx=   1 pad=429065506 type=  2 pad=34972672
+  run 43 @ 0x207A934
+           2 pad=       3 idx=   1 pad=   0 type=  4 pad=0
+           2 pad=       2 idx=   2 pad=   2 type=  2 pad=0
+           1 pad=       2 idx=   3 pad=   3 type=  3 pad=3
+           3 pad=       0 idx=   1 pad=   3 type=  4 pad=1
+           2 pad=       3 idx=   4 pad=   4 type=  4 pad=4
+           4 pad=       8 idx=   8 pad=   4 type=  4 pad=8
+           8 pad=       8 idx=   4 pad=   1 type=  2 pad=3
+           5 pad=       0 idx=   2 pad=   4 type=  5 pad=1
+  run 27 @ 0x1DF4674
+           0 pad=       0 idx=   0 pad=   0 type=  1 pad=2
+           3 pad=       4 idx=   5 pad=   6 type=  7 pad=8
+           9 pad=      10 idx=  11 pad=  12 type= 13 pad=14
+          15 pad=      16 idx=  16 pad=  16 type= 16 pad=16
+          16 pad=      16 idx=  16 pad=  16 type= 16 pad=16
+          16 pad=      16 idx=  16 pad=  16 type= 16 pad=0
+           1 pad=       2 idx=   3 pad=   4 type=  5 pad=6
+           7 pad=       8 idx=   9 pad=  10 type= 11 pad=12
+  run 25 @ 0x1F8EBE4
+          38 pad=       2 idx=   0 pad=1664250723 type= 38 pad=1
+           0 pad=1667329140 idx=  36 pad=   0 type=  1 pad=1667330917
+          33 pad=       0 idx=   1 pad=1668049255 type=  1 pad=18
+          19 pad=1668313968 idx=  33 pad=   2 type=  3 pad=1668511592
+          36 pad=       4 idx=   5 pad=1684826471 type=  1 pad=4
+           5 pad=1702391924 idx=  20 pad=  10 type= 16 pad=1718772067
+          11 pad=       2 idx=   0 pad=1719101796 type= 22 pad=1
+           7 pad=1751215220 idx=  22 pad=   6 type=  7 pad=1751741300
+  run 22 @ 0x1DF3F74
+           0 pad=       0 idx=   0 pad=   0 type=  1 pad=2
+           3 pad=       4 idx=   5 pad=   6 type=  7 pad=8
+           9 pad=      10 idx=  11 pad=  12 type= 13 pad=14
+          15 pad=      16 idx=  16 pad=  16 type= 16 pad=16
+          16 pad=      16 idx=  16 pad=  16 type= 16 pad=16
+          16 pad=      16 idx=  16 pad=  16 type= 16 pad=0
+           1 pad=       2 idx=   3 pad=   4 type=  5 pad=6
+           7 pad=       8 idx=   9 pad=  10 type= 11 pad=12
+  run 18 @ 0x1E10140
+           0 pad=       0 idx=   1 pad=   0 type=  2 pad=0
+           3 pad=       0 idx=   4 pad=   0 type=  5 pad=0
+           6 pad=       0 idx=   7 pad=   0 type=  8 pad=0
+           9 pad=       0 idx=  10 pad=   0 type= 11 pad=0
+          12 pad=       0 idx=  13 pad=   0 type= 14 pad=0
+          15 pad=       0 idx=   0 pad=   2 type=  4 pad=6
+           8 pad=      10 idx=  12 pad=  14 type= 16 pad=18
+          20 pad=      22 idx=  24 pad=  26 type= 28 pad=30
+  run 16 @ 0x1E115C0
+           0 pad=       2 idx=   4 pad=   6 type=  8 pad=10
+          12 pad=      14 idx=  16 pad=  18 type= 20 pad=22
+          24 pad=      26 idx=  28 pad=  30 type=  1 pad=3
+           5 pad=       7 idx=   9 pad=  11 type= 13 pad=15
+          17 pad=      19 idx=  21 pad=  23 type= 25 pad=27
+          29 pad=      31 idx=   0 pad=  16 type=  1 pad=17
+           2 pad=      18 idx=   3 pad=  19 type=  4 pad=20
+           5 pad=      21 idx=   6 pad=  22 type=  7 pad=23
+
+### .data: 59 runs
+  run 51 @ 0x274C5C8
+           0 pad=       0 idx=   0 pad=   0 type=  1 pad=2
+           3 pad=       5 idx=   6 pad=   0 type=  1 pad=2
+           3 pad=       5 idx=   6 pad=   7 type=  8 pad=10
+          11 pad=      13 idx=  15 pad=  16 type= 18 pad=0
+           1 pad=       2 idx=   3 pad=   4 type=  5 pad=6
+           7 pad=       8 idx=   1 pad=   2 type=  3 pad=5
+           6 pad=      13 idx=  15 pad=  16 type= 18 pad=0
+           1 pad=       2 idx=   3 pad=   4 type= 20 pad=21
+  run 32 @ 0x23923D4
+           0 pad=       0 idx=   0 pad=   2 type=  2 pad=2
+           2 pad=       2 idx=   1 pad=   1 type=  1 pad=1
+           1 pad=       1 idx=   0 pad=   3 type=  3 pad=3
+           3 pad=       3 idx=   2 pad=   3 type=  3 pad=1
+           4 pad=       4 idx=   4 pad=   4 type=  4 pad=2
+           4 pad=       4 idx=   1 pad=   5 type=  5 pad=5
+           5 pad=       5 idx=   2 pad=   5 type=  5 pad=1
+           6 pad=       6 idx=   6 pad=   6 type=  6 pad=2
+  run 9 @ 0x2753688
+          21 pad=       0 idx=   2 pad=   0 type= 22 pad=0
+           2 pad=       0 idx=  23 pad=   0 type=  2 pad=0
+           0 pad=       0 idx=   1 pad=   0 type=  3 pad=0
+           2 pad=       0 idx=   3 pad=   0 type=  3 pad=0
+           3 pad=       0 idx=   4 pad=   0 type=  3 pad=0
+           5 pad=       0 idx=   1 pad=   0 type=  6 pad=0
+           2 pad=       0 idx=   7 pad=   0 type=  2 pad=0
+           8 pad=       0 idx=   2 pad=   0 type=  9 pad=0
+  run 8 @ 0x21C8C3C
+           0 pad=462303304 idx=   0 pad=   1 type=  2 pad=462303352
+           0 pad=462303408 idx=   0 pad=   0 type=  1 pad=2
+           3 pad=       4 idx=   5 pad=   6 type=  7 pad=8
+           9 pad=      10 idx=  11 pad=  12 type= 13 pad=14
+          15 pad=      16 idx=  17 pad=  18 type= 19 pad=20
+          21 pad=      22 idx=  23 pad=  24 type= 25 pad=26
+          27 pad=      28 idx=  29 pad=  30 type= 31 pad=32
+          33 pad=      34 idx=  35 pad=  36 type= 37 pad=38
+  run 7 @ 0x26C2524
+           0 pad=       0 idx=   0 pad=   0 type=  1 pad=2
+           3 pad=       4 idx=   5 pad=   6 type=  7 pad=8
+           9 pad=      10 idx=  11 pad=  12 type= 13 pad=14
+          15 pad=      16 idx=  17 pad=  18 type= 19 pad=20
+          21 pad=      22 idx=  23 pad=  24 type= 25 pad=26
+          27 pad=      28 idx=  29 pad=  30 type= 31 pad=32
+          33 pad=      34 idx=  35 pad=  36 type= 37 pad=38
+  run 7 @ 0x262277C
+           0 pad=       0 idx=   0 pad=   0 type=  1 pad=2
+           3 pad=       4 idx=   5 pad=   6 type=  7 pad=8
+           9 pad=      10 idx=  11 pad=  12 type= 13 pad=14
+          15 pad=      16 idx=  17 pad=  18 type= 19 pad=20
+          21 pad=      22 idx=  23 pad=  24 type= 25 pad=26
+          27 pad=      28 idx=  29 pad=  30 type= 31 pad=32
+          33 pad=      34 idx=  35 pad=  36 type= 37 pad=38
+  run 7 @ 0x258FF7C
+           0 pad=       0 idx=   0 pad=   0 type=  1 pad=2
+           3 pad=       4 idx=   5 pad=   6 type=  7 pad=8
+           9 pad=      10 idx=  11 pad=  12 type= 13 pad=14
+          15 pad=      16 idx=  17 pad=  18 type= 19 pad=20
+          21 pad=      22 idx=  23 pad=  24 type= 25 pad=26
+          27 pad=      28 idx=  29 pad=  30 type= 31 pad=32
+          33 pad=      34 idx=  35 pad=  36 type= 37 pad=38
+  run 7 @ 0x24FD7DC
+           0 pad=       0 idx=   0 pad=   0 type=  1 pad=2
+           3 pad=       4 idx=   5 pad=   6 type=  7 pad=8
+           9 pad=      10 idx=  11 pad=  12 type= 13 pad=14
+          15 pad=      16 idx=  17 pad=  18 type= 19 pad=20
+          21 pad=      22 idx=  23 pad=  24 type= 25 pad=26
+          27 pad=      28 idx=  29 pad=  30 type= 31 pad=32
+          33 pad=      34 idx=  35 pad=  36 type= 37 pad=38

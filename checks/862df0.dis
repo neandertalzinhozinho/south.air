@@ -1,0 +1,8 @@
+00862DF0  xchg       esp, eax
+00862DF1  and        al, 0xf8
+00862DF3  add        byte ptr [rax], al
+00862DF5  add        byte ptr [rdi], cl
+00862DF7  sub        dh, dl
+00862DF9  mov        rcx, qword ptr [rsp + 0xe0]
+00862E01  call       0x862e40
+00862E06  mov        rbx, qword ptr [rsp + 0xe8]

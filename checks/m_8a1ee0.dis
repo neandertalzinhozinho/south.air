@@ -1,0 +1,61 @@
+# function 0x8A1EE0..0x8A1FEE  size=270
+008A1EE0  sub      rsp, 0x858
+008A1EE7  mov      r10d, 8
+008A1EED  lea      r9, [rsp + 0x30]
+008A1EF2  mov      r11d, r10d
+008A1EF5  mov      rax, rcx
+008A1EF8  nop      dword ptr [rax + rax]
+008A1F00  lea      r9, [r9 + 0x80]
+008A1F07  movups   xmm0, xmmword ptr [rax]
+008A1F0A  movups   xmm1, xmmword ptr [rax + 0x10]
+008A1F0E  lea      rax, [rax + 0x80]
+008A1F15  movups   xmmword ptr [r9 - 0x80], xmm0
+008A1F1A  movups   xmm0, xmmword ptr [rax - 0x60]
+008A1F1E  movups   xmmword ptr [r9 - 0x70], xmm1
+008A1F23  movups   xmm1, xmmword ptr [rax - 0x50]
+008A1F27  movups   xmmword ptr [r9 - 0x60], xmm0
+008A1F2C  movups   xmm0, xmmword ptr [rax - 0x40]
+008A1F30  movups   xmmword ptr [r9 - 0x50], xmm1
+008A1F35  movups   xmm1, xmmword ptr [rax - 0x30]
+008A1F39  movups   xmmword ptr [r9 - 0x40], xmm0
+008A1F3E  movups   xmm0, xmmword ptr [rax - 0x20]
+008A1F42  movups   xmmword ptr [r9 - 0x30], xmm1
+008A1F47  movups   xmm1, xmmword ptr [rax - 0x10]
+008A1F4B  movups   xmmword ptr [r9 - 0x20], xmm0
+008A1F50  movups   xmmword ptr [r9 - 0x10], xmm1
+008A1F55  sub      r11, 1
+008A1F59  jne      0x8a1f00
+008A1F5B  movups   xmm0, xmmword ptr [rax]
+008A1F5E  lea      rax, [rsp + 0x440]
+008A1F66  movups   xmmword ptr [r9], xmm0
+008A1F6A  nop      word ptr [rax + rax]
+008A1F70  lea      rax, [rax + 0x80]
+008A1F77  movups   xmm0, xmmword ptr [rcx]
+008A1F7A  movups   xmm1, xmmword ptr [rcx + 0x10]
+008A1F7E  lea      rcx, [rcx + 0x80]
+008A1F85  movups   xmmword ptr [rax - 0x80], xmm0
+008A1F89  movups   xmm0, xmmword ptr [rcx - 0x60]
+008A1F8D  movups   xmmword ptr [rax - 0x70], xmm1
+008A1F91  movups   xmm1, xmmword ptr [rcx - 0x50]
+008A1F95  movups   xmmword ptr [rax - 0x60], xmm0
+008A1F99  movups   xmm0, xmmword ptr [rcx - 0x40]
+008A1F9D  movups   xmmword ptr [rax - 0x50], xmm1
+008A1FA1  movups   xmm1, xmmword ptr [rcx - 0x30]
+008A1FA5  movups   xmmword ptr [rax - 0x40], xmm0
+008A1FA9  movups   xmm0, xmmword ptr [rcx - 0x20]
+008A1FAD  movups   xmmword ptr [rax - 0x30], xmm1
+008A1FB1  movups   xmm1, xmmword ptr [rcx - 0x10]
+008A1FB5  movups   xmmword ptr [rax - 0x20], xmm0
+008A1FB9  movups   xmmword ptr [rax - 0x10], xmm1
+008A1FBD  sub      r10, 1
+008A1FC1  jne      0x8a1f70
+008A1FC3  movups   xmm0, xmmword ptr [rcx]
+008A1FC6  mov      r9, r8
+008A1FC9  mov      byte ptr [rsp + 0x20], r10b
+008A1FCE  mov      r8, rdx
+008A1FD1  lea      rcx, [rsp + 0x440]
+008A1FD9  lea      rdx, [rsp + 0x30]
+008A1FDE  movups   xmmword ptr [rax], xmm0
+008A1FE1  call     0x8b35a0
+008A1FE6  add      rsp, 0x858
+008A1FED  ret      

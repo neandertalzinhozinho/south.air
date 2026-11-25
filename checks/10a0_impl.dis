@@ -1,0 +1,11 @@
+﻿# function 0x2C80..0x2CAC  size=44
+00002C80  endbr64  
+00002C84  sub      rsp, 0x38
+00002C88  test     rcx, rcx
+00002C8B  je       0x2d35
+00002C91  test     rdx, rdx
+00002C94  je       0x2d35
+00002C9A  test     r8d, r8d
+00002C9D  jle      0x2d3f
+00002CA3  cmp      r8d, 0x1fffffff
+00002CAA  jle      0x2d25

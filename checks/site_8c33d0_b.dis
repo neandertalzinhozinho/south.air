@@ -1,0 +1,39 @@
+# 0x8C8790 is not a .pdata start; using next start 0x8CA362
+# function 0x8C8790..0x8C8830  size=160
+008C8790  and      al, 0x20
+008C8792  movups   xmm1, xmmword ptr [rbp + 0x10]
+008C8796  lea      rcx, [rsp + 0x50]
+008C879B  movups   xmmword ptr [rax], xmm0
+008C879E  movups   xmm0, xmmword ptr [rbp + 0x20]
+008C87A2  movaps   xmmword ptr [rsp + 0x50], xmm1
+008C87A7  movaps   xmm3, xmm2
+008C87AA  movups   xmm1, xmmword ptr [rbp + 0x30]
+008C87AE  movaps   xmmword ptr [rsp + 0x60], xmm0
+008C87B3  movups   xmm0, xmmword ptr [rbp + 0x40]
+008C87B7  movaps   xmmword ptr [rsp + 0x70], xmm1
+008C87BC  movups   xmm1, xmmword ptr [rbp + 0x50]
+008C87C0  movaps   xmmword ptr [rbp - 0x80], xmm0
+008C87C4  movups   xmm0, xmmword ptr [rbp + 0x60]
+008C87C8  movaps   xmmword ptr [rbp - 0x70], xmm1
+008C87CC  movups   xmm1, xmmword ptr [rbp + 0x70]
+008C87D0  movaps   xmmword ptr [rbp - 0x60], xmm0
+008C87D4  movups   xmm0, xmmword ptr [rbp + 0x80]
+008C87DB  movaps   xmmword ptr [rbp - 0x50], xmm1
+008C87DF  movups   xmm1, xmmword ptr [rbp + 0x90]
+008C87E6  movaps   xmmword ptr [rbp - 0x40], xmm0
+008C87EA  movaps   xmmword ptr [rbp - 0x30], xmm1
+008C87EE  call     0x8c33d0
+008C87F3  mov      ebx, dword ptr [r13 + 0xbb8]
+008C87FA  lea      r8, [r13 + 0xb38]
+008C8801  mov      eax, dword ptr [r12 + 0x18]
+008C8806  mov      edx, r15d
+008C8809  mov      esi, dword ptr [r8 + 0x88]
+008C8810  mov      dword ptr [rsp + 0x38], eax
+008C8814  mov      dword ptr [rbp - 0x30], ebx
+008C8817  mov      dword ptr [rbp - 0x2c], esi
+008C881A  test     ebx, ebx
+008C881C  jle      0x8c8847
+008C881E  lea      rax, [rsp + 0x50]
+008C8823  sub      r8, rax
+008C8826  lea      rcx, [rsp + 0x50]
+008C882B  nop      dword ptr [rax + rax]

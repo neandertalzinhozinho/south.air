@@ -1,0 +1,21 @@
+01796CF4  push       rbx
+01796CF6  sub        rsp, 0x20
+01796CFA  mov        rbx, rcx
+01796CFD  jmp        0x1796d0e
+01796CFF  mov        rcx, rbx
+01796D02  call       0x1798f90
+01796D07  test       eax, eax
+01796D09  je         0x1796d1e
+01796D0B  mov        rcx, rbx
+01796D0E  call       0x1798f66
+01796D13  test       rax, rax
+01796D16  je         0x1796cff
+01796D18  add        rsp, 0x20
+01796D1C  pop        rbx
+01796D1D  ret        
+01796D1E  cmp        rbx, -1
+01796D22  je         0x1796d2a
+01796D24  call       0x1797910
+01796D29  int3       
+01796D2A  call       0x314fe0
+01796D2F  int3       

@@ -1,0 +1,65 @@
+008636A0  push       rsp
+008636A1  mov        qword ptr [r14 + 0x4c], rdi
+008636A5  call       0x864070
+008636AA  cvttss2si  r12d, dword ptr [rbp + 0x218]
+008636B3  xor        eax, eax
+008636B5  mov        byte ptr [r14 + 0x234], dil
+008636BC  mov        word ptr [r14 + 0x235], ax
+008636C4  lea        rbx, [r14 + 0x238]
+008636CB  mov        byte ptr [r14 + 0x237], al
+008636D2  mov        eax, dword ptr [r14 + 0x2c]
+008636D6  mov        qword ptr [rbx], rdi
+008636D9  mov        qword ptr [rbx + 8], rdi
+008636DD  mov        qword ptr [rbx + 0x10], rdi
+008636E1  lea        esi, [rax + rax*2]
+008636E4  shl        esi, 4
+008636E7  mov        eax, esi
+008636E9  cdq        
+008636EA  sub        eax, edx
+008636EC  sar        eax, 1
+008636EE  mov        dword ptr [rbx + 0x18], eax
+008636F1  mov        rcx, qword ptr [rbx]
+008636F4  test       rcx, rcx
+008636F7  je         0x863709
+008636F9  movzx      eax, byte ptr [rcx - 1]
+008636FD  dec        rcx
+00863700  sub        rcx, rax
+00863703  call       qword ptr [rip + 0x152a02f]  ; [0x1D8D738] f32=-1.4703346298831672e+24
+00863709  movsxd     rcx, esi
+0086370C  shl        rcx, 2
+00863710  mov        qword ptr [rbx], rdi
+00863713  test       rcx, rcx
+00863716  je         0x863748
+00863718  add        rcx, 0x3f
+0086371C  and        rcx, 0xffffffffffffffc0
+00863720  add        rcx, 0x40
+00863724  call       qword ptr [rip + 0x152a006]  ; [0x1D8D730] f32=-1.4703392415691857e+24
+0086372A  mov        r8, rax
+0086372D  test       rax, rax
+00863730  je         0x863748
+00863732  lea        rdx, [rax + 0x40]
+00863736  and        rdx, 0xffffffffffffffc0
+0086373A  lea        rcx, [rdx - 1]
+0086373E  movzx      eax, cl
+00863741  sub        al, r8b
+00863744  mov        byte ptr [rcx], al
+00863746  jmp        0x86374b
+00863748  mov        rdx, rdi
+0086374B  mov        qword ptr [rbx], rdx
+0086374E  mov        ecx, r13d
+00863751  movsxd     rax, esi
+00863754  mov        edx, edi
+00863756  mov        qword ptr [rbx + 0x10], rax
+0086375A  cdqe       
+0086375C  mov        dword ptr [rsp + 0x54], eax
+00863760  shl        rax, 2
+00863764  mov        qword ptr [rbx + 8], r13
+00863768  mov        qword ptr [rsp + 0x48], rdi
+0086376D  mov        dword ptr [rsp + 0x50], ecx
+00863771  mov        qword ptr [rsp + 0x58], rax
+00863776  test       ecx, ecx
+00863778  jle        0x8637a3
+0086377A  lea        rax, [rsp + 0x48]
+0086377F  sub        rbx, rax
+00863782  lea        rcx, [rsp + 0x48]
+00863787  nop        word ptr [rax + rax]

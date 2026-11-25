@@ -1,0 +1,5 @@
+// sub_18087A7A0 @ 0x18087A7A0
+void sub_18087A7A0()
+{
+  JUMPOUT(0x18087A7A3LL);
+}

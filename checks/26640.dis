@@ -1,0 +1,19 @@
+# function 0x26640..0x26680  size=64
+00026640  endbr64  
+00026644  push     rbp
+00026645  sub      rsp, 0x20
+00026649  mov      rbp, rcx
+0002664C  cmp      edx, 0x8000
+00026652  jg       0x26661
+00026654  mov      rcx, rbp
+00026657  add      rsp, 0x20
+0002665B  pop      rbp
+0002665C  jmp      0x1d2e9e0
+00026661  mov      rcx, rbp
+00026664  call     0x1d2f0c0
+00026669  mov      rax, rbp
+0002666C  add      rsp, 0x20
+00026670  pop      rbp
+00026671  ret      
+00026672  nop      dword ptr [rax]
+00026679  nop      dword ptr [rax]

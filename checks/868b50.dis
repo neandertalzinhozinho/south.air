@@ -1,0 +1,32 @@
+00868B50  mov        qword ptr [rsp + 8], rbx
+00868B55  mov        qword ptr [rsp + 0x10], rsi
+00868B5A  push       rdi
+00868B5B  sub        rsp, 0x20
+00868B5F  xor        ebx, ebx
+00868B61  movsxd     rsi, r8d
+00868B64  mov        qword ptr [rcx + 8], rbx
+00868B68  mov        rdi, rcx
+00868B6B  mov        qword ptr [rcx + 0x10], rbx
+00868B6F  mov        qword ptr [rcx], rbx
+00868B72  mov        rcx, rsi
+00868B75  shl        rcx, 2
+00868B79  test       rcx, rcx
+00868B7C  je         0x868bab
+00868B7E  add        rcx, 0x3f
+00868B82  and        rcx, 0xffffffffffffffc0
+00868B86  add        rcx, 0x40
+00868B8A  call       qword ptr [rip + 0x1524ba0]  ; [0x1D8D730] f32=-1.4703392415691857e+24
+00868B90  mov        rdx, rax
+00868B93  test       rax, rax
+00868B96  je         0x868bab
+00868B98  lea        rbx, [rax + 0x40]
+00868B9C  and        rbx, 0xffffffffffffffc0
+00868BA0  lea        rcx, [rbx - 1]
+00868BA4  movzx      eax, cl
+00868BA7  sub        al, dl
+00868BA9  mov        byte ptr [rcx], al
+00868BAB  mov        qword ptr [rdi], rbx
+00868BAE  mov        rax, rdi
+00868BB1  mov        rbx, qword ptr [rsp + 0x30]
+00868BB6  mov        qword ptr [rdi + 0x10], rsi
+00868BBA  mov        rsi, qword ptr [rsp + 0x38]

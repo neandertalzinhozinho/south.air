@@ -1,0 +1,61 @@
+00864410  mov        qword ptr [rsp + 0x20], r9
+00864415  mov        qword ptr [rsp + 8], rcx
+0086441A  push       rbp
+0086441B  push       rbx
+0086441C  push       rsi
+0086441D  push       rdi
+0086441E  push       r15
+00864420  lea        rbp, [rsp - 0x3330]
+00864428  mov        eax, 0x3430
+0086442D  call       0x17978c0
+00864432  sub        rsp, rax
+00864435  xor        esi, esi
+00864437  mov        r11, r9
+0086443A  mov        eax, esi
+0086443C  mov        r10, rdx
+0086443F  xchg       byte ptr [rcx + 0xaa], al
+00864445  movsxd     rdi, dword ptr [rcx + 0x100]
+0086444C  mov        r15, rcx
+0086444F  nop        
+00864450  test       edi, edi
+00864452  js         0x864470
+00864454  mov        rcx, rdi
+00864457  shl        rcx, 5
+0086445B  movzx      eax, byte ptr [rcx + r15 + 0x10c]
+00864464  nop        
+00864465  xchg       byte ptr [r15 + 0xaa], al
+0086446C  mov        dword ptr [r15 + 0x4c], edi
+00864470  movzx      eax, byte ptr [r15 + 0xaa]
+00864478  xorps      xmm0, xmm0
+0086447B  mov        byte ptr [rsp + 0x31], al
+0086447F  mov        edx, esi
+00864481  movzx      eax, byte ptr [r15 + 0xa9]
+00864489  mov        byte ptr [rsp + 0x30], al
+0086448D  movzx      eax, byte ptr [r15 + 0xa7]
+00864495  mov        rbx, qword ptr [rbp + 0x3380]
+0086449C  mov        ecx, dword ptr [r15 + 0x10]
+008644A0  mov        byte ptr [rsp + 0x33], al
+008644A4  xor        eax, eax
+008644A6  mov        qword ptr [rbp + 0x9a8], rax
+008644AD  movsxd     rax, ebx
+008644B0  shl        rax, 2
+008644B4  mov        qword ptr [rbp - 0x10], rbx
+008644B8  mov        qword ptr [rbp - 0x18], rsi
+008644BC  mov        dword ptr [rbp - 0x30], ecx
+008644BF  mov        qword ptr [rbp + 0x930], rsi
+008644C6  mov        dword ptr [rbp + 0x9b0], ecx
+008644CC  mov        dword ptr [rbp + 0x9b4], ebx
+008644D2  mov        qword ptr [rbp + 0x9b8], rax
+008644D9  movups     xmmword ptr [rbp + 0x938], xmm0
+008644E0  movups     xmmword ptr [rbp + 0x948], xmm0
+008644E7  movups     xmmword ptr [rbp + 0x958], xmm0
+008644EE  movups     xmmword ptr [rbp + 0x968], xmm0
+008644F5  movups     xmmword ptr [rbp + 0x978], xmm0
+008644FC  movups     xmmword ptr [rbp + 0x988], xmm0
+00864503  movups     xmmword ptr [rbp + 0x998], xmm0
+0086450A  test       ecx, ecx
+0086450C  jle        0x864544
+0086450E  lea        rax, [rbp + 0x930]
+00864515  sub        r10, rax
+00864518  lea        rcx, [rbp + 0x930]
+0086451F  nop        

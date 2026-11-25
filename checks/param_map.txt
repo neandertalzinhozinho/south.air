@@ -1,0 +1,144 @@
+idx  nome                       handler   store            tipo  valor
+  0  Depth                      0x867F6E  state+0x00       f32   xmm8
+  1  Low latency                0x867E88  state+0x57       u8    r8b
+  2  Mode                       0x867EC8  state+0xB0       i32   min(r9d-1,7)
+  3  Quality                    0x867F07  engine+0x50 (fora do estado) i32   r9d
+  4  Linear phase               0x867F10  state+0x58       u8    r8b
+  5  Detail                     0x867F7B  state+0x04       f32   xmm8
+  6  Attack                     0x867FBD  state+0x08       f32   xmm8
+  7  Release                    0x867FFF  state+0x0C       f32   xmm8
+  8  Detail tilt low            0x867FAB  state+0x10       f32   xmm6
+  9  Detail tilt high           0x867FB4  state+0x14       f32   xmm6
+ 10  Attack tilt low            0x867FED  state+0x18       f32   xmm6
+ 11  Attack tilt high           0x867FF6  state+0x1C       f32   xmm6
+ 12  Release tilt low           0x868009  state+0x20       f32   xmm6
+ 13  Release tilt high          0x868012  state+0x24       f32   xmm6
+ 14  Sidechain                  0x86801B  state+0x51       u8    r8b
+ 15  Sidechain listen           0x868038  state+0x53       u8    r8b
+ 16  Stereo mode                0x868055  state+0x52       u8    r8b
+ 17  Stereo link                0x868061  state+0x28       f32   xmm8
+ 18  Stereo focus               0x86806E  state+0x3C       f32   xmm8
+ 19  Band 1 used                0x86807E  state+0xB8 (b=0,r=0) u8    r8b
+ 20  Band 1 enabled             0x86807E  state+0xB9 (b=0,r=1) u8    r8b
+ 21  Band 1 frequency           0x86807E  state+0xBC (b=0,r=2) f32   xmm6 (frequencia)
+ 22  Band 1 depth               0x86807E  state+0xC0 (b=0,r=3) f32   24*xmm8 - 12
+ 23  Band 1 q                   0x86807E  state+0xC4 (b=0,r=4) f32   x<=0?0 : 2*asinh(1/(2x))/ln2
+ 24  Band 1 slope               0x86807E  state+0xC8 (b=0,r=5) f32   expf(ln6 + xmm8*(ln128-ln6))
+ 25  Band 1 focus               0x86807E  state+0xCC (b=0,r=6) f32   xmm6
+ 26  Band 1 channels            0x86807E  state+0xD0 (b=0,r=7) i32   r9d
+ 27  Band 1 shape               0x86807E  state+0xD4 (b=0,r=8) i32   r9d
+ 28  Band 2 used                0x86807E  state+0xD8 (b=1,r=0) u8    r8b
+ 29  Band 2 enabled             0x86807E  state+0xD9 (b=1,r=1) u8    r8b
+ 30  Band 2 frequency           0x86807E  state+0xDC (b=1,r=2) f32   xmm6 (frequencia)
+ 31  Band 2 depth               0x86807E  state+0xE0 (b=1,r=3) f32   24*xmm8 - 12
+ 32  Band 2 q                   0x86807E  state+0xE4 (b=1,r=4) f32   x<=0?0 : 2*asinh(1/(2x))/ln2
+ 33  Band 2 slope               0x86807E  state+0xE8 (b=1,r=5) f32   expf(ln6 + xmm8*(ln128-ln6))
+ 34  Band 2 focus               0x86807E  state+0xEC (b=1,r=6) f32   xmm6
+ 35  Band 2 channels            0x86807E  state+0xF0 (b=1,r=7) i32   r9d
+ 36  Band 2 shape               0x86807E  state+0xF4 (b=1,r=8) i32   r9d
+ 37  Band 3 used                0x86807E  state+0xF8 (b=2,r=0) u8    r8b
+ 38  Band 3 enabled             0x86807E  state+0xF9 (b=2,r=1) u8    r8b
+ 39  Band 3 frequency           0x86807E  state+0xFC (b=2,r=2) f32   xmm6 (frequencia)
+ 40  Band 3 depth               0x86807E  state+0x100 (b=2,r=3) f32   24*xmm8 - 12
+ 41  Band 3 q                   0x86807E  state+0x104 (b=2,r=4) f32   x<=0?0 : 2*asinh(1/(2x))/ln2
+ 42  Band 3 slope               0x86807E  state+0x108 (b=2,r=5) f32   expf(ln6 + xmm8*(ln128-ln6))
+ 43  Band 3 focus               0x86807E  state+0x10C (b=2,r=6) f32   xmm6
+ 44  Band 3 channels            0x86807E  state+0x110 (b=2,r=7) i32   r9d
+ 45  Band 3 shape               0x86807E  state+0x114 (b=2,r=8) i32   r9d
+ 46  Band 4 used                0x86807E  state+0x118 (b=3,r=0) u8    r8b
+ 47  Band 4 enabled             0x86807E  state+0x119 (b=3,r=1) u8    r8b
+ 48  Band 4 frequency           0x86807E  state+0x11C (b=3,r=2) f32   xmm6 (frequencia)
+ 49  Band 4 depth               0x86807E  state+0x120 (b=3,r=3) f32   24*xmm8 - 12
+ 50  Band 4 q                   0x86807E  state+0x124 (b=3,r=4) f32   x<=0?0 : 2*asinh(1/(2x))/ln2
+ 51  Band 4 slope               0x86807E  state+0x128 (b=3,r=5) f32   expf(ln6 + xmm8*(ln128-ln6))
+ 52  Band 4 focus               0x86807E  state+0x12C (b=3,r=6) f32   xmm6
+ 53  Band 4 channels            0x86807E  state+0x130 (b=3,r=7) i32   r9d
+ 54  Band 4 shape               0x86807E  state+0x134 (b=3,r=8) i32   r9d
+ 55  Band 5 used                0x86807E  state+0x138 (b=4,r=0) u8    r8b
+ 56  Band 5 enabled             0x86807E  state+0x139 (b=4,r=1) u8    r8b
+ 57  Band 5 frequency           0x86807E  state+0x13C (b=4,r=2) f32   xmm6 (frequencia)
+ 58  Band 5 depth               0x86807E  state+0x140 (b=4,r=3) f32   24*xmm8 - 12
+ 59  Band 5 q                   0x86807E  state+0x144 (b=4,r=4) f32   x<=0?0 : 2*asinh(1/(2x))/ln2
+ 60  Band 5 slope               0x86807E  state+0x148 (b=4,r=5) f32   expf(ln6 + xmm8*(ln128-ln6))
+ 61  Band 5 focus               0x86807E  state+0x14C (b=4,r=6) f32   xmm6
+ 62  Band 5 channels            0x86807E  state+0x150 (b=4,r=7) i32   r9d
+ 63  Band 5 shape               0x86807E  state+0x154 (b=4,r=8) i32   r9d
+ 64  Band 6 used                0x86807E  state+0x158 (b=5,r=0) u8    r8b
+ 65  Band 6 enabled             0x86807E  state+0x159 (b=5,r=1) u8    r8b
+ 66  Band 6 frequency           0x86807E  state+0x15C (b=5,r=2) f32   xmm6 (frequencia)
+ 67  Band 6 depth               0x86807E  state+0x160 (b=5,r=3) f32   24*xmm8 - 12
+ 68  Band 6 q                   0x86807E  state+0x164 (b=5,r=4) f32   x<=0?0 : 2*asinh(1/(2x))/ln2
+ 69  Band 6 slope               0x86807E  state+0x168 (b=5,r=5) f32   expf(ln6 + xmm8*(ln128-ln6))
+ 70  Band 6 focus               0x86807E  state+0x16C (b=5,r=6) f32   xmm6
+ 71  Band 6 channels            0x86807E  state+0x170 (b=5,r=7) i32   r9d
+ 72  Band 6 shape               0x86807E  state+0x174 (b=5,r=8) i32   r9d
+ 73  Band 7 used                0x86807E  state+0x178 (b=6,r=0) u8    r8b
+ 74  Band 7 enabled             0x86807E  state+0x179 (b=6,r=1) u8    r8b
+ 75  Band 7 frequency           0x86807E  state+0x17C (b=6,r=2) f32   xmm6 (frequencia)
+ 76  Band 7 depth               0x86807E  state+0x180 (b=6,r=3) f32   24*xmm8 - 12
+ 77  Band 7 q                   0x86807E  state+0x184 (b=6,r=4) f32   x<=0?0 : 2*asinh(1/(2x))/ln2
+ 78  Band 7 slope               0x86807E  state+0x188 (b=6,r=5) f32   expf(ln6 + xmm8*(ln128-ln6))
+ 79  Band 7 focus               0x86807E  state+0x18C (b=6,r=6) f32   xmm6
+ 80  Band 7 channels            0x86807E  state+0x190 (b=6,r=7) i32   r9d
+ 81  Band 7 shape               0x86807E  state+0x194 (b=6,r=8) i32   r9d
+ 82  Band 8 used                0x86807E  state+0x198 (b=7,r=0) u8    r8b
+ 83  Band 8 enabled             0x86807E  state+0x199 (b=7,r=1) u8    r8b
+ 84  Band 8 frequency           0x86807E  state+0x19C (b=7,r=2) f32   xmm6 (frequencia)
+ 85  Band 8 depth               0x86807E  state+0x1A0 (b=7,r=3) f32   24*xmm8 - 12
+ 86  Band 8 q                   0x86807E  state+0x1A4 (b=7,r=4) f32   x<=0?0 : 2*asinh(1/(2x))/ln2
+ 87  Band 8 slope               0x86807E  state+0x1A8 (b=7,r=5) f32   expf(ln6 + xmm8*(ln128-ln6))
+ 88  Band 8 focus               0x86807E  state+0x1AC (b=7,r=6) f32   xmm6
+ 89  Band 8 channels            0x86807E  state+0x1B0 (b=7,r=7) i32   r9d
+ 90  Band 8 shape               0x86807E  state+0x1B4 (b=7,r=8) i32   r9d
+ 91  Band solo                  0x867F55  state+0xAC       i32   min(r9d-1,7)
+ 92  Max cut                    0x8681CD  state+0x4C       f32   xmm8<0.999 ? xmm6 : 60.0f
+ 93  Wet trim                   0x8681F2  state+0x40       f32   powf(10, 0.05*xmm6)
+ 94  Mix                        0x868219  state+0x44       f32   0.01*xmm6
+ 95  Out trim                   0x868230  state+0x48       f32   powf(10, 0.05*xmm6)
+ 96  Delta                      0x868257  state+0x54       u8    r8b
+ 97  Bypass                     0x868263  state+0x55       u8    r8b
+ 98  LR depth                   0x86826F  state+0x1B8 (g=0,r=0) f32   xmm8
+ 99  LR enabled                 0x86826F  state+0x1BC (g=0,r=1) u8    r8b
+100  LR solo                    0x86826F  state+0x1BD (g=0,r=2) u8    r8b
+101  LR delta                   0x86826F  state+0x1BE (g=0,r=3) u8    r8b
+102  LR link all                0x86826F  state+0x1BF (g=0,r=4) u8    r8b
+103  Center depth               0x86826F  state+0x1C0 (g=1,r=0) f32   xmm8
+104  Center enabled             0x86826F  state+0x1C4 (g=1,r=1) u8    r8b
+105  Center solo                0x86826F  state+0x1C5 (g=1,r=2) u8    r8b
+106  Center delta               0x86826F  state+0x1C6 (g=1,r=3) u8    r8b
+107  Center link all            0x86826F  state+0x1C7 (g=1,r=4) u8    r8b
+108  LFE depth                  0x86826F  state+0x1C8 (g=2,r=0) f32   xmm8
+109  LFE enabled                0x86826F  state+0x1CC (g=2,r=1) u8    r8b
+110  LFE solo                   0x86826F  state+0x1CD (g=2,r=2) u8    r8b
+111  LFE delta                  0x86826F  state+0x1CE (g=2,r=3) u8    r8b
+112  LFE link all               0x86826F  state+0x1CF (g=2,r=4) u8    r8b
+113  Surround depth             0x86826F  state+0x1D0 (g=3,r=0) f32   xmm8
+114  Surround enabled           0x86826F  state+0x1D4 (g=3,r=1) u8    r8b
+115  Surround solo              0x86826F  state+0x1D5 (g=3,r=2) u8    r8b
+116  Surround delta             0x86826F  state+0x1D6 (g=3,r=3) u8    r8b
+117  Surround link all          0x86826F  state+0x1D7 (g=3,r=4) u8    r8b
+118  Ceiling depth              0x86826F  state+0x1D8 (g=4,r=0) f32   xmm8
+119  Ceiling enabled            0x86826F  state+0x1DC (g=4,r=1) u8    r8b
+120  Ceiling solo               0x86826F  state+0x1DD (g=4,r=2) u8    r8b
+121  Ceiling delta              0x86826F  state+0x1DE (g=4,r=3) u8    r8b
+122  Ceiling link all           0x86826F  state+0x1DF (g=4,r=4) u8    r8b
+123  Link all                   0x8682F4  state+0x2C       f32   xmm8
+124  Group link LCR             0x868301  state+0x30       f32   xmm8
+125  Group link surround        0x86830E  state+0x34       f32   xmm8
+126  Group link ceiling         0x86831B  state+0x38       f32   xmm8
+127  Channel 1 enabled          0x868328  state+0x9C       u8    r8b
+128  Channel 2 enabled          0x868328  state+0x9D       u8    r8b
+129  Channel 3 enabled          0x868328  state+0x9E       u8    r8b
+130  Channel 4 enabled          0x868328  state+0x9F       u8    r8b
+131  Channel 5 enabled          0x868328  state+0xA0       u8    r8b
+132  Channel 6 enabled          0x868328  state+0xA1       u8    r8b
+133  Channel 7 enabled          0x868328  state+0xA2       u8    r8b
+134  Channel 8 enabled          0x868328  state+0xA3       u8    r8b
+135  Channel 9 enabled          0x868328  state+0xA4       u8    r8b
+136  Channel 10 enabled         0x868328  state+0xA5       u8    r8b
+137  Channel 11 enabled         0x868328  state+0xA6       u8    r8b
+138  Channel 12 enabled         0x868328  state+0xA7       u8    r8b
+139  Channel 13 enabled         0x868328  state+0xA8       u8    r8b
+140  Channel 14 enabled         0x868328  state+0xA9       u8    r8b
+141  Channel 15 enabled         0x868328  state+0xAA       u8    r8b
+142  Channel 16 enabled         0x868328  state+0xAB       u8    r8b

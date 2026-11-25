@@ -1,0 +1,98 @@
+# 0x5BC0 is not a .pdata start; using next start 0x5E80
+# function 0x5BC0..0x5D40  size=384
+00005BC0  endbr64  
+00005BC4  test     rcx, rcx
+00005BC7  je       0x5cf5
+00005BCD  test     r8, r8
+00005BD0  je       0x5cf5
+00005BD6  test     r9d, r9d
+00005BD9  jle      0x5cef
+00005BDF  movsxd   rdx, r9d
+00005BE2  cmp      rdx, 8
+00005BE6  jl       0x5cdf
+00005BEC  cmp      rdx, 0xe1
+00005BF3  jl       0x5ce4
+00005BF9  mov      rax, r8
+00005BFC  and      rax, 0x1f
+00005C00  mov      eax, eax
+00005C02  test     eax, eax
+00005C04  je       0x5c16
+00005C06  test     al, 3
+00005C08  jne      0x5cdf
+00005C0E  neg      eax
+00005C10  add      eax, 0x20
+00005C13  shr      eax, 2
+00005C16  lea      r10d, [rax + 8]
+00005C1A  cmp      rdx, r10
+00005C1D  jl       0x5cdf
+00005C23  mov      r10d, r9d
+00005C26  sub      r10d, eax
+00005C29  and      r10d, 7
+00005C2D  sub      r9d, r10d
+00005C30  xor      r10d, r10d
+00005C33  test     eax, eax
+00005C35  jbe      0x5c5a
+00005C37  nop      word ptr [rax + rax]
+00005C40  vmovss   xmm0, dword ptr [rcx + r10*4]
+00005C46  vfmadd213ss xmm0, xmm1, dword ptr [r8 + r10*4]
+00005C4C  vmovss   dword ptr [r8 + r10*4], xmm0
+00005C52  inc      r10
+00005C55  cmp      r10, rax
+00005C58  jb       0x5c40
+00005C5A  vbroadcastss ymm0, xmm1
+00005C5F  movsxd   r10, r9d
+00005C62  nop      dword ptr [rax + rax]
+00005C6A  nop      dword ptr [rax]
+00005C71  nop      dword ptr [rax + rax]
+00005C79  nop      dword ptr [rax]
+00005C80  vmovups  ymm2, ymmword ptr [rcx + rax*4]
+00005C85  vfmadd213ps ymm2, ymm0, ymmword ptr [r8 + rax*4]
+00005C8B  vmovups  ymmword ptr [r8 + rax*4], ymm2
+00005C91  add      rax, 8
+00005C95  cmp      rax, r10
+00005C98  jb       0x5c80
+00005C9A  xor      eax, eax
+00005C9C  lea      r10d, [r9 + 1]
+00005CA0  movsxd   r10, r10d
+00005CA3  cmp      r10, rdx
+00005CA6  ja       0x5cd9
+00005CA8  movsxd   r9, r9d
+00005CAB  sub      rdx, r9
+00005CAE  lea      r10, [rcx + r9*4]
+00005CB2  lea      rcx, [r8 + r9*4]
+00005CB6  nop      dword ptr [rax]
+00005CB9  nop      dword ptr [rax]
+00005CC0  vmovss   xmm0, dword ptr [r10 + rax*4]
+00005CC6  vfmadd213ss xmm0, xmm1, dword ptr [rcx + rax*4]
+00005CCC  vmovss   dword ptr [rcx + rax*4], xmm0
+00005CD1  inc      rax
+00005CD4  cmp      rax, rdx
+00005CD7  jb       0x5cc0
+00005CD9  xor      eax, eax
+00005CDB  vzeroupper 
+00005CDE  ret      
+00005CDF  xor      r9d, r9d
+00005CE2  jmp      0x5c9a
+00005CE4  and      r9d, 0xfffffff8
+00005CE8  xor      eax, eax
+00005CEA  jmp      0x5c5a
+00005CEF  mov      eax, 0xfffffffa
+00005CF4  ret      
+00005CF5  mov      eax, 0xfffffff8
+00005CFA  ret      
+00005CFB  nop      dword ptr [rax + rax]
+00005D00  endbr64  
+00005D04  vmovaps  xmm4, xmm1
+00005D08  test     rcx, rcx
+00005D0B  je       0x5e74
+00005D11  test     r8, r8
+00005D14  je       0x5e74
+00005D1A  test     r9d, r9d
+00005D1D  jle      0x5e6e
+00005D23  cmp      r9d, 0x10
+00005D27  jl       0x5e6a
+00005D2D  cmp      r9d, 0x27
+00005D31  jl       0x5e5d
+00005D37  mov      rax, r8
+00005D3A  and      rax, 0x3f
+00005D3E  test     al, 3

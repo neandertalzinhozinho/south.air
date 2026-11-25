@@ -1,0 +1,42 @@
+# function 0x862E40..0x862EEB  size=171
+00862E40  mov      qword ptr [rsp + 8], rbx
+00862E45  push     rdi
+00862E46  sub      rsp, 0x30
+00862E4A  mov      rdi, rcx
+00862E4D  movaps   xmmword ptr [rsp + 0x20], xmm6
+00862E52  mov      ecx, 0xc1a8
+00862E57  movaps   xmm6, xmm2
+00862E5A  mov      rbx, rdx
+00862E5D  call     0x1796cf4
+00862E62  xorps    xmm3, xmm3
+00862E65  mov      r8, rbx
+00862E68  cvtsd2ss xmm3, xmm6
+00862E6C  mov      rdx, rdi
+00862E6F  mov      rcx, rax
+00862E72  call     0x8634a0
+00862E77  mov      ecx, 0x58
+00862E7C  mov      rbx, rax
+00862E7F  call     0x1796cf4
+00862E84  movaps   xmm6, xmmword ptr [rsp + 0x20]
+00862E89  lea      rcx, [rip + 0x60]   ; 0x862EF0 [.text]
+00862E90  mov      qword ptr [rax + 8], rcx
+00862E94  lea      rcx, [rip + 0x65]   ; 0x862F00 [.text] | f32=-1.03925359e+25
+00862E9B  mov      qword ptr [rax + 0x10], rcx
+00862E9F  lea      rcx, [rip + 0x6a]   ; 0x862F10 [.text]
+00862EA6  mov      qword ptr [rax + 0x18], rcx
+00862EAA  lea      rcx, [rip + 0x8f]   ; 0x862F40 [.text] | f32=4.78211773e-17
+00862EB1  mov      qword ptr [rax + 0x20], rcx
+00862EB5  lea      rcx, [rip + 0x164]   ; 0x863020 [.text]
+00862EBC  mov      qword ptr [rax + 0x28], rcx
+00862EC0  xor      ecx, ecx
+00862EC2  mov      qword ptr [rax + 0x30], rcx
+00862EC6  mov      qword ptr [rax + 0x38], rcx
+00862ECA  mov      qword ptr [rax + 0x40], rcx
+00862ECE  mov      qword ptr [rax + 0x48], rcx
+00862ED2  lea      rcx, [rip + 0x197]   ; 0x863070 [.text]
+00862ED9  mov      qword ptr [rax], rbx
+00862EDC  mov      rbx, qword ptr [rsp + 0x40]
+00862EE1  mov      qword ptr [rax + 0x50], rcx
+00862EE5  add      rsp, 0x30
+00862EE9  pop      rdi
+00862EEA  ret      

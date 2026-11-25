@@ -1,0 +1,37 @@
+0088E8A0  mov        qword ptr [rsp + 0x20], r9
+0088E8A5  mov        qword ptr [rsp + 0x18], r8
+0088E8AA  mov        qword ptr [rsp + 0x10], rdx
+0088E8AF  mov        qword ptr [rsp + 8], rcx
+0088E8B4  push       rbp
+0088E8B5  push       rbx
+0088E8B6  push       rsi
+0088E8B7  push       rdi
+0088E8B8  push       r12
+0088E8BA  push       r13
+0088E8BC  push       r14
+0088E8BE  push       r15
+0088E8C0  lea        rbp, [rsp - 0x35a8]
+0088E8C8  mov        eax, 0x36a8
+0088E8CD  call       0x17978c0
+0088E8D2  sub        rsp, rax
+0088E8D5  mov        eax, dword ptr [rcx + 0x2c30]
+0088E8DB  mov        r13, rdx
+0088E8DE  sub        eax, dword ptr [rdx + 0x404]
+0088E8E4  mov        r14, rcx
+0088E8E7  mov        dword ptr [rcx + 0x2c30], eax
+0088E8ED  mov        rax, qword ptr [rcx + 0x2c38]
+0088E8F4  mov        eax, dword ptr [rax + 0xb0]
+0088E8FA  cmp        eax, 1
+0088E8FD  sete       byte ptr [rsp + 0x30]
+0088E902  cmp        dword ptr [rcx + 0x2c30], 0
+0088E909  jge        0x88fb68
+0088E90F  mov        ecx, dword ptr [rcx + 0x60]
+0088E912  mov        eax, dword ptr [r14 + 0x2c30]
+0088E919  nop        dword ptr [rax]
+0088E920  add        eax, ecx
+0088E922  js         0x88e920
+0088E924  mov        r13, qword ptr [rbp + 0x35f0]
+0088E92B  mov        dword ptr [r14 + 0x2c30], eax
+0088E932  xor        eax, eax
+0088E934  movzx      r12d, byte ptr [r14 + 0x2c40]
+0088E93C  nop        

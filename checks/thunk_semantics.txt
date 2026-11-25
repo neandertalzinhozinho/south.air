@@ -1,0 +1,272 @@
+thunk 0x1010  idx=4 tab=0x21C5D48 entry=0x199B20E0 rva=0x20E0
+    insns=12  float={}
+      000020E0  endbr64   
+      000020E4  sub       rsp, 0x38
+      000020E8  mov       rax, r8
+      000020EB  mov       r8, rdx
+      000020EE  mov       rdx, rcx
+      000020F1  test      rax, rax
+      000020F4  je        0x21b9
+      000020FA  cmp       dword ptr [rax], 7
+      000020FD  je        0x2109
+      000020FF  mov       eax, 0xfffffff3
+
+thunk 0x1040  idx=4 tab=0x21C5D88 entry=0x199B2300 rva=0x2300
+    insns=18  float={}
+      00002300  endbr64   
+      00002304  sub       rsp, 0x28
+      00002308  test      rdx, rdx
+      0000230B  je        0x2342
+      0000230D  test      r8d, r8d
+      00002310  jle       0x234c
+      00002312  vmovss    dword ptr [rsp + 0x20], xmm0
+      00002318  lea       eax, [r8*4]
+      00002320  cmp       eax, 0x200000
+      00002325  jg        0x2332
+
+thunk 0x1070  idx=4 tab=0x21C5DC8 entry=0x199B2760 rva=0x2760
+    insns=97  float={}
+      00002760  endbr64   
+      00002764  push      rsi
+      00002765  sub       rsp, 0x20
+      00002769  mov       rdx, r8
+      0000276C  test      rcx, rcx
+      0000276F  je        0x2923
+      00002775  test      rdx, rdx
+      00002778  je        0x2923
+      0000277E  test      r9d, r9d
+      00002781  jle       0x2918
+
+thunk 0x10A0  idx=4 tab=0x21C5E08 entry=0x199B2C80 rva=0x2C80
+    insns=40  float={}
+      00002C80  endbr64   
+      00002C84  sub       rsp, 0x38
+      00002C88  test      rcx, rcx
+      00002C8B  je        0x2d35
+      00002C91  test      rdx, rdx
+      00002C94  je        0x2d35
+      00002C9A  test      r8d, r8d
+      00002C9D  jle       0x2d3f
+      00002CA3  cmp       r8d, 0x1fffffff
+      00002CAA  jle       0x2d25
+
+thunk 0x10D0  idx=4 tab=0x21C5E48 entry=0x199B2F60 rva=0x2F60
+    insns=15  float={}
+      00002F60  endbr64   
+      00002F64  sub       rsp, 0x28
+      00002F68  test      rcx, rcx
+      00002F6B  je        0x2f8f
+      00002F6D  test      edx, edx
+      00002F6F  jle       0x2f99
+      00002F71  shl       edx, 2
+      00002F74  cmp       edx, 0x200000
+      00002F7A  jg        0x2f83
+      00002F7C  call      0x1d2e9e0
+
+thunk 0x1100  idx=4 tab=0x21C5E88 entry=0x199B3480 rva=0x3480
+    insns=11  float={}
+      00003480  endbr64   
+      00003484  test      rcx, rcx
+      00003487  je        0x373b
+      0000348D  test      edx, edx
+      0000348F  jle       0x3735
+      00003495  test      r9d, r9d
+      00003498  je        0x35d9
+      0000349E  cmp       r9d, 4
+      000034A2  je        0x34aa
+      000034A4  mov       eax, 0xfffffffb
+
+thunk 0x1160  idx=4 tab=0x21C5F08 entry=0x199B46E0 rva=0x46E0
+    insns=91  float={}
+      000046E0  endbr64   
+      000046E4  mov       rcx, rdx
+      000046E7  test      rcx, rcx
+      000046EA  je        0x4852
+      000046F0  test      r8d, r8d
+      000046F3  jle       0x484c
+      000046F9  vxorps    xmm1, xmm1, xmm1
+      000046FD  vucomiss  xmm0, xmm1
+      00004701  jp        0x4709
+      00004703  je        0x4849
+
+thunk 0x1190  idx=4 tab=0x21C5F48 entry=0x199B4BC0 rva=0x4BC0
+    insns=104  float={}
+      00004BC0  endbr64   
+      00004BC4  push      rsi
+      00004BC5  push      rdi
+      00004BC6  push      rbp
+      00004BC7  mov       rbp, rdx
+      00004BCA  test      rcx, rcx
+      00004BCD  je        0x4d82
+      00004BD3  test      rbp, rbp
+      00004BD6  je        0x4d82
+      00004BDC  test      r8, r8
+
+thunk 0x11C0  idx=4 tab=0x21C5F88 entry=0x199B50E0 rva=0x50E0
+    insns=104  float={}
+      000050E0  endbr64   
+      000050E4  push      rsi
+      000050E5  push      rdi
+      000050E6  push      rbp
+      000050E7  mov       rbp, rdx
+      000050EA  test      rcx, rcx
+      000050ED  je        0x52a1
+      000050F3  test      rbp, rbp
+      000050F6  je        0x52a1
+      000050FC  test      r8, r8
+
+thunk 0x11F0  idx=4 tab=0x21C5FC8 entry=0x199B5BC0 rva=0x5BC0
+    insns=71  float={'vfmadd213ss': 2, 'vfmadd213ps': 1}
+      00005BC0  endbr64   
+      00005BC4  test      rcx, rcx
+      00005BC7  je        0x5cf5
+      00005BCD  test      r8, r8
+      00005BD0  je        0x5cf5
+      00005BD6  test      r9d, r9d
+      00005BD9  jle       0x5cef
+      00005BDF  movsxd    rdx, r9d
+      00005BE2  cmp       rdx, 8
+      00005BE6  jl        0x5cdf
+
+thunk 0x1220  idx=4 tab=0x21C6008 entry=0x199B6160 rva=0x6160
+    insns=93  float={}
+      00006160  endbr64   
+      00006164  sub       rsp, 0x28
+      00006168  test      rdx, rdx
+      0000616B  je        0x630b
+      00006171  test      r8d, r8d
+      00006174  jle       0x6301
+      0000617A  vucomiss  xmm0, dword ptr [rip + 0x1dee00e]
+      00006182  jp        0x618a
+      00006184  je        0x62fa
+      0000618A  vxorps    xmm1, xmm1, xmm1
+
+thunk 0x1250  idx=4 tab=0x21C6048 entry=0x199B69C0 rva=0x69C0
+    insns=16  float={}
+      000069C0  endbr64   
+      000069C4  push      rbx
+      000069C5  test      rcx, rcx
+      000069C8  je        0x6cf9
+      000069CE  test      rdx, rdx
+      000069D1  je        0x6cf9
+      000069D7  test      r8d, r8d
+      000069DA  jle       0x6cf2
+      000069E0  mov       eax, dword ptr [rsp + 0x30]
+      000069E4  test      eax, eax
+
+thunk 0x1280  idx=4 tab=0x21C6088 entry=0x199B7B40 rva=0x7B40
+    insns=12  float={}
+      00007B40  endbr64   
+      00007B44  sub       rsp, 0x38
+      00007B48  mov       rax, r8
+      00007B4B  mov       r8, rdx
+      00007B4E  mov       rdx, rcx
+      00007B51  test      rax, rax
+      00007B54  je        0x7c1a
+      00007B5A  cmp       dword ptr [rax], 7
+      00007B5D  je        0x7b69
+      00007B5F  mov       eax, 0xfffffff3
+
+thunk 0x12B0  idx=4 tab=0x21C60C8 entry=0x199B8840 rva=0x8840
+    insns=26  float={}
+      00008840  endbr64   
+      00008844  push      rsi
+      00008845  push      rdi
+      00008846  push      r12
+      00008848  push      r13
+      0000884A  push      r15
+      0000884C  sub       rsp, 0x40
+      00008850  mov       rsi, rcx
+      00008853  mov       edi, r8d
+      00008856  test      rsi, rsi
+
+thunk 0x12E0  idx=4 tab=0x21C6108 entry=0x199B8FA0 rva=0x8FA0
+    insns=87  float={}
+      00008FA0  endbr64   
+      00008FA4  mov       rcx, rdx
+      00008FA7  test      rcx, rcx
+      00008FAA  je        0x910e
+      00008FB0  test      r8d, r8d
+      00008FB3  jle       0x9108
+      00008FB9  vxorps    xmm1, xmm1, xmm1
+      00008FBD  vucomiss  xmm0, xmm1
+      00008FC1  jp        0x8fc9
+      00008FC3  je        0x9105
+
+thunk 0x1310  idx=4 tab=0x21C6148 entry=0x199B95A0 rva=0x95A0
+    insns=95  float={}
+      000095A0  endbr64   
+      000095A4  push      r15
+      000095A6  sub       rsp, 0x20
+      000095AA  mov       rdx, r8
+      000095AD  test      rcx, rcx
+      000095B0  je        0x9755
+      000095B6  test      rdx, rdx
+      000095B9  je        0x9755
+      000095BF  test      r9d, r9d
+      000095C2  jle       0x9749
+
+thunk 0x1340  idx=4 tab=0x21C6188 entry=0x199B9BA0 rva=0x9BA0
+    insns=92  float={}
+      00009BA0  endbr64   
+      00009BA4  push      rdi
+      00009BA5  mov       rdi, rdx
+      00009BA8  test      rcx, rcx
+      00009BAB  je        0x9d30
+      00009BB1  test      rdi, rdi
+      00009BB4  je        0x9d30
+      00009BBA  test      r8d, r8d
+      00009BBD  jle       0x9d29
+      00009BC3  cmp       r8d, 0x10
+
+thunk 0x1370  idx=4 tab=0x21C61C8 entry=0x199BA120 rva=0xA120
+    insns=92  float={}
+      0000A120  endbr64   
+      0000A124  push      rdi
+      0000A125  mov       rdi, rdx
+      0000A128  test      rcx, rcx
+      0000A12B  je        0xa2b0
+      0000A131  test      rdi, rdi
+      0000A134  je        0xa2b0
+      0000A13A  test      r8d, r8d
+      0000A13D  jle       0xa2a9
+      0000A143  cmp       r8d, 0x10
+
+thunk 0x13A0  idx=4 tab=0x21C6208 entry=0x199BA6A0 rva=0xA6A0
+    insns=92  float={}
+      0000A6A0  endbr64   
+      0000A6A4  push      rdi
+      0000A6A5  mov       rdi, rdx
+      0000A6A8  test      rcx, rcx
+      0000A6AB  je        0xa830
+      0000A6B1  test      rdi, rdi
+      0000A6B4  je        0xa830
+      0000A6BA  test      r8d, r8d
+      0000A6BD  jle       0xa829
+      0000A6C3  cmp       r8d, 0x10
+
+thunk 0x1580  idx=4 tab=0x21C6488 entry=0x199BCCE0 rva=0xCCE0
+    insns=13  float={}
+      0000CCE0  endbr64   
+      0000CCE4  sub       rsp, 0x28
+      0000CCE8  test      rcx, rcx
+      0000CCEB  je        0xcd12
+      0000CCED  test      rdx, rdx
+      0000CCF0  je        0xcd12
+      0000CCF2  test      r8, r8
+      0000CCF5  je        0xcd12
+      0000CCF7  test      r9d, r9d
+      0000CCFA  jg        0xcd06
+
+thunk 0x15B0  idx=4 tab=0x21C64C8 entry=0x199BCF40 rva=0xCF40
+    insns=104  float={}
+      0000CF40  endbr64   
+      0000CF44  push      rsi
+      0000CF45  push      rdi
+      0000CF46  push      rbp
+      0000CF47  mov       rbp, rdx
+      0000CF4A  test      rcx, rcx
+      0000CF4D  je        0xd102
+      0000CF53  test      rbp, rbp
+      0000CF56  je        0xd102
+      0000CF5C  test      r8, r8

@@ -1,0 +1,51 @@
+008CAFD0  mov        rax, qword ptr [rcx]
+008CAFD3  mov        r11, rcx
+008CAFD6  movsxd     r8, dword ptr [rcx + 0x18]
+008CAFDA  mov        r10d, dword ptr [rdx + 0x10]
+008CAFDE  lea        r8, [rax + r8*4]
+008CAFE2  mov        qword ptr [rdx], r8
+008CAFE5  mov        r8d, dword ptr [rcx + 0x18]
+008CAFE9  add        r8d, r10d
+008CAFEC  movsxd     r9, r8d
+008CAFEF  mov        rax, r9
+008CAFF2  mov        rcx, r9
+008CAFF5  and        eax, 0xf
+008CAFF8  sub        rcx, rax
+008CAFFB  add        rcx, 0x10
+008CAFFF  test       r9b, 0xf
+008CB003  cmove      rcx, r9
+008CB007  mov        dword ptr [r11 + 0x18], ecx
+008CB00B  mov        rax, qword ptr [r11]
+008CB00E  movsxd     rcx, ecx
+008CB011  lea        rcx, [rax + rcx*4]
+008CB015  mov        qword ptr [rdx + 8], rcx
+008CB019  mov        ecx, dword ptr [r11 + 0x18]
+008CB01D  add        ecx, r10d
+008CB020  movsxd     rdx, ecx
+008CB023  mov        rax, rdx
+008CB026  mov        rcx, rdx
+008CB029  and        eax, 0xf
+008CB02C  sub        rcx, rax
+008CB02F  add        rcx, 0x10
+008CB033  test       dl, 0xf
+008CB036  cmove      rcx, rdx
+008CB03A  mov        dword ptr [r11 + 0x18], ecx
+008CB03E  ret        
+008CB03F  int3       
+008CB040  mov        qword ptr [rsp + 0x20], r9
+008CB045  mov        qword ptr [rsp + 0x10], rdx
+008CB04A  mov        qword ptr [rsp + 8], rcx
+008CB04F  push       rbp
+008CB050  push       rbx
+008CB051  push       rdi
+008CB052  push       r12
+008CB054  push       r15
+008CB056  lea        rbp, [rsp - 0x90]
+008CB05E  sub        rsp, 0x190
+008CB065  mov        r12, rcx
+008CB068  mov        rbx, r9
+008CB06B  mov        r9, rdx
+008CB06E  mov        rdi, r8
+008CB071  mov        edx, dword ptr [rbx + 0x18]
+008CB074  mov        r10d, dword ptr [r9 + 0x404]
+008CB07B  add        r10d, edx

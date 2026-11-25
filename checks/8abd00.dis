@@ -1,0 +1,43 @@
+008ABD00  movaps     xmmword ptr [rbp + 0xe0], xmm1
+008ABD08  movaps     xmm1, xmmword ptr [r12 + 0x50]
+008ABD0E  movaps     xmmword ptr [rbp + 0xf0], xmm0
+008ABD15  movaps     xmm0, xmmword ptr [r12 + 0x60]
+008ABD1B  movaps     xmmword ptr [rbp + 0x100], xmm1
+008ABD22  movaps     xmm1, xmmword ptr [r12 + 0x70]
+008ABD28  movaps     xmmword ptr [rbp + 0x110], xmm0
+008ABD2F  movaps     xmm0, xmmword ptr [r12 + 0x80]
+008ABD38  movaps     xmmword ptr [rbp + 0x120], xmm1
+008ABD3F  movsd      xmm1, qword ptr [r12 + 0x90]
+008ABD49  movaps     xmmword ptr [rbp + 0x130], xmm0
+008ABD50  movaps     xmm0, xmmword ptr [r13]
+008ABD55  movsd      qword ptr [rbp + 0x140], xmm1
+008ABD5D  movaps     xmm1, xmmword ptr [r13 + 0x10]
+008ABD62  movaps     xmmword ptr [rbp - 0x20], xmm0
+008ABD66  movaps     xmm0, xmmword ptr [r13 + 0x20]
+008ABD6B  movaps     xmmword ptr [rbp - 0x10], xmm1
+008ABD6F  movaps     xmm1, xmmword ptr [r13 + 0x30]
+008ABD74  mov        qword ptr [rsp + 0x40], r14
+008ABD79  mov        byte ptr [rsp + 0x38], al
+008ABD7D  movzx      eax, byte ptr [rdx]
+008ABD80  lea        rdx, [rbp + 0x170]
+008ABD87  mov        byte ptr [rsp + 0x30], al
+008ABD8B  lea        rax, [rbp + 0xb0]
+008ABD92  movaps     xmmword ptr [rbp], xmm0
+008ABD96  movaps     xmm0, xmmword ptr [r13 + 0x40]
+008ABD9B  movaps     xmmword ptr [rbp + 0x10], xmm1
+008ABD9F  movaps     xmm1, xmmword ptr [r13 + 0x50]
+008ABDA4  movaps     xmmword ptr [rbp + 0x20], xmm0
+008ABDA8  movaps     xmm0, xmmword ptr [r13 + 0x60]
+008ABDAD  movaps     xmmword ptr [rbp + 0x30], xmm1
+008ABDB1  movaps     xmm1, xmmword ptr [r13 + 0x70]
+008ABDB6  mov        qword ptr [rsp + 0x28], rax
+008ABDBB  lea        rax, [rbp - 0x20]
+008ABDBF  movaps     xmmword ptr [rbp + 0x40], xmm0
+008ABDC3  movaps     xmm0, xmmword ptr [r13 + 0x80]
+008ABDCB  movaps     xmmword ptr [rbp + 0x50], xmm1
+008ABDCF  movsd      xmm1, qword ptr [r13 + 0x90]
+008ABDD8  movaps     xmmword ptr [rbp + 0x60], xmm0
+008ABDDC  movsd      qword ptr [rbp + 0x70], xmm1
+008ABDE1  mov        qword ptr [rsp + 0x20], rax
+008ABDE6  call       0x8b3ed0
+008ABDEB  mov        rax, qword ptr [rsi + 8]

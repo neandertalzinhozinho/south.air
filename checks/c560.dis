@@ -1,0 +1,27 @@
+# function 0xC560..0xC5C0  size=96
+0000C560  endbr64  
+0000C564  sub      rsp, 0x28
+0000C568  test     rcx, rcx
+0000C56B  je       0xc590
+0000C56D  test     rdx, rdx
+0000C570  je       0xc590
+0000C572  test     r8, r8
+0000C575  je       0xc590
+0000C577  test     r9d, r9d
+0000C57A  jle      0xc59a
+0000C57C  call     0x63640
+0000C581  mov      edx, 2
+0000C586  test     eax, eax
+0000C588  cmovne   eax, edx
+0000C58B  add      rsp, 0x28
+0000C58F  ret      
+0000C590  mov      eax, 0xfffffff8
+0000C595  add      rsp, 0x28
+0000C599  ret      
+0000C59A  mov      eax, 0xfffffffa
+0000C59F  add      rsp, 0x28
+0000C5A3  ret      
+0000C5A4  nop      dword ptr [rax + rax]
+0000C5AC  nop      dword ptr [rax]
+0000C5B3  nop      dword ptr [rax + rax]
+0000C5B8  nop      dword ptr [rax + rax]

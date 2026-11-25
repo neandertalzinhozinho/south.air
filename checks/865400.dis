@@ -1,0 +1,29 @@
+00865400  sbb        al, 0
+00865402  add        byte ptr [rdi], cl
+00865404  sub        byte ptr [rbp + 0x3e0], cl
+0086540A  movaps     xmmword ptr [rbp + 0x1ce0], xmm0
+00865411  movaps     xmm0, xmmword ptr [rbp + 0xf0]
+00865418  movaps     xmmword ptr [rbp + 0x1d10], xmm1
+0086541F  movaps     xmm1, xmmword ptr [rbp + 0x400]
+00865426  movaps     xmmword ptr [rbp + 0x1d00], xmm0
+0086542D  movaps     xmm0, xmmword ptr [rbp + 0x3f0]
+00865434  movaps     xmmword ptr [rbp + 0x1d30], xmm1
+0086543B  movaps     xmm1, xmmword ptr [rbp + 0x420]
+00865442  movaps     xmmword ptr [rbp + 0x1d20], xmm0
+00865449  movaps     xmm0, xmmword ptr [rbp + 0x410]
+00865450  movaps     xmmword ptr [rbp + 0x1d50], xmm1
+00865457  movaps     xmm1, xmmword ptr [rbp + 0x440]
+0086545E  movaps     xmmword ptr [rbp + 0x1d40], xmm0
+00865465  movaps     xmm0, xmmword ptr [rbp + 0x430]
+0086546C  movaps     xmmword ptr [rbp + 0x1d70], xmm1
+00865473  movaps     xmm1, xmmword ptr [rbp + 0x460]
+0086547A  movaps     xmmword ptr [rbp + 0x1d60], xmm0
+00865481  movaps     xmm0, xmmword ptr [rbp + 0x450]
+00865488  movaps     xmmword ptr [rbp + 0x1d90], xmm1
+0086548F  movaps     xmmword ptr [rbp + 0x1d80], xmm0
+00865496  call       0x86b2a0
+0086549B  xor        r14d, r14d
+0086549E  cmp        dword ptr [r15 + 0x10], r14d
+008654A2  jle        0x86563a
+008654A8  lea        rax, [rbp - 0x3c]
+008654AC  xor        ebx, ebx

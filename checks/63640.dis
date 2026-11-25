@@ -1,0 +1,1006 @@
+# function 0x63640..0x646C0  size=4224
+00063640  endbr64  
+00063644  push     rdi
+00063645  push     r12
+00063647  push     r14
+00063649  push     r15
+0006364B  push     rbp
+0006364C  sub      rsp, 0x110
+00063653  mov      rdi, r8
+00063656  mov      qword ptr [rsp + 0xf0], r13
+0006365E  lea      r13, [rsp + 0xaf]
+00063666  and      r13, 0xffffffffffffffc0
+0006366A  and      rdi, 0x1c
+0006366E  mov      qword ptr [rsp + 0xf8], r13
+00063676  mov      rbp, rdx
+00063679  mov      rax, qword ptr [rip + 0x2163fc0]   ; 0x21C7640 [.data]
+00063680  xor      dl, dl
+00063682  xor      rax, rsp
+00063685  mov      qword ptr [rsp + 0x100], rax
+0006368D  xor      eax, eax
+0006368F  vmovups  ymm4, ymmword ptr [rip + 0x1d96709]   ; 0x1DF9DA0 [.rdata] | f32=1 f64=0.007812501848093234
+00063697  test     edi, edi
+00063699  je       0x63a61
+0006369F  shr      edi, 2
+000636A2  neg      edi
+000636A4  add      edi, 8
+000636A7  cmp      edi, r9d
+000636AA  vmovups  ymmword ptr [r13], ymm4
+000636B0  vmovups  ymmword ptr [r13 + 0x20], ymm4
+000636B6  cmovge   edi, r9d
+000636BA  movsxd   r10, edi
+000636BD  test     r10, r10
+000636C0  jle      0x6375e
+000636C6  cmp      r10, 8
+000636CA  jl       0x6469a
+000636D0  mov      r11d, edi
+000636D3  xor      r12d, r12d
+000636D6  and      r11d, 0xfffffff8
+000636DA  movsxd   rax, r11d
+000636DD  nop      dword ptr [rax]
+000636E0  vmovups  ymm0, ymmword ptr [rcx + r12*4]
+000636E6  vmovups  ymm1, ymmword ptr [rbp + r12*4]
+000636ED  vmovups  ymmword ptr [r13 + r12*4], ymm0
+000636F4  add      r12, 8
+000636F8  cmp      r12, rax
+000636FB  vmovups  ymmword ptr [r13 + r12*4], ymm1
+00063702  jb       0x636e0
+00063704  xor      eax, eax
+00063706  lea      r12d, [r11 + 1]
+0006370A  movsxd   r12, r12d
+0006370D  cmp      r12, r10
+00063710  ja       0x6375e
+00063712  movsxd   r11, r11d
+00063715  mov      qword ptr [rsp + 0x20], rbx
+0006371A  lea      r12, [rbp + r11*4]
+0006371F  lea      r14, [rcx + r11*4]
+00063723  lea      r15, [r13 + r11*4]
+00063728  neg      r11
+0006372B  add      r11, r10
+0006372E  nop      dword ptr [rax + rax]
+00063736  nop      dword ptr [rax]
+0006373D  nop      dword ptr [rax]
+00063740  mov      ebx, dword ptr [r14 + rax*4]
+00063744  mov      dword ptr [r15 + rax*4], ebx
+00063748  mov      ebx, dword ptr [r12 + rax*4]
+0006374C  mov      dword ptr [r15 + rax*4 + 0x20], ebx
+00063751  inc      rax
+00063754  cmp      rax, r11
+00063757  jb       0x63740
+00063759  mov      rbx, qword ptr [rsp + 0x20]
+0006375E  vmovups  ymm2, ymmword ptr [r13]
+00063764  xor      eax, eax
+00063766  vxorps   ymm3, ymm3, ymm3
+0006376A  vcmpeqps ymm1, ymm2, ymm3
+0006376F  vblendvps ymm5, ymm2, ymm4, ymm1
+00063775  vrcpps   ymm0, ymm5
+00063779  vcmpneq_oqps ymm2, ymm0, ymm3
+0006377E  vandps   ymm3, ymm5, ymm2
+00063782  vfnmadd213ps ymm3, ymm0, ymm4
+00063787  vmulps   ymm0, ymm0, ymmword ptr [r13 + 0x20]
+0006378D  vmovdqa  ymm2, ymm0
+00063791  vfmadd213ps ymm2, ymm3, ymm0
+00063796  vfmadd213ps ymm2, ymm3, ymm0
+0006379B  vtestps  ymm1, ymm1
+000637A0  jne      0x637ad
+000637A2  vmovups  ymmword ptr [r13], ymm2
+000637A8  jmp      0x639fe
+000637AD  vmovmskps r11d, ymm1
+000637B1  test     r11d, 1
+000637B8  je       0x637f9
+000637BA  cmp      dword ptr [r13], 0
+000637BF  jne      0x637f9
+000637C1  mov      r12d, dword ptr [r13 + 0x20]
+000637C5  mov      eax, r12d
+000637C8  and      eax, 0x7fffffff
+000637CD  cmp      eax, 0x7f800000
+000637D2  jg       0x637ec
+000637D4  test     eax, eax
+000637D6  je       0x637ec
+000637D8  and      r12d, 0x80000000
+000637DF  add      r12d, 0x7f800000
+000637E6  mov      dword ptr [r13], r12d
+000637EA  jmp      0x637f4
+000637EC  mov      dword ptr [r13], 0x7fbfffff
+000637F4  mov      eax, 1
+000637F9  test     r11d, 2
+00063800  je       0x63841
+00063802  cmp      dword ptr [r13 + 4], 0
+00063807  jne      0x63841
+00063809  mov      r12d, dword ptr [r13 + 0x24]
+0006380D  mov      eax, r12d
+00063810  and      eax, 0x7fffffff
+00063815  cmp      eax, 0x7f800000
+0006381A  jg       0x63834
+0006381C  test     eax, eax
+0006381E  je       0x63834
+00063820  and      r12d, 0x80000000
+00063827  add      r12d, 0x7f800000
+0006382E  mov      dword ptr [r13 + 4], r12d
+00063832  jmp      0x6383c
+00063834  mov      dword ptr [r13 + 4], 0x7fbfffff
+0006383C  mov      eax, 1
+00063841  test     r11d, 4
+00063848  je       0x63889
+0006384A  cmp      dword ptr [r13 + 8], 0
+0006384F  jne      0x63889
+00063851  mov      r12d, dword ptr [r13 + 0x28]
+00063855  mov      eax, r12d
+00063858  and      eax, 0x7fffffff
+0006385D  cmp      eax, 0x7f800000
+00063862  jg       0x6387c
+00063864  test     eax, eax
+00063866  je       0x6387c
+00063868  and      r12d, 0x80000000
+0006386F  add      r12d, 0x7f800000
+00063876  mov      dword ptr [r13 + 8], r12d
+0006387A  jmp      0x63884
+0006387C  mov      dword ptr [r13 + 8], 0x7fbfffff
+00063884  mov      eax, 1
+00063889  test     r11d, 8
+00063890  je       0x638d1
+00063892  cmp      dword ptr [r13 + 0xc], 0
+00063897  jne      0x638d1
+00063899  mov      r12d, dword ptr [r13 + 0x2c]
+0006389D  mov      eax, r12d
+000638A0  and      eax, 0x7fffffff
+000638A5  cmp      eax, 0x7f800000
+000638AA  jg       0x638c4
+000638AC  test     eax, eax
+000638AE  je       0x638c4
+000638B0  and      r12d, 0x80000000
+000638B7  add      r12d, 0x7f800000
+000638BE  mov      dword ptr [r13 + 0xc], r12d
+000638C2  jmp      0x638cc
+000638C4  mov      dword ptr [r13 + 0xc], 0x7fbfffff
+000638CC  mov      eax, 1
+000638D1  test     r11d, 0x10
+000638D8  je       0x63919
+000638DA  cmp      dword ptr [r13 + 0x10], 0
+000638DF  jne      0x63919
+000638E1  mov      r12d, dword ptr [r13 + 0x30]
+000638E5  mov      eax, r12d
+000638E8  and      eax, 0x7fffffff
+000638ED  cmp      eax, 0x7f800000
+000638F2  jg       0x6390c
+000638F4  test     eax, eax
+000638F6  je       0x6390c
+000638F8  and      r12d, 0x80000000
+000638FF  add      r12d, 0x7f800000
+00063906  mov      dword ptr [r13 + 0x10], r12d
+0006390A  jmp      0x63914
+0006390C  mov      dword ptr [r13 + 0x10], 0x7fbfffff
+00063914  mov      eax, 1
+00063919  test     r11d, 0x20
+00063920  je       0x63961
+00063922  cmp      dword ptr [r13 + 0x14], 0
+00063927  jne      0x63961
+00063929  mov      r12d, dword ptr [r13 + 0x34]
+0006392D  mov      eax, r12d
+00063930  and      eax, 0x7fffffff
+00063935  cmp      eax, 0x7f800000
+0006393A  jg       0x63954
+0006393C  test     eax, eax
+0006393E  je       0x63954
+00063940  and      r12d, 0x80000000
+00063947  add      r12d, 0x7f800000
+0006394E  mov      dword ptr [r13 + 0x14], r12d
+00063952  jmp      0x6395c
+00063954  mov      dword ptr [r13 + 0x14], 0x7fbfffff
+0006395C  mov      eax, 1
+00063961  test     r11d, 0x40
+00063968  je       0x639a9
+0006396A  cmp      dword ptr [r13 + 0x18], 0
+0006396F  jne      0x639a9
+00063971  mov      r12d, dword ptr [r13 + 0x38]
+00063975  mov      eax, r12d
+00063978  and      eax, 0x7fffffff
+0006397D  cmp      eax, 0x7f800000
+00063982  jg       0x6399c
+00063984  test     eax, eax
+00063986  je       0x6399c
+00063988  and      r12d, 0x80000000
+0006398F  add      r12d, 0x7f800000
+00063996  mov      dword ptr [r13 + 0x18], r12d
+0006399A  jmp      0x639a4
+0006399C  mov      dword ptr [r13 + 0x18], 0x7fbfffff
+000639A4  mov      eax, 1
+000639A9  test     r11d, 0x80
+000639B0  je       0x639f1
+000639B2  cmp      dword ptr [r13 + 0x1c], 0
+000639B7  jne      0x639f1
+000639B9  mov      r11d, dword ptr [r13 + 0x3c]
+000639BD  mov      eax, r11d
+000639C0  and      eax, 0x7fffffff
+000639C5  cmp      eax, 0x7f800000
+000639CA  jg       0x639e4
+000639CC  test     eax, eax
+000639CE  je       0x639e4
+000639D0  and      r11d, 0x80000000
+000639D7  add      r11d, 0x7f800000
+000639DE  mov      dword ptr [r13 + 0x1c], r11d
+000639E2  jmp      0x639ec
+000639E4  mov      dword ptr [r13 + 0x1c], 0x7fbfffff
+000639EC  mov      eax, 1
+000639F1  vblendvps ymm0, ymm2, ymmword ptr [r13], ymm1
+000639F8  vmovups  ymmword ptr [r13], ymm0
+000639FE  test     r10, r10
+00063A01  jle      0x63a51
+00063A07  cmp      r10, 8
+00063A0B  jl       0x64692
+00063A11  mov      r12d, edi
+00063A14  xor      r11d, r11d
+00063A17  and      r12d, 0xfffffff8
+00063A1B  movsxd   r12, r12d
+00063A1E  nop      
+00063A20  vmovups  ymm0, ymmword ptr [r13 + r11*4]
+00063A27  vmovups  ymmword ptr [r8 + r11*4], ymm0
+00063A2D  add      r11, 8
+00063A31  cmp      r11, r12
+00063A34  jb       0x63a20
+00063A36  cmp      r12, r10
+00063A39  jae      0x63a51
+00063A3B  nop      dword ptr [rax + rax]
+00063A40  mov      r11d, dword ptr [r13 + r12*4]
+00063A45  mov      dword ptr [r8 + r12*4], r11d
+00063A49  inc      r12
+00063A4C  cmp      r12, r10
+00063A4F  jb       0x63a40
+00063A51  sub      r9d, edi
+00063A54  lea      rcx, [rcx + r10*4]
+00063A58  lea      rbp, [rbp + r10*4]
+00063A5D  lea      r8, [r8 + r10*4]
+00063A61  mov      r12d, r9d
+00063A64  xor      r14d, r14d
+00063A67  sar      r12d, 4
+00063A6B  mov      rdi, rcx
+00063A6E  movsxd   r12, r12d
+00063A71  mov      r10, rbp
+00063A74  mov      r11, r8
+00063A77  xor      r15d, r15d
+00063A7A  test     r12, r12
+00063A7D  jle      0x6400d
+00063A83  vmovups  xmmword ptr [rsp + 0x60], xmm6
+00063A89  vmovups  xmmword ptr [rsp + 0x50], xmm7
+00063A8F  vmovups  xmmword ptr [rsp + 0x40], xmm8
+00063A95  vmovups  xmmword ptr [rsp + 0x30], xmm9
+00063A9B  vmovups  xmmword ptr [rsp + 0x20], xmm10
+00063AA1  vxorps   ymm2, ymm2, ymm2
+00063AA5  nop      dword ptr [rax + rax]
+00063AAD  nop      dword ptr [rax]
+00063AB4  nop      dword ptr [rax + rax]
+00063AB9  nop      dword ptr [rax]
+00063AC0  vmovups  ymm7, ymmword ptr [r15 + rdi]
+00063AC6  vmovups  ymm6, ymmword ptr [r15 + rdi + 0x20]
+00063ACD  vcmpeqps ymm5, ymm7, ymm2
+00063AD2  vcmpeqps ymm3, ymm6, ymm2
+00063AD7  vorps    ymm0, ymm5, ymm3
+00063ADB  vtestps  ymm0, ymm0
+00063AE0  je       0x63af0
+00063AE2  vblendvps ymm7, ymm7, ymm4, ymm5
+00063AE8  mov      dl, 1
+00063AEA  vblendvps ymm6, ymm6, ymm4, ymm3
+00063AF0  vrcpps   ymm0, ymm7
+00063AF4  vrcpps   ymm1, ymm6
+00063AF8  vcmpeqps ymm9, ymm0, ymm2
+00063AFD  vcmpeqps ymm10, ymm1, ymm2
+00063B02  vorps    ymm8, ymm9, ymm10
+00063B07  vtestps  ymm8, ymm8
+00063B0C  je       0x63b16
+00063B0E  vandnps  ymm7, ymm9, ymm7
+00063B12  vandnps  ymm6, ymm10, ymm6
+00063B16  vfnmadd213ps ymm7, ymm0, ymm4
+00063B1B  vfnmadd213ps ymm6, ymm1, ymm4
+00063B20  vmovaps  ymm8, ymm0
+00063B24  vfmadd213ps ymm8, ymm7, ymm0
+00063B29  vfmadd213ps ymm8, ymm7, ymm0
+00063B2E  vmovaps  ymm0, ymm1
+00063B32  vfmadd213ps ymm0, ymm6, ymm1
+00063B37  vmulps   ymm7, ymm8, ymmword ptr [r15 + r10]
+00063B3D  vfmadd213ps ymm0, ymm6, ymm1
+00063B42  vmulps   ymm0, ymm0, ymmword ptr [r15 + r10 + 0x20]
+00063B49  test     dl, dl
+00063B4B  je       0x63fc3
+00063B51  vmovmskps ecx, ymm3
+00063B55  vmovmskps edx, ymm5
+00063B59  shl      ecx, 8
+00063B5C  or       edx, ecx
+00063B5E  vmovups  ymmword ptr [r13], ymm2
+00063B64  vmovups  ymmword ptr [r13 + 0x20], ymm2
+00063B6A  test     dl, 1
+00063B6D  je       0x63bab
+00063B6F  cmp      dword ptr [r15 + rdi], 0
+00063B74  jne      0x63bab
+00063B76  mov      ecx, dword ptr [r15 + r10]
+00063B7A  mov      eax, ecx
+00063B7C  and      eax, 0x7fffffff
+00063B81  cmp      eax, 0x7f800000
+00063B86  jg       0x63b9e
+00063B88  test     eax, eax
+00063B8A  je       0x63b9e
+00063B8C  and      ecx, 0x80000000
+00063B92  add      ecx, 0x7f800000
+00063B98  mov      dword ptr [r13], ecx
+00063B9C  jmp      0x63ba6
+00063B9E  mov      dword ptr [r13], 0x7fbfffff
+00063BA6  mov      eax, 1
+00063BAB  test     dl, 2
+00063BAE  je       0x63bee
+00063BB0  cmp      dword ptr [r15 + rdi + 4], 0
+00063BB6  jne      0x63bee
+00063BB8  mov      ecx, dword ptr [r15 + r10 + 4]
+00063BBD  mov      eax, ecx
+00063BBF  and      eax, 0x7fffffff
+00063BC4  cmp      eax, 0x7f800000
+00063BC9  jg       0x63be1
+00063BCB  test     eax, eax
+00063BCD  je       0x63be1
+00063BCF  and      ecx, 0x80000000
+00063BD5  add      ecx, 0x7f800000
+00063BDB  mov      dword ptr [r13 + 4], ecx
+00063BDF  jmp      0x63be9
+00063BE1  mov      dword ptr [r13 + 4], 0x7fbfffff
+00063BE9  mov      eax, 1
+00063BEE  test     dl, 4
+00063BF1  je       0x63c31
+00063BF3  cmp      dword ptr [r15 + rdi + 8], 0
+00063BF9  jne      0x63c31
+00063BFB  mov      ecx, dword ptr [r15 + r10 + 8]
+00063C00  mov      eax, ecx
+00063C02  and      eax, 0x7fffffff
+00063C07  cmp      eax, 0x7f800000
+00063C0C  jg       0x63c24
+00063C0E  test     eax, eax
+00063C10  je       0x63c24
+00063C12  and      ecx, 0x80000000
+00063C18  add      ecx, 0x7f800000
+00063C1E  mov      dword ptr [r13 + 8], ecx
+00063C22  jmp      0x63c2c
+00063C24  mov      dword ptr [r13 + 8], 0x7fbfffff
+00063C2C  mov      eax, 1
+00063C31  test     dl, 8
+00063C34  je       0x63c74
+00063C36  cmp      dword ptr [r15 + rdi + 0xc], 0
+00063C3C  jne      0x63c74
+00063C3E  mov      ecx, dword ptr [r15 + r10 + 0xc]
+00063C43  mov      eax, ecx
+00063C45  and      eax, 0x7fffffff
+00063C4A  cmp      eax, 0x7f800000
+00063C4F  jg       0x63c67
+00063C51  test     eax, eax
+00063C53  je       0x63c67
+00063C55  and      ecx, 0x80000000
+00063C5B  add      ecx, 0x7f800000
+00063C61  mov      dword ptr [r13 + 0xc], ecx
+00063C65  jmp      0x63c6f
+00063C67  mov      dword ptr [r13 + 0xc], 0x7fbfffff
+00063C6F  mov      eax, 1
+00063C74  test     dl, 0x10
+00063C77  je       0x63cb7
+00063C79  cmp      dword ptr [r15 + rdi + 0x10], 0
+00063C7F  jne      0x63cb7
+00063C81  mov      ecx, dword ptr [r15 + r10 + 0x10]
+00063C86  mov      eax, ecx
+00063C88  and      eax, 0x7fffffff
+00063C8D  cmp      eax, 0x7f800000
+00063C92  jg       0x63caa
+00063C94  test     eax, eax
+00063C96  je       0x63caa
+00063C98  and      ecx, 0x80000000
+00063C9E  add      ecx, 0x7f800000
+00063CA4  mov      dword ptr [r13 + 0x10], ecx
+00063CA8  jmp      0x63cb2
+00063CAA  mov      dword ptr [r13 + 0x10], 0x7fbfffff
+00063CB2  mov      eax, 1
+00063CB7  test     dl, 0x20
+00063CBA  je       0x63cfa
+00063CBC  cmp      dword ptr [r15 + rdi + 0x14], 0
+00063CC2  jne      0x63cfa
+00063CC4  mov      ecx, dword ptr [r15 + r10 + 0x14]
+00063CC9  mov      eax, ecx
+00063CCB  and      eax, 0x7fffffff
+00063CD0  cmp      eax, 0x7f800000
+00063CD5  jg       0x63ced
+00063CD7  test     eax, eax
+00063CD9  je       0x63ced
+00063CDB  and      ecx, 0x80000000
+00063CE1  add      ecx, 0x7f800000
+00063CE7  mov      dword ptr [r13 + 0x14], ecx
+00063CEB  jmp      0x63cf5
+00063CED  mov      dword ptr [r13 + 0x14], 0x7fbfffff
+00063CF5  mov      eax, 1
+00063CFA  test     dl, 0x40
+00063CFD  je       0x63d3d
+00063CFF  cmp      dword ptr [r15 + rdi + 0x18], 0
+00063D05  jne      0x63d3d
+00063D07  mov      ecx, dword ptr [r15 + r10 + 0x18]
+00063D0C  mov      eax, ecx
+00063D0E  and      eax, 0x7fffffff
+00063D13  cmp      eax, 0x7f800000
+00063D18  jg       0x63d30
+00063D1A  test     eax, eax
+00063D1C  je       0x63d30
+00063D1E  and      ecx, 0x80000000
+00063D24  add      ecx, 0x7f800000
+00063D2A  mov      dword ptr [r13 + 0x18], ecx
+00063D2E  jmp      0x63d38
+00063D30  mov      dword ptr [r13 + 0x18], 0x7fbfffff
+00063D38  mov      eax, 1
+00063D3D  test     edx, 0x80
+00063D43  je       0x63d83
+00063D45  cmp      dword ptr [r15 + rdi + 0x1c], 0
+00063D4B  jne      0x63d83
+00063D4D  mov      ecx, dword ptr [r15 + r10 + 0x1c]
+00063D52  mov      eax, ecx
+00063D54  and      eax, 0x7fffffff
+00063D59  cmp      eax, 0x7f800000
+00063D5E  jg       0x63d76
+00063D60  test     eax, eax
+00063D62  je       0x63d76
+00063D64  and      ecx, 0x80000000
+00063D6A  add      ecx, 0x7f800000
+00063D70  mov      dword ptr [r13 + 0x1c], ecx
+00063D74  jmp      0x63d7e
+00063D76  mov      dword ptr [r13 + 0x1c], 0x7fbfffff
+00063D7E  mov      eax, 1
+00063D83  test     edx, 0x100
+00063D89  je       0x63dc9
+00063D8B  cmp      dword ptr [r15 + rdi + 0x20], 0
+00063D91  jne      0x63dc9
+00063D93  mov      ecx, dword ptr [r15 + r10 + 0x20]
+00063D98  mov      eax, ecx
+00063D9A  and      eax, 0x7fffffff
+00063D9F  cmp      eax, 0x7f800000
+00063DA4  jg       0x63dbc
+00063DA6  test     eax, eax
+00063DA8  je       0x63dbc
+00063DAA  and      ecx, 0x80000000
+00063DB0  add      ecx, 0x7f800000
+00063DB6  mov      dword ptr [r13 + 0x20], ecx
+00063DBA  jmp      0x63dc4
+00063DBC  mov      dword ptr [r13 + 0x20], 0x7fbfffff
+00063DC4  mov      eax, 1
+00063DC9  test     edx, 0x200
+00063DCF  je       0x63e0f
+00063DD1  cmp      dword ptr [r15 + rdi + 0x24], 0
+00063DD7  jne      0x63e0f
+00063DD9  mov      ecx, dword ptr [r15 + r10 + 0x24]
+00063DDE  mov      eax, ecx
+00063DE0  and      eax, 0x7fffffff
+00063DE5  cmp      eax, 0x7f800000
+00063DEA  jg       0x63e02
+00063DEC  test     eax, eax
+00063DEE  je       0x63e02
+00063DF0  and      ecx, 0x80000000
+00063DF6  add      ecx, 0x7f800000
+00063DFC  mov      dword ptr [r13 + 0x24], ecx
+00063E00  jmp      0x63e0a
+00063E02  mov      dword ptr [r13 + 0x24], 0x7fbfffff
+00063E0A  mov      eax, 1
+00063E0F  test     edx, 0x400
+00063E15  je       0x63e55
+00063E17  cmp      dword ptr [r15 + rdi + 0x28], 0
+00063E1D  jne      0x63e55
+00063E1F  mov      ecx, dword ptr [r15 + r10 + 0x28]
+00063E24  mov      eax, ecx
+00063E26  and      eax, 0x7fffffff
+00063E2B  cmp      eax, 0x7f800000
+00063E30  jg       0x63e48
+00063E32  test     eax, eax
+00063E34  je       0x63e48
+00063E36  and      ecx, 0x80000000
+00063E3C  add      ecx, 0x7f800000
+00063E42  mov      dword ptr [r13 + 0x28], ecx
+00063E46  jmp      0x63e50
+00063E48  mov      dword ptr [r13 + 0x28], 0x7fbfffff
+00063E50  mov      eax, 1
+00063E55  test     edx, 0x800
+00063E5B  je       0x63e9b
+00063E5D  cmp      dword ptr [r15 + rdi + 0x2c], 0
+00063E63  jne      0x63e9b
+00063E65  mov      ecx, dword ptr [r15 + r10 + 0x2c]
+00063E6A  mov      eax, ecx
+00063E6C  and      eax, 0x7fffffff
+00063E71  cmp      eax, 0x7f800000
+00063E76  jg       0x63e8e
+00063E78  test     eax, eax
+00063E7A  je       0x63e8e
+00063E7C  and      ecx, 0x80000000
+00063E82  add      ecx, 0x7f800000
+00063E88  mov      dword ptr [r13 + 0x2c], ecx
+00063E8C  jmp      0x63e96
+00063E8E  mov      dword ptr [r13 + 0x2c], 0x7fbfffff
+00063E96  mov      eax, 1
+00063E9B  test     edx, 0x1000
+00063EA1  je       0x63ee1
+00063EA3  cmp      dword ptr [r15 + rdi + 0x30], 0
+00063EA9  jne      0x63ee1
+00063EAB  mov      ecx, dword ptr [r15 + r10 + 0x30]
+00063EB0  mov      eax, ecx
+00063EB2  and      eax, 0x7fffffff
+00063EB7  cmp      eax, 0x7f800000
+00063EBC  jg       0x63ed4
+00063EBE  test     eax, eax
+00063EC0  je       0x63ed4
+00063EC2  and      ecx, 0x80000000
+00063EC8  add      ecx, 0x7f800000
+00063ECE  mov      dword ptr [r13 + 0x30], ecx
+00063ED2  jmp      0x63edc
+00063ED4  mov      dword ptr [r13 + 0x30], 0x7fbfffff
+00063EDC  mov      eax, 1
+00063EE1  test     edx, 0x2000
+00063EE7  je       0x63f27
+00063EE9  cmp      dword ptr [r15 + rdi + 0x34], 0
+00063EEF  jne      0x63f27
+00063EF1  mov      ecx, dword ptr [r15 + r10 + 0x34]
+00063EF6  mov      eax, ecx
+00063EF8  and      eax, 0x7fffffff
+00063EFD  cmp      eax, 0x7f800000
+00063F02  jg       0x63f1a
+00063F04  test     eax, eax
+00063F06  je       0x63f1a
+00063F08  and      ecx, 0x80000000
+00063F0E  add      ecx, 0x7f800000
+00063F14  mov      dword ptr [r13 + 0x34], ecx
+00063F18  jmp      0x63f22
+00063F1A  mov      dword ptr [r13 + 0x34], 0x7fbfffff
+00063F22  mov      eax, 1
+00063F27  test     edx, 0x4000
+00063F2D  je       0x63f6d
+00063F2F  cmp      dword ptr [r15 + rdi + 0x38], 0
+00063F35  jne      0x63f6d
+00063F37  mov      ecx, dword ptr [r15 + r10 + 0x38]
+00063F3C  mov      eax, ecx
+00063F3E  and      eax, 0x7fffffff
+00063F43  cmp      eax, 0x7f800000
+00063F48  jg       0x63f60
+00063F4A  test     eax, eax
+00063F4C  je       0x63f60
+00063F4E  and      ecx, 0x80000000
+00063F54  add      ecx, 0x7f800000
+00063F5A  mov      dword ptr [r13 + 0x38], ecx
+00063F5E  jmp      0x63f68
+00063F60  mov      dword ptr [r13 + 0x38], 0x7fbfffff
+00063F68  mov      eax, 1
+00063F6D  test     edx, 0x8000
+00063F73  je       0x63fb3
+00063F75  cmp      dword ptr [r15 + rdi + 0x3c], 0
+00063F7B  jne      0x63fb3
+00063F7D  mov      edx, dword ptr [r15 + r10 + 0x3c]
+00063F82  mov      eax, edx
+00063F84  and      eax, 0x7fffffff
+00063F89  cmp      eax, 0x7f800000
+00063F8E  jg       0x63fa6
+00063F90  test     eax, eax
+00063F92  je       0x63fa6
+00063F94  and      edx, 0x80000000
+00063F9A  add      edx, 0x7f800000
+00063FA0  mov      dword ptr [r13 + 0x3c], edx
+00063FA4  jmp      0x63fae
+00063FA6  mov      dword ptr [r13 + 0x3c], 0x7fbfffff
+00063FAE  mov      eax, 1
+00063FB3  vblendvps ymm7, ymm7, ymmword ptr [r13], ymm5
+00063FBA  xor      dl, dl
+00063FBC  vblendvps ymm0, ymm0, ymmword ptr [r13 + 0x20], ymm3
+00063FC3  inc      r14
+00063FC6  lea      rcx, [r15 + rdi + 0x40]
+00063FCB  vmovups  ymmword ptr [r15 + r11], ymm7
+00063FD1  lea      rbp, [r15 + r10 + 0x40]
+00063FD6  vmovups  ymmword ptr [r15 + r11 + 0x20], ymm0
+00063FDD  lea      r8, [r15 + r11 + 0x40]
+00063FE2  add      r15, 0x40
+00063FE6  cmp      r14, r12
+00063FE9  jb       0x63ac0
+00063FEF  vmovups  xmm6, xmmword ptr [rsp + 0x60]
+00063FF5  vmovups  xmm7, xmmword ptr [rsp + 0x50]
+00063FFB  vmovups  xmm8, xmmword ptr [rsp + 0x40]
+00064001  vmovups  xmm9, xmmword ptr [rsp + 0x30]
+00064007  vmovups  xmm10, xmmword ptr [rsp + 0x20]
+0006400D  test     r9d, 8
+00064014  jne      0x643dd
+0006401A  and      r9d, 7
+0006401E  je       0x64391
+00064024  vmovups  ymmword ptr [r13], ymm4
+0006402A  vmovups  ymmword ptr [r13 + 0x20], ymm4
+00064030  jle      0x640ba
+00064036  mov      r10d, r9d
+00064039  cmp      r10, 4
+0006403D  jl       0x643d6
+00064043  mov      edi, r9d
+00064046  xor      edx, edx
+00064048  and      edi, 0xfffffffc
+0006404B  nop      dword ptr [rax + rax]
+00064053  nop      dword ptr [rax]
+0006405A  nop      word ptr [rax + rax]
+00064060  vmovups  xmm0, xmmword ptr [rcx + rdx*4]
+00064065  vmovups  xmm1, xmmword ptr [rbp + rdx*4]
+0006406B  vmovups  xmmword ptr [r13 + rdx*4], xmm0
+00064072  vmovups  xmmword ptr [r13 + rdx*4 + 0x20], xmm1
+00064079  add      rdx, 4
+0006407D  cmp      rdx, rdi
+00064080  jb       0x64060
+00064082  cmp      rdi, r10
+00064085  jae      0x640ba
+00064087  nop      dword ptr [rax + rax]
+0006408F  nop      dword ptr [rax]
+00064096  nop      dword ptr [rax]
+00064099  nop      dword ptr [rax]
+000640A0  mov      edx, dword ptr [rcx + rdi*4]
+000640A3  mov      r11d, dword ptr [rbp + rdi*4]
+000640A8  mov      dword ptr [r13 + rdi*4], edx
+000640AD  mov      dword ptr [r13 + rdi*4 + 0x20], r11d
+000640B2  inc      rdi
+000640B5  cmp      rdi, r10
+000640B8  jb       0x640a0
+000640BA  vmovups  ymm2, ymmword ptr [r13]
+000640C0  xor      ecx, ecx
+000640C2  vxorps   ymm3, ymm3, ymm3
+000640C6  vcmpeqps ymm1, ymm2, ymm3
+000640CB  vblendvps ymm5, ymm2, ymm4, ymm1
+000640D1  vrcpps   ymm0, ymm5
+000640D5  vcmpneq_oqps ymm2, ymm0, ymm3
+000640DA  vandps   ymm3, ymm5, ymm2
+000640DE  vfnmadd213ps ymm3, ymm0, ymm4
+000640E3  vmulps   ymm4, ymm0, ymmword ptr [r13 + 0x20]
+000640E9  vmovdqa  ymm0, ymm4
+000640ED  vfmadd213ps ymm0, ymm3, ymm4
+000640F2  vfmadd213ps ymm0, ymm3, ymm4
+000640F7  vtestps  ymm1, ymm1
+000640FC  jne      0x64109
+000640FE  vmovups  ymmword ptr [r13], ymm0
+00064104  jmp      0x64335
+00064109  vmovmskps edx, ymm1
+0006410D  test     dl, 1
+00064110  je       0x64150
+00064112  cmp      dword ptr [r13], 0
+00064117  jne      0x64150
+00064119  mov      ebp, dword ptr [r13 + 0x20]
+0006411D  mov      ecx, ebp
+0006411F  and      ecx, 0x7fffffff
+00064125  cmp      ecx, 0x7f800000
+0006412B  jg       0x64143
+0006412D  test     ecx, ecx
+0006412F  je       0x64143
+00064131  and      ebp, 0x80000000
+00064137  add      ebp, 0x7f800000
+0006413D  mov      dword ptr [r13], ebp
+00064141  jmp      0x6414b
+00064143  mov      dword ptr [r13], 0x7fbfffff
+0006414B  mov      ecx, 1
+00064150  test     dl, 2
+00064153  je       0x64193
+00064155  cmp      dword ptr [r13 + 4], 0
+0006415A  jne      0x64193
+0006415C  mov      ebp, dword ptr [r13 + 0x24]
+00064160  mov      ecx, ebp
+00064162  and      ecx, 0x7fffffff
+00064168  cmp      ecx, 0x7f800000
+0006416E  jg       0x64186
+00064170  test     ecx, ecx
+00064172  je       0x64186
+00064174  and      ebp, 0x80000000
+0006417A  add      ebp, 0x7f800000
+00064180  mov      dword ptr [r13 + 4], ebp
+00064184  jmp      0x6418e
+00064186  mov      dword ptr [r13 + 4], 0x7fbfffff
+0006418E  mov      ecx, 1
+00064193  test     dl, 4
+00064196  je       0x641d6
+00064198  cmp      dword ptr [r13 + 8], 0
+0006419D  jne      0x641d6
+0006419F  mov      ebp, dword ptr [r13 + 0x28]
+000641A3  mov      ecx, ebp
+000641A5  and      ecx, 0x7fffffff
+000641AB  cmp      ecx, 0x7f800000
+000641B1  jg       0x641c9
+000641B3  test     ecx, ecx
+000641B5  je       0x641c9
+000641B7  and      ebp, 0x80000000
+000641BD  add      ebp, 0x7f800000
+000641C3  mov      dword ptr [r13 + 8], ebp
+000641C7  jmp      0x641d1
+000641C9  mov      dword ptr [r13 + 8], 0x7fbfffff
+000641D1  mov      ecx, 1
+000641D6  test     dl, 8
+000641D9  je       0x64219
+000641DB  cmp      dword ptr [r13 + 0xc], 0
+000641E0  jne      0x64219
+000641E2  mov      ebp, dword ptr [r13 + 0x2c]
+000641E6  mov      ecx, ebp
+000641E8  and      ecx, 0x7fffffff
+000641EE  cmp      ecx, 0x7f800000
+000641F4  jg       0x6420c
+000641F6  test     ecx, ecx
+000641F8  je       0x6420c
+000641FA  and      ebp, 0x80000000
+00064200  add      ebp, 0x7f800000
+00064206  mov      dword ptr [r13 + 0xc], ebp
+0006420A  jmp      0x64214
+0006420C  mov      dword ptr [r13 + 0xc], 0x7fbfffff
+00064214  mov      ecx, 1
+00064219  test     dl, 0x10
+0006421C  je       0x6425c
+0006421E  cmp      dword ptr [r13 + 0x10], 0
+00064223  jne      0x6425c
+00064225  mov      ebp, dword ptr [r13 + 0x30]
+00064229  mov      ecx, ebp
+0006422B  and      ecx, 0x7fffffff
+00064231  cmp      ecx, 0x7f800000
+00064237  jg       0x6424f
+00064239  test     ecx, ecx
+0006423B  je       0x6424f
+0006423D  and      ebp, 0x80000000
+00064243  add      ebp, 0x7f800000
+00064249  mov      dword ptr [r13 + 0x10], ebp
+0006424D  jmp      0x64257
+0006424F  mov      dword ptr [r13 + 0x10], 0x7fbfffff
+00064257  mov      ecx, 1
+0006425C  test     dl, 0x20
+0006425F  je       0x6429f
+00064261  cmp      dword ptr [r13 + 0x14], 0
+00064266  jne      0x6429f
+00064268  mov      ebp, dword ptr [r13 + 0x34]
+0006426C  mov      ecx, ebp
+0006426E  and      ecx, 0x7fffffff
+00064274  cmp      ecx, 0x7f800000
+0006427A  jg       0x64292
+0006427C  test     ecx, ecx
+0006427E  je       0x64292
+00064280  and      ebp, 0x80000000
+00064286  add      ebp, 0x7f800000
+0006428C  mov      dword ptr [r13 + 0x14], ebp
+00064290  jmp      0x6429a
+00064292  mov      dword ptr [r13 + 0x14], 0x7fbfffff
+0006429A  mov      ecx, 1
+0006429F  test     dl, 0x40
+000642A2  je       0x642e2
+000642A4  cmp      dword ptr [r13 + 0x18], 0
+000642A9  jne      0x642e2
+000642AB  mov      ebp, dword ptr [r13 + 0x38]
+000642AF  mov      ecx, ebp
+000642B1  and      ecx, 0x7fffffff
+000642B7  cmp      ecx, 0x7f800000
+000642BD  jg       0x642d5
+000642BF  test     ecx, ecx
+000642C1  je       0x642d5
+000642C3  and      ebp, 0x80000000
+000642C9  add      ebp, 0x7f800000
+000642CF  mov      dword ptr [r13 + 0x18], ebp
+000642D3  jmp      0x642dd
+000642D5  mov      dword ptr [r13 + 0x18], 0x7fbfffff
+000642DD  mov      ecx, 1
+000642E2  test     edx, 0x80
+000642E8  je       0x64328
+000642EA  cmp      dword ptr [r13 + 0x1c], 0
+000642EF  jne      0x64328
+000642F1  mov      ecx, dword ptr [r13 + 0x3c]
+000642F5  mov      edx, ecx
+000642F7  and      edx, 0x7fffffff
+000642FD  cmp      edx, 0x7f800000
+00064303  jg       0x6431b
+00064305  test     edx, edx
+00064307  je       0x6431b
+00064309  and      ecx, 0x80000000
+0006430F  add      ecx, 0x7f800000
+00064315  mov      dword ptr [r13 + 0x1c], ecx
+00064319  jmp      0x64323
+0006431B  mov      dword ptr [r13 + 0x1c], 0x7fbfffff
+00064323  mov      ecx, 1
+00064328  vblendvps ymm0, ymm0, ymmword ptr [r13], ymm1
+0006432F  vmovups  ymmword ptr [r13], ymm0
+00064335  or       eax, ecx
+00064337  test     r9d, r9d
+0006433A  jle      0x64391
+0006433C  mov      ecx, r9d
+0006433F  cmp      rcx, 4
+00064343  jl       0x643d1
+00064349  and      r9d, 0xfffffffc
+0006434D  xor      edx, edx
+0006434F  nop      dword ptr [rax + rax]
+00064357  nop      dword ptr [rax]
+0006435E  nop      
+00064360  vmovups  xmm0, xmmword ptr [r13 + rdx*4]
+00064367  vmovups  xmmword ptr [r8 + rdx*4], xmm0
+0006436D  add      rdx, 4
+00064371  cmp      rdx, r9
+00064374  jb       0x64360
+00064376  cmp      r9, rcx
+00064379  jae      0x64391
+0006437B  nop      dword ptr [rax + rax]
+00064380  mov      edx, dword ptr [r13 + r9*4]
+00064385  mov      dword ptr [r8 + r9*4], edx
+00064389  inc      r9
+0006438C  cmp      r9, rcx
+0006438F  jb       0x64380
+00064391  mov      rcx, qword ptr [rsp + 0x100]
+00064399  mov      qword ptr [rsp + 0x100], 0
+000643A5  xor      rcx, rsp
+000643A8  vzeroupper 
+000643AB  cmp      rcx, qword ptr [rip + 0x216328e]   ; 0x21C7640 [.data]
+000643B2  jne      0x643cc
+000643B4  mov      r13, qword ptr [rsp + 0xf0]
+000643BC  add      rsp, 0x110
+000643C3  pop      rbp
+000643C4  pop      r15
+000643C6  pop      r14
+000643C8  pop      r12
+000643CA  pop      rdi
+000643CB  ret      
+000643CC  call     0x1796910
+000643D1  xor      r9d, r9d
+000643D4  jmp      0x64376
+000643D6  xor      edi, edi
+000643D8  jmp      0x64082
+000643DD  vmovups  ymm3, ymmword ptr [rcx]
+000643E1  xor      edi, edi
+000643E3  vmovups  ymm5, ymmword ptr [rbp]
+000643E8  vmovups  ymmword ptr [r13], ymm3
+000643EE  vmovups  ymmword ptr [r13 + 0x20], ymm5
+000643F4  vxorps   ymm0, ymm0, ymm0
+000643F8  vcmpeqps ymm1, ymm3, ymm0
+000643FD  vblendvps ymm2, ymm3, ymm4, ymm1
+00064403  vrcpps   ymm3, ymm2
+00064407  vcmpneq_oqps ymm0, ymm3, ymm0
+0006440C  vmulps   ymm5, ymm3, ymm5
+00064410  vandps   ymm2, ymm2, ymm0
+00064414  vfnmadd213ps ymm2, ymm3, ymm4
+00064419  vmovdqa  ymm0, ymm5
+0006441D  vfmadd213ps ymm0, ymm2, ymm5
+00064422  vfmadd213ps ymm0, ymm2, ymm5
+00064427  vtestps  ymm1, ymm1
+0006442C  jne      0x64439
+0006442E  vmovups  ymmword ptr [r13], ymm0
+00064434  jmp      0x6467a
+00064439  vmovmskps edx, ymm1
+0006443D  test     dl, 1
+00064440  je       0x64483
+00064442  cmp      dword ptr [r13], 0
+00064447  jne      0x64483
+00064449  mov      r10d, dword ptr [r13 + 0x20]
+0006444D  mov      edi, r10d
+00064450  and      edi, 0x7fffffff
+00064456  cmp      edi, 0x7f800000
+0006445C  jg       0x64476
+0006445E  test     edi, edi
+00064460  je       0x64476
+00064462  and      r10d, 0x80000000
+00064469  add      r10d, 0x7f800000
+00064470  mov      dword ptr [r13], r10d
+00064474  jmp      0x6447e
+00064476  mov      dword ptr [r13], 0x7fbfffff
+0006447E  mov      edi, 1
+00064483  test     dl, 2
+00064486  je       0x644c9
+00064488  cmp      dword ptr [r13 + 4], 0
+0006448D  jne      0x644c9
+0006448F  mov      r10d, dword ptr [r13 + 0x24]
+00064493  mov      edi, r10d
+00064496  and      edi, 0x7fffffff
+0006449C  cmp      edi, 0x7f800000
+000644A2  jg       0x644bc
+000644A4  test     edi, edi
+000644A6  je       0x644bc
+000644A8  and      r10d, 0x80000000
+000644AF  add      r10d, 0x7f800000
+000644B6  mov      dword ptr [r13 + 4], r10d
+000644BA  jmp      0x644c4
+000644BC  mov      dword ptr [r13 + 4], 0x7fbfffff
+000644C4  mov      edi, 1
+000644C9  test     dl, 4
+000644CC  je       0x6450f
+000644CE  cmp      dword ptr [r13 + 8], 0
+000644D3  jne      0x6450f
+000644D5  mov      r10d, dword ptr [r13 + 0x28]
+000644D9  mov      edi, r10d
+000644DC  and      edi, 0x7fffffff
+000644E2  cmp      edi, 0x7f800000
+000644E8  jg       0x64502
+000644EA  test     edi, edi
+000644EC  je       0x64502
+000644EE  and      r10d, 0x80000000
+000644F5  add      r10d, 0x7f800000
+000644FC  mov      dword ptr [r13 + 8], r10d
+00064500  jmp      0x6450a
+00064502  mov      dword ptr [r13 + 8], 0x7fbfffff
+0006450A  mov      edi, 1
+0006450F  test     dl, 8
+00064512  je       0x64555
+00064514  cmp      dword ptr [r13 + 0xc], 0
+00064519  jne      0x64555
+0006451B  mov      r10d, dword ptr [r13 + 0x2c]
+0006451F  mov      edi, r10d
+00064522  and      edi, 0x7fffffff
+00064528  cmp      edi, 0x7f800000
+0006452E  jg       0x64548
+00064530  test     edi, edi
+00064532  je       0x64548
+00064534  and      r10d, 0x80000000
+0006453B  add      r10d, 0x7f800000
+00064542  mov      dword ptr [r13 + 0xc], r10d
+00064546  jmp      0x64550
+00064548  mov      dword ptr [r13 + 0xc], 0x7fbfffff
+00064550  mov      edi, 1
+00064555  test     dl, 0x10
+00064558  je       0x6459b
+0006455A  cmp      dword ptr [r13 + 0x10], 0
+0006455F  jne      0x6459b
+00064561  mov      r10d, dword ptr [r13 + 0x30]
+00064565  mov      edi, r10d
+00064568  and      edi, 0x7fffffff
+0006456E  cmp      edi, 0x7f800000
+00064574  jg       0x6458e
+00064576  test     edi, edi
+00064578  je       0x6458e
+0006457A  and      r10d, 0x80000000
+00064581  add      r10d, 0x7f800000
+00064588  mov      dword ptr [r13 + 0x10], r10d
+0006458C  jmp      0x64596
+0006458E  mov      dword ptr [r13 + 0x10], 0x7fbfffff
+00064596  mov      edi, 1
+0006459B  test     dl, 0x20
+0006459E  je       0x645e1
+000645A0  cmp      dword ptr [r13 + 0x14], 0
+000645A5  jne      0x645e1
+000645A7  mov      r10d, dword ptr [r13 + 0x34]
+000645AB  mov      edi, r10d
+000645AE  and      edi, 0x7fffffff
+000645B4  cmp      edi, 0x7f800000
+000645BA  jg       0x645d4
+000645BC  test     edi, edi
+000645BE  je       0x645d4
+000645C0  and      r10d, 0x80000000
+000645C7  add      r10d, 0x7f800000
+000645CE  mov      dword ptr [r13 + 0x14], r10d
+000645D2  jmp      0x645dc
+000645D4  mov      dword ptr [r13 + 0x14], 0x7fbfffff
+000645DC  mov      edi, 1
+000645E1  test     dl, 0x40
+000645E4  je       0x64627
+000645E6  cmp      dword ptr [r13 + 0x18], 0
+000645EB  jne      0x64627
+000645ED  mov      r10d, dword ptr [r13 + 0x38]
+000645F1  mov      edi, r10d
+000645F4  and      edi, 0x7fffffff
+000645FA  cmp      edi, 0x7f800000
+00064600  jg       0x6461a
+00064602  test     edi, edi
+00064604  je       0x6461a
+00064606  and      r10d, 0x80000000
+0006460D  add      r10d, 0x7f800000
+00064614  mov      dword ptr [r13 + 0x18], r10d
+00064618  jmp      0x64622
+0006461A  mov      dword ptr [r13 + 0x18], 0x7fbfffff
+00064622  mov      edi, 1
+00064627  test     edx, 0x80
+0006462D  je       0x6466d
+0006462F  cmp      dword ptr [r13 + 0x1c], 0
+00064634  jne      0x6466d
+00064636  mov      edi, dword ptr [r13 + 0x3c]
+0006463A  mov      edx, edi
+0006463C  and      edx, 0x7fffffff
+00064642  cmp      edx, 0x7f800000
+00064648  jg       0x64660
+0006464A  test     edx, edx
+0006464C  je       0x64660
+0006464E  and      edi, 0x80000000
+00064654  add      edi, 0x7f800000
+0006465A  mov      dword ptr [r13 + 0x1c], edi
+0006465E  jmp      0x64668
+00064660  mov      dword ptr [r13 + 0x1c], 0x7fbfffff
+00064668  mov      edi, 1
+0006466D  vblendvps ymm0, ymm0, ymmword ptr [r13], ymm1
+00064674  vmovups  ymmword ptr [r13], ymm0
+0006467A  vmovups  ymmword ptr [r8], ymm0
+0006467F  or       eax, edi
+00064681  add      rcx, 0x20
+00064685  add      rbp, 0x20
+00064689  add      r8, 0x20
+0006468D  jmp      0x6401a
+00064692  xor      r12d, r12d
+00064695  jmp      0x63a36
+0006469A  xor      r11d, r11d
+0006469D  jmp      0x63704
+000646A2  nop      dword ptr [rax + rax]
+000646AA  nop      dword ptr [rax]
+000646B1  nop      dword ptr [rax + rax]
+000646B9  nop      dword ptr [rax]

@@ -1,0 +1,41 @@
+# 0x8C7D70 is not a .pdata start; using next start 0x8CA362
+# function 0x8C7D70..0x8C7E20  size=176
+008C7D70  mov      dword ptr [rax + 0xf000000], eax
+008C7D76  adc      dword ptr [rax - 0x80], eax
+008C7D79  movups   xmm0, xmmword ptr [rcx - 0x60]
+008C7D7D  movups   xmmword ptr [rax - 0x70], xmm1
+008C7D81  movups   xmm1, xmmword ptr [rcx - 0x50]
+008C7D85  movups   xmmword ptr [rax - 0x60], xmm0
+008C7D89  movups   xmm0, xmmword ptr [rcx - 0x40]
+008C7D8D  movups   xmmword ptr [rax - 0x50], xmm1
+008C7D91  movups   xmm1, xmmword ptr [rcx - 0x30]
+008C7D95  movups   xmmword ptr [rax - 0x40], xmm0
+008C7D99  movups   xmm0, xmmword ptr [rcx - 0x20]
+008C7D9D  movups   xmmword ptr [rax - 0x30], xmm1
+008C7DA1  movups   xmm1, xmmword ptr [rcx - 0x10]
+008C7DA5  movups   xmmword ptr [rax - 0x20], xmm0
+008C7DA9  movups   xmmword ptr [rax - 0x10], xmm1
+008C7DAD  sub      rdx, 1
+008C7DB1  jne      0x8c7d60
+008C7DB3  movups   xmm0, xmmword ptr [rcx]
+008C7DB6  mov      r8, qword ptr [r13 + 0x10]
+008C7DBA  lea      rcx, [rbp + 0x1050]
+008C7DC1  movss    xmm1, dword ptr [rbp]
+008C7DC6  mov      r9, r12
+008C7DC9  movups   xmmword ptr [rax], xmm0
+008C7DCC  call     0x8c0bd0
+008C7DD1  mov      r8, r12
+008C7DD4  lea      rdx, [rbp + 0xc40]
+008C7DDB  mov      rcx, r13
+008C7DDE  call     0x8c1440
+008C7DE3  movsxd   rax, dword ptr [r13 + 0x980]
+008C7DEA  lea      r9, [r13 + 0x8f8]
+008C7DF1  mov      r8d, dword ptr [r9 + 0x80]
+008C7DF8  xorps    xmm0, xmm0
+008C7DFB  xor      ecx, ecx
+008C7DFD  mov      dword ptr [rbp + 0x4a4], eax
+008C7E03  shl      rax, 2
+008C7E07  mov      rsi, r15
+008C7E0A  mov      qword ptr [rbp + 0x420], r15
+008C7E11  mov      edx, r15d
+008C7E14  mov      qword ptr [rbp + 0x498], rcx

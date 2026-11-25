@@ -1,0 +1,40 @@
+008688B0  mov        qword ptr [rsp + 0x10], rbx
+008688B5  mov        qword ptr [rsp + 0x18], rsi
+008688BA  push       rdi
+008688BB  sub        rsp, 0x20
+008688BF  mov        ebx, r8d
+008688C2  mov        edi, edx
+008688C4  mov        rsi, rcx
+008688C7  call       0x868840
+008688CC  mov        dword ptr [rsi + 0x88], ebx
+008688D2  xor        ebx, ebx
+008688D4  mov        dword ptr [rsi + 0x8c], edi
+008688DA  test       edi, edi
+008688DC  jle        0x868942
+008688DE  mov        qword ptr [rsp + 0x30], rbp
+008688E3  lea        rdi, [rsi + 0x8c]
+008688EA  lea        rbp, [rsi + 0x88]
+008688F1  movsxd     rcx, dword ptr [rbp]
+008688F5  shl        rcx, 2
+008688F9  test       rcx, rcx
+008688FC  je         0x86892e
+008688FE  add        rcx, 3
+00868902  and        rcx, 0xfffffffffffffffc
+00868906  add        rcx, 0x40
+0086890A  call       qword ptr [rip + 0x1524e20]  ; [0x1D8D730] f32=-1.4703392415691857e+24
+00868910  mov        r8, rax
+00868913  test       rax, rax
+00868916  je         0x86892e
+00868918  add        rax, 0x40
+0086891C  and        rax, 0xffffffffffffffc0
+00868920  lea        rdx, [rax - 1]
+00868924  movzx      ecx, dl
+00868927  sub        cl, r8b
+0086892A  mov        byte ptr [rdx], cl
+0086892C  jmp        0x868930
+0086892E  xor        eax, eax
+00868930  mov        qword ptr [rsi], rax
+00868933  inc        ebx
+00868935  add        rsi, 8
+00868939  cmp        ebx, dword ptr [rdi]
+0086893B  jl         0x8688f1

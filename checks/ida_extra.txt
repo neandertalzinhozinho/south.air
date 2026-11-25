@@ -1,0 +1,6 @@
+imagebase=0x180000000 hexrays=True
+0x8c33d0 analyzed in 0.0s, end=0x1808c3c15
+  chars=0
+0x8c5fd8 analyzed in 0.1s, end=0x1808cab31
+  chars=116125
+DONE

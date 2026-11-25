@@ -1,0 +1,109 @@
+﻿# function 0x8803CE..0x8805A4  size=470
+008803CE  mov      qword ptr [r11 - 0x10], rbp
+008803D2  mov      qword ptr [r11 - 0x18], rsi
+008803D6  mov      qword ptr [r11 - 0x20], rdi
+008803DA  mov      qword ptr [r11 - 0x28], r12
+008803DE  lea      edi, [rax*4]
+008803E5  mov      qword ptr [r11 - 0x30], r13
+008803E9  mov      qword ptr [r11 - 0x38], r14
+008803ED  mov      dword ptr [rsp + 0x4c], edi
+008803F1  mov      qword ptr [r11 - 0x40], r15
+008803F5  mov      qword ptr [rsp + 0xd8], rdx
+008803FD  nop      dword ptr [rax]
+00880400  mov      rax, qword ptr [r8]
+00880403  mov      r8d, 0x20
+00880409  mov      r14, qword ptr [rdx + rax]
+0088040D  mov      rax, qword ptr [rdx + r9]
+00880411  mov      rcx, rax
+00880414  mov      qword ptr [rsp + 0x20], rax
+00880419  lea      rdx, [r14 + 0x40]
+0088041D  call     0x10a0
+00880422  mov      rax, qword ptr [r14 + 0xf8]
+00880429  mov      ebp, 0x20
+0088042E  sub      rax, qword ptr [r14 + 0xf0]
+00880435  sar      rax, 3
+00880439  lea      r15d, [rbp - 0x1f]
+0088043D  cmp      rbp, qword ptr [r14]
+00880440  jae      0x880522
+00880446  dec      rax
+00880449  mov      qword ptr [rsp + 0x28], rax
+0088044E  nop      
+00880450  mov      rbx, qword ptr [r14 + 0x210]
+00880457  cmp      rax, r15
+0088045A  mov      rcx, r15
+0088045D  cmovb    rcx, rax
+00880461  mov      rax, qword ptr [r14 + 0xf0]
+00880468  mov      r12, qword ptr [rax + rcx*8]
+0088046C  mov      rax, qword ptr [r14 + 0x108]
+00880473  movsxd   rcx, ebp
+00880476  mov      edi, dword ptr [r12 + 0x18]
+0088047B  mov      rsi, qword ptr [rax + r15*8]
+0088047F  mov      eax, edi
+00880481  cdq      
+00880482  sub      eax, edx
+00880484  mov      rdx, rbx
+00880487  sar      eax, 1
+00880489  movsxd   r13, eax
+0088048C  mov      rax, qword ptr [rsp + 0x20]
+00880491  mov      r8d, r13d
+00880494  lea      rcx, [rax + rcx*4]
+00880498  call     0x10a0
+0088049D  sub      edi, r13d
+008804A0  lea      rcx, [rbx + r13*4]
+008804A4  mov      edx, edi
+008804A6  call     0x10d0
+008804AB  mov      eax, dword ptr [rsi + 8]
+008804AE  xor      ecx, ecx
+008804B0  xor      edx, edx
+008804B2  mov      qword ptr [rsp + 0x50], rcx
+008804B7  mov      dword ptr [rsp + 0x58], eax
+008804BB  test     eax, eax
+008804BD  jle      0x8804e8
+008804BF  lea      rax, [rsp + 0x50]
+008804C4  sub      rsi, rax
+008804C7  lea      rcx, [rsp + 0x50]
+008804CC  nop      dword ptr [rax]
+008804D0  mov      rax, qword ptr [rsi + rcx]
+008804D4  inc      edx
+008804D6  mov      qword ptr [rcx], rax
+008804D9  lea      rcx, [rcx + 8]
+008804DD  cmp      edx, dword ptr [rsp + 0x58]
+008804E1  jl       0x8804d0
+008804E3  mov      rcx, qword ptr [rsp + 0x50]
+008804E8  mov      r9, qword ptr [r12 + 8]
+008804ED  mov      rdx, rcx
+008804F0  mov      r8, qword ptr [r12]
+008804F4  mov      rcx, rbx
+008804F7  mov      r9, qword ptr [r9]
+008804FA  mov      r8, qword ptr [r8 + 8]
+008804FE  call     0x1010
+00880503  mov      rax, qword ptr [rsp + 0x28]
+00880508  add      rbp, r13
+0088050B  inc      r15
+0088050E  cmp      rbp, qword ptr [r14]
+00880511  jb       0x880450
+00880517  mov      ebx, dword ptr [rsp + 0xd0]
+0088051E  mov      edi, dword ptr [rsp + 0x4c]
+00880522  mov      r8, qword ptr [rsp + 0xc0]
+0088052A  inc      ebx
+0088052C  mov      rdx, qword ptr [rsp + 0xd8]
+00880534  mov      r9, qword ptr [rsp + 0xc8]
+0088053C  add      rdx, 8
+00880540  movsxd   rax, ebx
+00880543  mov      rcx, qword ptr [r8 + 8]
+00880547  sub      rcx, qword ptr [r8]
+0088054A  sar      rcx, 3
+0088054E  mov      dword ptr [rsp + 0xd0], ebx
+00880555  mov      qword ptr [rsp + 0xd8], rdx
+0088055D  cmp      rax, rcx
+00880560  jb       0x880400
+00880566  mov      r15, qword ptr [rsp + 0x78]
+0088056B  mov      r14, qword ptr [rsp + 0x80]
+00880573  mov      r13, qword ptr [rsp + 0x88]
+0088057B  mov      r12, qword ptr [rsp + 0x90]
+00880583  mov      rdi, qword ptr [rsp + 0x98]
+0088058B  mov      rsi, qword ptr [rsp + 0xa0]
+00880593  mov      rbp, qword ptr [rsp + 0xa8]
+0088059B  add      rsp, 0xb0
+008805A2  pop      rbx
+008805A3  ret      

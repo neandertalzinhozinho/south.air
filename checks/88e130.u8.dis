@@ -1,0 +1,155 @@
+# function 0x88E130..0x88E3F0  size=704
+0088E130  push     rsi
+0088E132  sub      rsp, 0xd0
+0088E139  movaps   xmm0, xmm3
+0088E13C  movaps   xmmword ptr [rsp + 0xc0], xmm6
+0088E144  andps    xmm0, xmmword ptr [rip + 0x17ed995]   ; 0x207BAE0 [.rdata]
+0088E14B  movaps   xmm6, xmm3
+0088E14E  comiss   xmm0, dword ptr [rip + 0x17ebb9b]   ; 0x2079CF0 [.rdata] | f32=1.1920929e-07
+0088E155  mov      rsi, rcx
+0088E158  movaps   xmm3, xmmword ptr [rdx]
+0088E15B  ja       0x88e1d8
+0088E15D  cmp      dword ptr [rdx + 0x80], 1
+0088E164  movaps   xmm2, xmmword ptr [rcx]
+0088E167  jne      0x88e186
+0088E169  movdqa   xmm0, xmm2
+0088E16D  movq     rdx, xmm2
+0088E172  psrldq   xmm0, 8
+0088E177  movq     rcx, xmm3
+0088E17C  movd     r8d, xmm0
+0088E181  call     0x10a0
+0088E186  movaps   xmm1, xmmword ptr [rsi]
+0088E189  movdqa   xmm0, xmm1
+0088E18D  movq     rdx, xmm1
+0088E192  psrldq   xmm0, 8
+0088E197  movd     r8d, xmm0
+0088E19C  xorps    xmm0, xmm0
+0088E19F  call     0x1220
+0088E1A4  movaps   xmm1, xmmword ptr [rsi]
+0088E1A7  movdqa   xmm0, xmm1
+0088E1AB  movq     rdx, xmm1
+0088E1B0  psrldq   xmm0, 8
+0088E1B5  movd     r8d, xmm0
+0088E1BA  movss    xmm0, dword ptr [rip + 0x17ebdda]   ; 0x2079F9C [.rdata] | f32=1
+0088E1C2  call     0x12e0
+0088E1C7  movaps   xmm6, xmmword ptr [rsp + 0xc0]
+0088E1CF  add      rsp, 0xd0
+0088E1D6  pop      rsi
+0088E1D7  ret      
+0088E1D8  cmp      dword ptr [rdx + 0x80], 1
+0088E1DF  maxss    xmm2, dword ptr [rip + 0x17ebb09]   ; 0x2079CF0 [.rdata] | f32=1.1920929e-07
+0088E1E7  mulss    xmm6, dword ptr [rip + 0x17ebbf1]   ; 0x2079DE0 [.rdata] | f32=0.166666672 f64=3.5017735250849244e-09
+0088E1EF  mov      qword ptr [rsp + 0xe0], rbx
+0088E1F7  mov      qword ptr [rsp + 0xe8], rdi
+0088E1FF  movaps   xmmword ptr [rsp + 0xb0], xmm8
+0088E208  movss    xmm8, dword ptr [rip + 0x17ebd8b]   ; 0x2079F9C [.rdata] | f32=1
+0088E211  divss    xmm8, xmm2
+0088E216  movaps   xmm2, xmmword ptr [rcx]
+0088E219  jne      0x88e238
+0088E21B  movdqa   xmm0, xmm2
+0088E21F  movq     rdx, xmm2
+0088E224  psrldq   xmm0, 8
+0088E229  movq     rcx, xmm3
+0088E22E  movd     r8d, xmm0
+0088E233  call     0x10a0
+0088E238  movaps   xmm2, xmmword ptr [rsi]
+0088E23B  movss    xmm0, dword ptr [rip + 0x17ebaad]   ; 0x2079CF0 [.rdata] | f32=1.1920929e-07
+0088E243  movdqa   xmm1, xmm2
+0088E247  psrldq   xmm1, 8
+0088E24C  movq     rdx, xmm2
+0088E251  movd     r8d, xmm1
+0088E256  call     0x12e0
+0088E25B  movaps   xmm2, xmmword ptr [rsi]
+0088E25E  movaps   xmm0, xmm8
+0088E262  movdqa   xmm1, xmm2
+0088E266  movq     rdx, xmm2
+0088E26B  psrldq   xmm1, 8
+0088E270  movd     r8d, xmm1
+0088E275  call     0x1220
+0088E27A  movaps   xmm1, xmmword ptr [rsi]
+0088E27D  movq     rbx, xmm1
+0088E282  movdqa   xmm0, xmm1
+0088E286  psrldq   xmm0, 8
+0088E28B  mov      rdx, rbx
+0088E28E  movd     edi, xmm0
+0088E292  mov      rcx, rbx
+0088E295  mov      r8d, edi
+0088E298  call     0x1c8500   ; ipp-dispatch
+0088E29D  movss    xmm0, dword ptr [rip + 0x17ebd7b]   ; 0x207A020 [.rdata] | f32=1.44269502
+0088E2A5  mov      r8d, edi
+0088E2A8  mov      rdx, rbx
+0088E2AB  call     0x1220
+0088E2B0  movaps   xmm1, xmmword ptr [rsi]
+0088E2B3  xorps    xmm6, xmmword ptr [rip + 0x17ed866]   ; 0x207BB20 [.rdata]
+0088E2BA  movdqa   xmm0, xmm1
+0088E2BE  psrldq   xmm0, 8
+0088E2C3  movq     rdx, xmm1
+0088E2C8  movd     r8d, xmm0
+0088E2CD  movaps   xmm0, xmm6
+0088E2D0  call     0x1220
+0088E2D5  movaps   xmm1, xmmword ptr [rsi]
+0088E2D8  movdqa   xmm0, xmm1
+0088E2DC  movq     rcx, xmm1
+0088E2E1  psrldq   xmm0, 8
+0088E2E6  mov      rdx, rcx
+0088E2E9  movd     r8d, xmm0
+0088E2EE  call     0x1c84a0   ; ipp-dispatch
+0088E2F3  movaps   xmm2, xmmword ptr [rsi]
+0088E2F6  movss    xmm0, dword ptr [rip + 0x17ebc9e]   ; 0x2079F9C [.rdata] | f32=1
+0088E2FE  movdqa   xmm1, xmm2
+0088E302  psrldq   xmm1, 8
+0088E307  movq     rdx, xmm2
+0088E30C  movd     r8d, xmm1
+0088E311  call     0x12e0
+0088E316  movaps   xmm1, xmmword ptr [rsi]
+0088E319  movdqa   xmm0, xmm1
+0088E31D  movq     rcx, xmm1
+0088E322  psrldq   xmm0, 8
+0088E327  mov      rdx, rcx
+0088E32A  movd     r8d, xmm0
+0088E32F  call     0x1c8530   ; ipp-dispatch
+0088E334  movaps   xmm1, xmmword ptr [rsi]
+0088E337  movdqa   xmm0, xmm1
+0088E33B  movq     rdx, xmm1
+0088E340  psrldq   xmm0, 8
+0088E345  movd     r8d, xmm0
+0088E34A  movss    xmm0, dword ptr [rip + 0x17ec33e]   ; 0x207A690 [.rdata] | f32=-0.5 f64=-0.00026620010521583026
+0088E352  call     0x12e0
+0088E357  movaps   xmm1, xmmword ptr [rsi]
+0088E35A  movdqa   xmm0, xmm1
+0088E35E  movq     rdx, xmm1
+0088E363  psrldq   xmm0, 8
+0088E368  movd     r8d, xmm0
+0088E36D  movss    xmm0, dword ptr [rsp + 0x100]
+0088E376  call     0x1220
+0088E37B  movaps   xmm1, xmmword ptr [rsi]
+0088E37E  movdqa   xmm0, xmm1
+0088E382  movq     rdx, xmm1
+0088E387  psrldq   xmm0, 8
+0088E38C  movd     r8d, xmm0
+0088E391  movss    xmm0, dword ptr [rip + 0x17eba23]   ; 0x2079DBC [.rdata] | f32=0.115129255 f64=3.1664964914114062e-10
+0088E399  call     0x1220
+0088E39E  movaps   xmm1, xmmword ptr [rsi]
+0088E3A1  movdqa   xmm0, xmm1
+0088E3A5  psrldq   xmm0, 8
+0088E3AA  movd     r8d, xmm0
+0088E3AF  movq     rcx, xmm1
+0088E3B4  mov      rdx, rcx
+0088E3B7  call     0x1c84a0   ; ipp-dispatch
+0088E3BC  movaps   xmm8, xmmword ptr [rsp + 0xb0]
+0088E3C5  mov      rdi, qword ptr [rsp + 0xe8]
+0088E3CD  mov      rbx, qword ptr [rsp + 0xe0]
+0088E3D5  movaps   xmm6, xmmword ptr [rsp + 0xc0]
+0088E3DD  add      rsp, 0xd0
+0088E3E4  pop      rsi
+0088E3E5  ret      
+0088E3E6  int3     
+0088E3E7  int3     
+0088E3E8  int3     
+0088E3E9  int3     
+0088E3EA  int3     
+0088E3EB  int3     
+0088E3EC  int3     
+0088E3ED  int3     
+0088E3EE  int3     
+0088E3EF  int3     

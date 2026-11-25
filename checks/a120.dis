@@ -1,0 +1,104 @@
+# function 0xA120..0xA2C0  size=416
+0000A120  endbr64  
+0000A124  push     rdi
+0000A125  mov      rdi, rdx
+0000A128  test     rcx, rcx
+0000A12B  je       0xa2b0
+0000A131  test     rdi, rdi
+0000A134  je       0xa2b0
+0000A13A  test     r8d, r8d
+0000A13D  jle      0xa2a9
+0000A143  cmp      r8d, 0x10
+0000A147  jl       0xa2a2
+0000A14D  mov      r10, rdi
+0000A150  and      r10, 0x1f
+0000A154  test     r10d, r10d
+0000A157  je       0xa171
+0000A159  test     r10d, 3
+0000A160  jne      0xa2a2
+0000A166  neg      r10d
+0000A169  add      r10d, 0x20
+0000A16D  shr      r10d, 2
+0000A171  lea      eax, [r10 + 0x10]
+0000A175  cmp      r8d, eax
+0000A178  jl       0xa2a2
+0000A17E  mov      eax, r8d
+0000A181  xor      edx, edx
+0000A183  sub      eax, r10d
+0000A186  and      eax, 0xf
+0000A189  neg      eax
+0000A18B  add      eax, r8d
+0000A18E  mov      r9d, r10d
+0000A191  test     r10d, r10d
+0000A194  jbe      0xa1b7
+0000A196  nop      dword ptr [rax]
+0000A199  nop      dword ptr [rax]
+0000A1A0  vmovss   xmm0, dword ptr [rcx + rdx*4]
+0000A1A5  vaddss   xmm1, xmm0, dword ptr [rdi + rdx*4]
+0000A1AA  vmovss   dword ptr [rdi + rdx*4], xmm1
+0000A1AF  inc      rdx
+0000A1B2  cmp      rdx, r9
+0000A1B5  jb       0xa1a0
+0000A1B7  movsxd   rdx, eax
+0000A1BA  nop      word ptr [rax + rax]
+0000A1C0  vmovups  ymm0, ymmword ptr [rcx + r9*4]
+0000A1C6  vmovups  ymm2, ymmword ptr [rcx + r9*4 + 0x20]
+0000A1CD  vaddps   ymm1, ymm0, ymmword ptr [rdi + r9*4]
+0000A1D3  vaddps   ymm3, ymm2, ymmword ptr [rdi + r9*4 + 0x20]
+0000A1DA  vmovups  ymmword ptr [rdi + r9*4], ymm1
+0000A1E0  vmovups  ymmword ptr [rdi + r9*4 + 0x20], ymm3
+0000A1E7  add      r9, 0x10
+0000A1EB  cmp      r9, rdx
+0000A1EE  jb       0xa1c0
+0000A1F0  lea      edx, [rax + 1]
+0000A1F3  cmp      edx, r8d
+0000A1F6  ja       0xa297
+0000A1FC  movsxd   rax, eax
+0000A1FF  movsxd   r8, r8d
+0000A202  sub      r8, rax
+0000A205  cmp      r8, 4
+0000A209  jl       0xa29e
+0000A20F  mov      edx, r8d
+0000A212  xor      r11d, r11d
+0000A215  and      edx, 0xfffffffc
+0000A218  lea      r10, [rdi + rax*4]
+0000A21C  movsxd   rdx, edx
+0000A21F  lea      r9, [rcx + rax*4]
+0000A223  nop      dword ptr [rax + rax]
+0000A22B  nop      dword ptr [rax]
+0000A232  nop      dword ptr [rax]
+0000A239  nop      dword ptr [rax]
+0000A240  vmovups  xmm0, xmmword ptr [r9 + r11*4]
+0000A246  vaddps   xmm1, xmm0, xmmword ptr [r10 + r11*4]
+0000A24C  vmovups  xmmword ptr [r10 + r11*4], xmm1
+0000A252  add      r11, 4
+0000A256  cmp      r11, rdx
+0000A259  jb       0xa240
+0000A25B  cmp      rdx, r8
+0000A25E  jae      0xa297
+0000A260  lea      rdi, [rdi + rax*4]
+0000A264  lea      rax, [rcx + rax*4]
+0000A268  nop      dword ptr [rax + rax]
+0000A270  nop      dword ptr [rax]
+0000A277  nop      word ptr [rax + rax]
+0000A280  vmovss   xmm0, dword ptr [rax + rdx*4]
+0000A285  vaddss   xmm1, xmm0, dword ptr [rdi + rdx*4]
+0000A28A  vmovss   dword ptr [rdi + rdx*4], xmm1
+0000A28F  inc      rdx
+0000A292  cmp      rdx, r8
+0000A295  jb       0xa280
+0000A297  xor      eax, eax
+0000A299  vzeroupper 
+0000A29C  pop      rdi
+0000A29D  ret      
+0000A29E  xor      edx, edx
+0000A2A0  jmp      0xa25b
+0000A2A2  xor      eax, eax
+0000A2A4  jmp      0xa1f0
+0000A2A9  mov      eax, 0xfffffffa
+0000A2AE  pop      rdi
+0000A2AF  ret      
+0000A2B0  mov      eax, 0xfffffff8
+0000A2B5  pop      rdi
+0000A2B6  ret      
+0000A2B7  nop      word ptr [rax + rax]

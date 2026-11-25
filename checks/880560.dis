@@ -1,0 +1,43 @@
+00880560  jb         0x880400
+00880566  mov        r15, qword ptr [rsp + 0x78]
+0088056B  mov        r14, qword ptr [rsp + 0x80]
+00880573  mov        r13, qword ptr [rsp + 0x88]
+0088057B  mov        r12, qword ptr [rsp + 0x90]
+00880583  mov        rdi, qword ptr [rsp + 0x98]
+0088058B  mov        rsi, qword ptr [rsp + 0xa0]
+00880593  mov        rbp, qword ptr [rsp + 0xa8]
+0088059B  add        rsp, 0xb0
+008805A2  pop        rbx
+008805A3  ret        
+008805A4  int3       
+008805A5  int3       
+008805A6  int3       
+008805A7  int3       
+008805A8  int3       
+008805A9  int3       
+008805AA  int3       
+008805AB  int3       
+008805AC  int3       
+008805AD  int3       
+008805AE  int3       
+008805AF  int3       
+008805B0  push       rbx
+008805B2  sub        rsp, 0x30
+008805B6  mov        rax, qword ptr [rcx]
+008805B9  mov        rbx, rcx
+008805BC  cmp        byte ptr [rax], 0
+008805BF  je         0x8805f6
+008805C1  mov        rax, qword ptr [rcx + 8]
+008805C5  mov        rcx, qword ptr [rcx + 0x10]
+008805C9  mov        r9, qword ptr [rbx + 0x28]
+008805CD  add        rcx, 0x5ed0
+008805D4  mov        r8, qword ptr [rbx + 0x20]
+008805D8  mov        rdx, qword ptr [rbx + 0x18]
+008805DC  mov        dword ptr [rax], 0
+008805E2  mov        rax, qword ptr [rbx + 0x30]
+008805E6  mov        qword ptr [rsp + 0x20], rax
+008805EB  call       0x884640
+008805F0  add        rsp, 0x30
+008805F4  pop        rbx
+008805F5  ret        
+008805F6  mov        rcx, qword ptr [rcx + 0x10]

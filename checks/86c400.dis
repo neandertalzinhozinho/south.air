@@ -1,0 +1,56 @@
+0086C400  add        ecx, edx
+0086C402  dec        eax
+0086C404  and        ecx, eax
+0086C406  mov        dword ptr [rdi + 0x84], ecx
+0086C40C  add        rsp, 0x1d80
+0086C413  pop        r14
+0086C415  pop        rdi
+0086C416  pop        rbp
+0086C417  ret        
+0086C418  int3       
+0086C419  int3       
+0086C41A  int3       
+0086C41B  int3       
+0086C41C  int3       
+0086C41D  int3       
+0086C41E  int3       
+0086C41F  int3       
+0086C420  mov        qword ptr [rsp + 0x18], r8
+0086C425  mov        qword ptr [rsp + 8], rcx
+0086C42A  push       rbp
+0086C42B  push       rbx
+0086C42C  push       rsi
+0086C42D  push       rdi
+0086C42E  push       r14
+0086C430  lea        rbp, [rsp - 0xda0]
+0086C438  sub        rsp, 0xea0
+0086C43F  mov        rax, qword ptr [rcx]
+0086C442  xor        edi, edi
+0086C444  mov        qword ptr [rbp - 0x40], rax
+0086C448  mov        r14, r8
+0086C44B  lea        rax, [rbp + 0xdd8]
+0086C452  mov        dword ptr [rbp + 0xdd8], edi
+0086C458  mov        qword ptr [rbp - 0x38], rax
+0086C45C  mov        rbx, rdx
+0086C45F  mov        rax, qword ptr [rcx + 8]
+0086C463  mov        rsi, rcx
+0086C466  mov        qword ptr [rbp - 0x30], rax
+0086C46A  mov        rax, qword ptr [rbp + 0xdf0]
+0086C471  mov        qword ptr [rbp - 0x10], rax
+0086C475  mov        eax, dword ptr [rip + 0x1e4539d]  ; [0x26B1818] f32=5.605193857299268e-45
+0086C47B  mov        qword ptr [rbp - 0x28], rdx
+0086C47F  mov        qword ptr [rbp - 0x20], r8
+0086C483  mov        qword ptr [rbp - 0x18], r9
+0086C487  cmp        eax, 4
+0086C48A  jne        0x86c497
+0086C48C  lea        rcx, [rbp - 0x40]
+0086C490  call       0x8805b0
+0086C495  jmp        0x86c4a5
+0086C497  cmp        eax, 1
+0086C49A  jne        0x86c4a5
+0086C49C  lea        rcx, [rbp - 0x40]
+0086C4A0  call       0x884fb0
+0086C4A5  mov        rax, qword ptr [rsi + 8]
+0086C4A9  cmp        dword ptr [rax + 0x2c], 1
+0086C4AD  jle        0x86cfe1
+0086C4B3  movsxd     rcx, dword ptr [rax + 0xc084]

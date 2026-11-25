@@ -1,0 +1,16 @@
+imagebase=0x180000000 hexrays=True
+rva         ok     secs    chars    details
+0x0008bf650 OK     0.1     8337     start=0x1808bf650 size=1411
+0x0008bfbe0 OK     0.0     1263     start=0x1808bfbe0 size=199
+0x0008bfd30 OK     0.2     7429     start=0x1808bfd30 size=1275
+0x0008c0230 OK     0.0     947      start=0x1808c0230 size=177
+0x0008c02f0 OK     0.2     12333    start=0x1808c02f0 size=2079
+0x0008c0b10 OK     0.0     947      start=0x1808c0b10 size=177
+0x0008c0bd0 OK     0.3     13168    start=0x1808c0bd0 size=2150
+0x0008c1440 OK     1.6     44464    start=0x1808c1440 size=7800
+0x0008c32c0 OK     0.0     1559     start=0x1808c32c0 size=266
+0x0008c33d0 OK     0.0     0        start=0x1808c33d0 size=2117
+0x0008c3c20 OK     0.0     2418     start=0x1808c3c20 size=465
+0x0008c3e00 OK     0.0     1558     start=0x1808c3e00 size=266
+0x0008c3f10 OK     0.1     4694     start=0x1808c3f10 size=952
+DONE

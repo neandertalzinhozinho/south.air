@@ -1,0 +1,288 @@
+=== soultree host VST3 (oráculo etapa I) — somente leitura ===
+plugin : ..\original\soothe3.vst3
+entrada: test\seno_1k_44k1_1s.wav
+saída  : test\out_44k1.wav
+bloco  : 512 frames
+
+WAV entrada: 44100 Hz, 2 canal(is), 44100 frames (1.000 s), pico 0.5000 (-6.0 dBFS), RMS -11.1 dBFS
+
+[01] kernel32!LoadLibraryW                          fn=0x7FFF139DF6C0
+     -> hmod=0x180000000  base=0x180000000  SizeOfImage=0x82A8000
+[02] kernel32!GetProcAddress("GetPluginFactory")    fn=0x7FFF139D3140
+     -> 0x180327A50
+[03] GetPluginFactory                               fn=0x180327A50  rva=+0x327A50
+     -> IPluginFactory*=0x1FAE83D5C00
+[04] FUnknown::addRef (factory)                     fn=0x180315190  rva=+0x315190
+     -> refs=2
+[05] IPluginFactory::getFactoryInfo                 fn=0x180326810  rva=+0x326810
+     -> kResultOk/kResultTrue (S_OK) (0x00000000)
+     vendor='oeksound' url='' email='' flags=0x10
+[06] IPluginFactory::countClasses                   fn=0x1803267F0  rva=+0x3267F0
+     -> 3 classe(s) exportada(s)
+[07] IPluginFactory::getClassInfo(0)                fn=0x1803268A0  rva=+0x3268A0
+     -> kResultOk/kResultTrue (S_OK) (0x00000000)
+     [0] cid=01EFCDAB8291EBFA4F656B5353746833 cardinality=2147483647 category='Audio Module Class' name='soothe3'
+[08] IPluginFactory::getClassInfo(1)                fn=0x1803268A0  rva=+0x3268A0
+     -> kResultOk/kResultTrue (S_OK) (0x00000000)
+     [1] cid=01EFCDAB3412CDAB4F656B5353746833 cardinality=2147483647 category='Component Controller Class' name='soothe3'
+[09] IPluginFactory::getClassInfo(2)                fn=0x1803268A0  rva=+0x3268A0
+     -> kResultOk/kResultTrue (S_OK) (0x00000000)
+     [2] cid=01EFCDABDEC00DF04F656B5353746833 cardinality=2147483647 category='Plugin Compatibility Class' name='soothe3'
+     classe escolhida: 'soothe3' cid=01EFCDAB8291EBFA4F656B5353746833
+
+[10] IPluginFactory::createInstance(cid, IComponent) fn=0x180326B10  rva=+0x326B10
+     -> kResultOk/kResultTrue (S_OK) (0x00000000)
+     IComponent*=0x1FAE84B4910
+[11] IComponent::queryInterface(IAudioProcessor)    fn=0x180322670  rva=+0x322670
+     -> kResultOk/kResultTrue (S_OK) (0x00000000)
+     IAudioProcessor*=0x1FAE84B4918
+
+[12] IComponent::initialize(hostContext)            fn=0x180322740  rva=+0x322740
+  [13] IHostApplication::queryInterface               fn=0x7FF655351220
+       -> kResultOk/kResultTrue (S_OK) (0x00000000)
+     -> kResultOk/kResultTrue (S_OK) (0x00000000)
+[14] IComponent::getBusCount(kAudio, kInput)        fn=0x180324100  rva=+0x324100
+     -> 2
+[15] IComponent::getBusCount(kAudio, kOutput)       fn=0x180324100  rva=+0x324100
+     -> 1
+     busses de áudio: entrada=2, saída=1
+[16] IComponent::getBusInfo(kAudio, kInput, 0)      fn=0x180324130  rva=+0x324130
+     -> kResultOk/kResultTrue (S_OK) (0x00000000)
+     bus kInput[0] canal(is)=2 tipo=kMain flags=0x1 nome='Main Input'
+[17] IAudioProcessor::getBusArrangement(kInput, 0)  fn=0x180324DE0  rva=+0x324DE0
+     -> kResultOk/kResultTrue (S_OK) (0x00000000)
+         SpeakerArrangement=0x0000000000000003
+[18] IComponent::getBusInfo(kAudio, kInput, 1)      fn=0x180324130  rva=+0x324130
+     -> kResultOk/kResultTrue (S_OK) (0x00000000)
+     bus kInput[1] canal(is)=2 tipo=kAux flags=0x1 nome='Sidechain Input'
+[19] IAudioProcessor::getBusArrangement(kInput, 1)  fn=0x180324DE0  rva=+0x324DE0
+     -> kResultOk/kResultTrue (S_OK) (0x00000000)
+         SpeakerArrangement=0x0000000000000003
+[20] IComponent::getBusInfo(kAudio, kOutput, 0)     fn=0x180324130  rva=+0x324130
+     -> kResultOk/kResultTrue (S_OK) (0x00000000)
+     bus kOutput[0] canal(is)=2 tipo=kMain flags=0x1 nome='Output'
+[21] IAudioProcessor::getBusArrangement(kOutput, 0) fn=0x180324DE0  rva=+0x324DE0
+     -> kResultOk/kResultTrue (S_OK) (0x00000000)
+         SpeakerArrangement=0x0000000000000003
+[22] IComponent::activateBus(kAudio, kInput, 0, 1)  fn=0x180324280  rva=+0x324280
+     -> kResultOk/kResultTrue (S_OK) (0x00000000)
+[23] IComponent::activateBus(kAudio, kInput, 1, 0)  fn=0x180324280  rva=+0x324280
+     -> kResultOk/kResultTrue (S_OK) (0x00000000)
+[24] IComponent::activateBus(kAudio, kOutput, 0, 1) fn=0x180324280  rva=+0x324280
+     -> kResultOk/kResultTrue (S_OK) (0x00000000)
+
+[25] IAudioProcessor::canProcessSampleSize(kSample32) fn=0x180324E50  rva=+0x324E50
+     -> kResultOk/kResultTrue (S_OK) (0x00000000)
+[26] IAudioProcessor::getLatencySamples             fn=0x180324E90  rva=+0x324E90
+     -> 2304 amostras
+[27] IAudioProcessor::getTailSamples                fn=0x180324FF0  rva=+0x324FF0
+     -> 0 amostras
+
+[28] IAudioProcessor::setupProcessing(kOffline)     fn=0x180324EA0  rva=+0x324EA0
+     -> kResultOk/kResultTrue (S_OK) (0x00000000)
+     setup: modo=kOffline, sampleSize=kSample32, maxBloco=512, taxa=44100 Hz
+
+[29] IComponent::setActive(true)                    fn=0x180322A00  rva=+0x322A00
+     -> kResultOk/kResultTrue (S_OK) (0x00000000)
+[30] IAudioProcessor::setProcessing(true)           fn=0x180324FD0  rva=+0x324FD0
+     -> kResultOk/kResultTrue (S_OK) (0x00000000)
+
+processando 44100 frames em blocos de até 512 ...
+[31] IAudioProcessor::process(#0, numSamples=512)   fn=0x180325070  rva=+0x325070
+     -> kResultOk/kResultTrue (S_OK) (0x00000000)
+[32] IAudioProcessor::process(#1, numSamples=512)   fn=0x180325070  rva=+0x325070
+     -> kResultOk/kResultTrue (S_OK) (0x00000000)
+[33] IAudioProcessor::process(#2, numSamples=512)   fn=0x180325070  rva=+0x325070
+     -> kResultOk/kResultTrue (S_OK) (0x00000000)
+[34] IAudioProcessor::process(#3, numSamples=512)   fn=0x180325070  rva=+0x325070
+     -> kResultOk/kResultTrue (S_OK) (0x00000000)
+[35] IAudioProcessor::process(#4, numSamples=512)   fn=0x180325070  rva=+0x325070
+     -> kResultOk/kResultTrue (S_OK) (0x00000000)
+[36] IAudioProcessor::process(#5, numSamples=512)   fn=0x180325070  rva=+0x325070
+     -> kResultOk/kResultTrue (S_OK) (0x00000000)
+[37] IAudioProcessor::process(#6, numSamples=512)   fn=0x180325070  rva=+0x325070
+     -> kResultOk/kResultTrue (S_OK) (0x00000000)
+[38] IAudioProcessor::process(#7, numSamples=512)   fn=0x180325070  rva=+0x325070
+     -> kResultOk/kResultTrue (S_OK) (0x00000000)
+[39] IAudioProcessor::process(#8, numSamples=512)   fn=0x180325070  rva=+0x325070
+     -> kResultOk/kResultTrue (S_OK) (0x00000000)
+[40] IAudioProcessor::process(#9, numSamples=512)   fn=0x180325070  rva=+0x325070
+     -> kResultOk/kResultTrue (S_OK) (0x00000000)
+[41] IAudioProcessor::process(#10, numSamples=512)  fn=0x180325070  rva=+0x325070
+     -> kResultOk/kResultTrue (S_OK) (0x00000000)
+[42] IAudioProcessor::process(#11, numSamples=512)  fn=0x180325070  rva=+0x325070
+     -> kResultOk/kResultTrue (S_OK) (0x00000000)
+[43] IAudioProcessor::process(#12, numSamples=512)  fn=0x180325070  rva=+0x325070
+     -> kResultOk/kResultTrue (S_OK) (0x00000000)
+[44] IAudioProcessor::process(#13, numSamples=512)  fn=0x180325070  rva=+0x325070
+     -> kResultOk/kResultTrue (S_OK) (0x00000000)
+[45] IAudioProcessor::process(#14, numSamples=512)  fn=0x180325070  rva=+0x325070
+     -> kResultOk/kResultTrue (S_OK) (0x00000000)
+[46] IAudioProcessor::process(#15, numSamples=512)  fn=0x180325070  rva=+0x325070
+     -> kResultOk/kResultTrue (S_OK) (0x00000000)
+[47] IAudioProcessor::process(#16, numSamples=512)  fn=0x180325070  rva=+0x325070
+     -> kResultOk/kResultTrue (S_OK) (0x00000000)
+[48] IAudioProcessor::process(#17, numSamples=512)  fn=0x180325070  rva=+0x325070
+     -> kResultOk/kResultTrue (S_OK) (0x00000000)
+[49] IAudioProcessor::process(#18, numSamples=512)  fn=0x180325070  rva=+0x325070
+     -> kResultOk/kResultTrue (S_OK) (0x00000000)
+[50] IAudioProcessor::process(#19, numSamples=512)  fn=0x180325070  rva=+0x325070
+     -> kResultOk/kResultTrue (S_OK) (0x00000000)
+[51] IAudioProcessor::process(#20, numSamples=512)  fn=0x180325070  rva=+0x325070
+     -> kResultOk/kResultTrue (S_OK) (0x00000000)
+[52] IAudioProcessor::process(#21, numSamples=512)  fn=0x180325070  rva=+0x325070
+     -> kResultOk/kResultTrue (S_OK) (0x00000000)
+[53] IAudioProcessor::process(#22, numSamples=512)  fn=0x180325070  rva=+0x325070
+     -> kResultOk/kResultTrue (S_OK) (0x00000000)
+[54] IAudioProcessor::process(#23, numSamples=512)  fn=0x180325070  rva=+0x325070
+     -> kResultOk/kResultTrue (S_OK) (0x00000000)
+[55] IAudioProcessor::process(#24, numSamples=512)  fn=0x180325070  rva=+0x325070
+     -> kResultOk/kResultTrue (S_OK) (0x00000000)
+[56] IAudioProcessor::process(#25, numSamples=512)  fn=0x180325070  rva=+0x325070
+     -> kResultOk/kResultTrue (S_OK) (0x00000000)
+[57] IAudioProcessor::process(#26, numSamples=512)  fn=0x180325070  rva=+0x325070
+     -> kResultOk/kResultTrue (S_OK) (0x00000000)
+[58] IAudioProcessor::process(#27, numSamples=512)  fn=0x180325070  rva=+0x325070
+     -> kResultOk/kResultTrue (S_OK) (0x00000000)
+[59] IAudioProcessor::process(#28, numSamples=512)  fn=0x180325070  rva=+0x325070
+     -> kResultOk/kResultTrue (S_OK) (0x00000000)
+[60] IAudioProcessor::process(#29, numSamples=512)  fn=0x180325070  rva=+0x325070
+     -> kResultOk/kResultTrue (S_OK) (0x00000000)
+[61] IAudioProcessor::process(#30, numSamples=512)  fn=0x180325070  rva=+0x325070
+     -> kResultOk/kResultTrue (S_OK) (0x00000000)
+[62] IAudioProcessor::process(#31, numSamples=512)  fn=0x180325070  rva=+0x325070
+     -> kResultOk/kResultTrue (S_OK) (0x00000000)
+[63] IAudioProcessor::process(#32, numSamples=512)  fn=0x180325070  rva=+0x325070
+     -> kResultOk/kResultTrue (S_OK) (0x00000000)
+[64] IAudioProcessor::process(#33, numSamples=512)  fn=0x180325070  rva=+0x325070
+     -> kResultOk/kResultTrue (S_OK) (0x00000000)
+[65] IAudioProcessor::process(#34, numSamples=512)  fn=0x180325070  rva=+0x325070
+     -> kResultOk/kResultTrue (S_OK) (0x00000000)
+[66] IAudioProcessor::process(#35, numSamples=512)  fn=0x180325070  rva=+0x325070
+     -> kResultOk/kResultTrue (S_OK) (0x00000000)
+[67] IAudioProcessor::process(#36, numSamples=512)  fn=0x180325070  rva=+0x325070
+     -> kResultOk/kResultTrue (S_OK) (0x00000000)
+[68] IAudioProcessor::process(#37, numSamples=512)  fn=0x180325070  rva=+0x325070
+     -> kResultOk/kResultTrue (S_OK) (0x00000000)
+[69] IAudioProcessor::process(#38, numSamples=512)  fn=0x180325070  rva=+0x325070
+     -> kResultOk/kResultTrue (S_OK) (0x00000000)
+[70] IAudioProcessor::process(#39, numSamples=512)  fn=0x180325070  rva=+0x325070
+     -> kResultOk/kResultTrue (S_OK) (0x00000000)
+[71] IAudioProcessor::process(#40, numSamples=512)  fn=0x180325070  rva=+0x325070
+     -> kResultOk/kResultTrue (S_OK) (0x00000000)
+[72] IAudioProcessor::process(#41, numSamples=512)  fn=0x180325070  rva=+0x325070
+     -> kResultOk/kResultTrue (S_OK) (0x00000000)
+[73] IAudioProcessor::process(#42, numSamples=512)  fn=0x180325070  rva=+0x325070
+     -> kResultOk/kResultTrue (S_OK) (0x00000000)
+[74] IAudioProcessor::process(#43, numSamples=512)  fn=0x180325070  rva=+0x325070
+     -> kResultOk/kResultTrue (S_OK) (0x00000000)
+[75] IAudioProcessor::process(#44, numSamples=512)  fn=0x180325070  rva=+0x325070
+     -> kResultOk/kResultTrue (S_OK) (0x00000000)
+[76] IAudioProcessor::process(#45, numSamples=512)  fn=0x180325070  rva=+0x325070
+     -> kResultOk/kResultTrue (S_OK) (0x00000000)
+[77] IAudioProcessor::process(#46, numSamples=512)  fn=0x180325070  rva=+0x325070
+     -> kResultOk/kResultTrue (S_OK) (0x00000000)
+[78] IAudioProcessor::process(#47, numSamples=512)  fn=0x180325070  rva=+0x325070
+     -> kResultOk/kResultTrue (S_OK) (0x00000000)
+[79] IAudioProcessor::process(#48, numSamples=512)  fn=0x180325070  rva=+0x325070
+     -> kResultOk/kResultTrue (S_OK) (0x00000000)
+[80] IAudioProcessor::process(#49, numSamples=512)  fn=0x180325070  rva=+0x325070
+     -> kResultOk/kResultTrue (S_OK) (0x00000000)
+[81] IAudioProcessor::process(#50, numSamples=512)  fn=0x180325070  rva=+0x325070
+     -> kResultOk/kResultTrue (S_OK) (0x00000000)
+[82] IAudioProcessor::process(#51, numSamples=512)  fn=0x180325070  rva=+0x325070
+     -> kResultOk/kResultTrue (S_OK) (0x00000000)
+[83] IAudioProcessor::process(#52, numSamples=512)  fn=0x180325070  rva=+0x325070
+     -> kResultOk/kResultTrue (S_OK) (0x00000000)
+[84] IAudioProcessor::process(#53, numSamples=512)  fn=0x180325070  rva=+0x325070
+     -> kResultOk/kResultTrue (S_OK) (0x00000000)
+[85] IAudioProcessor::process(#54, numSamples=512)  fn=0x180325070  rva=+0x325070
+     -> kResultOk/kResultTrue (S_OK) (0x00000000)
+[86] IAudioProcessor::process(#55, numSamples=512)  fn=0x180325070  rva=+0x325070
+     -> kResultOk/kResultTrue (S_OK) (0x00000000)
+[87] IAudioProcessor::process(#56, numSamples=512)  fn=0x180325070  rva=+0x325070
+     -> kResultOk/kResultTrue (S_OK) (0x00000000)
+[88] IAudioProcessor::process(#57, numSamples=512)  fn=0x180325070  rva=+0x325070
+     -> kResultOk/kResultTrue (S_OK) (0x00000000)
+[89] IAudioProcessor::process(#58, numSamples=512)  fn=0x180325070  rva=+0x325070
+     -> kResultOk/kResultTrue (S_OK) (0x00000000)
+[90] IAudioProcessor::process(#59, numSamples=512)  fn=0x180325070  rva=+0x325070
+     -> kResultOk/kResultTrue (S_OK) (0x00000000)
+[91] IAudioProcessor::process(#60, numSamples=512)  fn=0x180325070  rva=+0x325070
+     -> kResultOk/kResultTrue (S_OK) (0x00000000)
+[92] IAudioProcessor::process(#61, numSamples=512)  fn=0x180325070  rva=+0x325070
+     -> kResultOk/kResultTrue (S_OK) (0x00000000)
+[93] IAudioProcessor::process(#62, numSamples=512)  fn=0x180325070  rva=+0x325070
+     -> kResultOk/kResultTrue (S_OK) (0x00000000)
+[94] IAudioProcessor::process(#63, numSamples=512)  fn=0x180325070  rva=+0x325070
+     -> kResultOk/kResultTrue (S_OK) (0x00000000)
+[95] IAudioProcessor::process(#64, numSamples=512)  fn=0x180325070  rva=+0x325070
+     -> kResultOk/kResultTrue (S_OK) (0x00000000)
+[96] IAudioProcessor::process(#65, numSamples=512)  fn=0x180325070  rva=+0x325070
+     -> kResultOk/kResultTrue (S_OK) (0x00000000)
+[97] IAudioProcessor::process(#66, numSamples=512)  fn=0x180325070  rva=+0x325070
+     -> kResultOk/kResultTrue (S_OK) (0x00000000)
+[98] IAudioProcessor::process(#67, numSamples=512)  fn=0x180325070  rva=+0x325070
+     -> kResultOk/kResultTrue (S_OK) (0x00000000)
+[99] IAudioProcessor::process(#68, numSamples=512)  fn=0x180325070  rva=+0x325070
+     -> kResultOk/kResultTrue (S_OK) (0x00000000)
+[100] IAudioProcessor::process(#69, numSamples=512)  fn=0x180325070  rva=+0x325070
+     -> kResultOk/kResultTrue (S_OK) (0x00000000)
+[101] IAudioProcessor::process(#70, numSamples=512)  fn=0x180325070  rva=+0x325070
+     -> kResultOk/kResultTrue (S_OK) (0x00000000)
+[102] IAudioProcessor::process(#71, numSamples=512)  fn=0x180325070  rva=+0x325070
+     -> kResultOk/kResultTrue (S_OK) (0x00000000)
+[103] IAudioProcessor::process(#72, numSamples=512)  fn=0x180325070  rva=+0x325070
+     -> kResultOk/kResultTrue (S_OK) (0x00000000)
+[104] IAudioProcessor::process(#73, numSamples=512)  fn=0x180325070  rva=+0x325070
+     -> kResultOk/kResultTrue (S_OK) (0x00000000)
+[105] IAudioProcessor::process(#74, numSamples=512)  fn=0x180325070  rva=+0x325070
+     -> kResultOk/kResultTrue (S_OK) (0x00000000)
+[106] IAudioProcessor::process(#75, numSamples=512)  fn=0x180325070  rva=+0x325070
+     -> kResultOk/kResultTrue (S_OK) (0x00000000)
+[107] IAudioProcessor::process(#76, numSamples=512)  fn=0x180325070  rva=+0x325070
+     -> kResultOk/kResultTrue (S_OK) (0x00000000)
+[108] IAudioProcessor::process(#77, numSamples=512)  fn=0x180325070  rva=+0x325070
+     -> kResultOk/kResultTrue (S_OK) (0x00000000)
+[109] IAudioProcessor::process(#78, numSamples=512)  fn=0x180325070  rva=+0x325070
+     -> kResultOk/kResultTrue (S_OK) (0x00000000)
+[110] IAudioProcessor::process(#79, numSamples=512)  fn=0x180325070  rva=+0x325070
+     -> kResultOk/kResultTrue (S_OK) (0x00000000)
+[111] IAudioProcessor::process(#80, numSamples=512)  fn=0x180325070  rva=+0x325070
+     -> kResultOk/kResultTrue (S_OK) (0x00000000)
+[112] IAudioProcessor::process(#81, numSamples=512)  fn=0x180325070  rva=+0x325070
+     -> kResultOk/kResultTrue (S_OK) (0x00000000)
+[113] IAudioProcessor::process(#82, numSamples=512)  fn=0x180325070  rva=+0x325070
+     -> kResultOk/kResultTrue (S_OK) (0x00000000)
+[114] IAudioProcessor::process(#83, numSamples=512)  fn=0x180325070  rva=+0x325070
+     -> kResultOk/kResultTrue (S_OK) (0x00000000)
+[115] IAudioProcessor::process(#84, numSamples=512)  fn=0x180325070  rva=+0x325070
+     -> kResultOk/kResultTrue (S_OK) (0x00000000)
+[116] IAudioProcessor::process(#85, numSamples=512)  fn=0x180325070  rva=+0x325070
+     -> kResultOk/kResultTrue (S_OK) (0x00000000)
+[117] IAudioProcessor::process(#86, numSamples=68)   fn=0x180325070  rva=+0x325070
+     -> kResultOk/kResultTrue (S_OK) (0x00000000)
+[118] IAudioProcessor::setProcessing(false)          fn=0x180324FD0  rva=+0x324FD0
+     -> kResultOk/kResultTrue (S_OK) (0x00000000)
+[119] IComponent::setActive(false)                   fn=0x180322A00  rva=+0x322A00
+     -> kResultOk/kResultTrue (S_OK) (0x00000000)
+[120] IComponent::terminate                          fn=0x180322800  rva=+0x322800
+     -> kResultOk/kResultTrue (S_OK) (0x00000000)
+[121] IAudioProcessor::release                       fn=0x18032F670  rva=+0x32F670
+     -> refs restantes=1
+[122] IComponent::release                            fn=0x180322510  rva=+0x322510
+  [123] IHostApplication::release                      fn=0x7FF655351090
+       -> refs=1
+     -> refs restantes=0
+[124] IPluginFactory::release                        fn=0x1803266A0  rva=+0x3266A0
+     -> refs restantes=1
+
+frames processados: 44100 (entrada 44100)  blocos: 87
+saída: pico 0.480050 (-6.4 dBFS), RMS -16.0 dBFS
+diferença saída-entrada (sem alinhar): pico 0.886048 (-1.1 dBFS)
+diferença alinhada por latência (2304 amostras): pico 0.499997 (-6.0 dBFS), RMS -10.8 dBFS
+WAV gravado: test\out_44k1.wav
+[125] kernel32!FreeLibrary                           fn=0x7FFF139DC7D0
+     -> ok
+
+=== OK: plugin carregou, inicializou e processou ===

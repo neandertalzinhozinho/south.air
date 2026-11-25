@@ -1,0 +1,47 @@
+00891260  or         byte ptr [r9 + 0x48582454], 0x8d
+00891268  push       rbp
+00891269  loopne     0x89127a
+0089126B  sub        dword ptr [rbp - 0x20], eax
+0089126E  mov        qword ptr [rsp + 0x50], rax
+00891273  movups     xmm0, xmmword ptr [rsp + 0x50]
+00891278  mov        dword ptr [rsp + 0x40], 1
+00891280  movups     xmm1, xmmword ptr [rsp + 0x40]
+00891285  movaps     xmmword ptr [rbp - 0x70], xmm0
+00891289  movaps     xmmword ptr [rbp - 0x80], xmm1
+0089128D  call       0x8b3da0
+00891292  add        rbx, 8
+00891296  sub        rdi, 1
+0089129A  jne        0x8911d0
+008912A0  movsxd     r8, dword ptr [r14 + 0x8c]
+008912A7  xorps      xmm0, xmm0
+008912AA  xor        eax, eax
+008912AC  mov        rdx, r14
+008912AF  mov        qword ptr [rbp + 0x38], rdx
+008912B3  mov        qword ptr [rbp + 0xb8], rax
+008912BA  movups     xmmword ptr [rbp + 0x48], xmm0
+008912BE  movups     xmmword ptr [rbp + 0x58], xmm0
+008912C2  movups     xmmword ptr [rbp + 0x68], xmm0
+008912C6  movups     xmmword ptr [rbp + 0x78], xmm0
+008912CA  movups     xmmword ptr [rbp + 0x88], xmm0
+008912D1  movups     xmmword ptr [rbp + 0x98], xmm0
+008912D8  movups     xmmword ptr [rbp + 0xa8], xmm0
+008912DF  test       r8, r8
+008912E2  jle        0x8912f5
+008912E4  shl        r8, 3
+008912E8  lea        rcx, [rbp + 0x40]
+008912EC  call       0x1798f36
+008912F1  mov        rdx, qword ptr [rbp + 0x38]
+008912F5  mov        ecx, dword ptr [rdx + 0x80]
+008912FB  lea        r9, [rbp]
+008912FF  mov        eax, dword ptr [rdx + 0x88]
+00891305  add        ecx, r12d
+00891308  mov        rbx, qword ptr [rbp - 0x58]
+0089130C  dec        eax
+0089130E  and        ecx, eax
+00891310  mov        dword ptr [rdx + 0x80], ecx
+00891316  mov        rdx, rbx
+00891319  mov        rcx, qword ptr [rbp - 0x50]
+0089131D  call       0x8ab760
+00891322  mov        eax, dword ptr [rsp + 0x38]
+00891326  add        r13d, ebx
+00891329  add        eax, dword ptr [rsp + 0x34]

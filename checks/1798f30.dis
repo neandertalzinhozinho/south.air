@@ -1,0 +1,5 @@
+01798F30  jmp        qword ptr [rip + 0x5f4662]  ; [0x1D8D598] f32=-1957341184.0
+01798F36  jmp        qword ptr [rip + 0x5f4654]  ; [0x1D8D590] f32=-1970280448.0
+01798F3C  jmp        qword ptr [rip + 0x5f4646]  ; [0x1D8D588] f32=-1970282496.0
+01798F42  jmp        qword ptr [rip + 0x5f4638]  ; [0x1D8D580] f32=-1970284544.0
+01798F48  jmp        qword ptr [rip + 0x5f462a]  ; [0x1D8D578] f32=-1957304320.0

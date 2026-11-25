@@ -1,0 +1,35 @@
+00884A40  mov        dword ptr [rbp + 0x400], ecx
+00884A46  shl        rax, 2
+00884A4A  mov        dword ptr [rbp + 0x404], r8d
+00884A51  mov        qword ptr [rbp + 0x408], rax
+00884A58  test       ecx, ecx
+00884A5A  jle        0x884a98
+00884A5C  mov        edx, r14d
+00884A5F  nop        
+00884A60  mov        rax, qword ptr [rbx]
+00884A63  movsxd     rcx, edx
+00884A66  lea        rcx, [rax + rcx*4]
+00884A6A  lea        eax, [rdx + r8]
+00884A6E  mov        qword ptr [rbp + rdi*8], rcx
+00884A73  movsxd     rcx, eax
+00884A76  mov        rax, rcx
+00884A79  mov        rdx, rcx
+00884A7C  and        eax, 0xf
+00884A7F  sub        rdx, rax
+00884A82  add        rdx, 0x10
+00884A86  test       cl, 0xf
+00884A89  cmove      rdx, rcx
+00884A8D  inc        rdi
+00884A90  mov        dword ptr [rbx + 0x18], edx
+00884A93  cmp        rdi, r9
+00884A96  jl         0x884a60
+00884A98  mov        r8, qword ptr [rbp + 0x14b0]
+00884A9F  lea        rcx, [r15 + 0x2c50]
+00884AA6  mov        qword ptr [rsp + 0x30], rbx
+00884AAB  lea        r9, [rbp + 0xc30]
+00884AB2  mov        byte ptr [rsp + 0x28], sil
+00884AB7  lea        rdx, [rbp]
+00884ABB  mov        byte ptr [rsp + 0x20], 0
+00884AC0  call       0x88e8a0
+00884AC5  movaps     xmm0, xmmword ptr [rbp - 0x80]
+00884AC9  lea        rax, [rbp - 0x40]

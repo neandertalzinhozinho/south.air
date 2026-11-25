@@ -1,0 +1,18 @@
+﻿# function 0x65EA0..0x65EE0  size=64
+00065EA0  endbr64  
+00065EA4  sub      rsp, 0x48
+00065EA8  mov      eax, 0x100
+00065EAD  movsxd   r9, r9d
+00065EB0  xor      r11d, r11d
+00065EB3  lea      r10, [r9 + r9*2]
+00065EB7  shl      r10, 2
+00065EBB  cmp      r10d, 0x8000
+00065EC2  cmovg    r11d, eax
+00065EC6  mov      rax, rsp
+00065EC9  mov      dword ptr [rax + 0x20], r11d
+00065ECD  mov      dword ptr [rax + 0x28], r11d
+00065ED1  mov      dword ptr [rax + 0x30], r11d
+00065ED5  call     0x6ce80
+00065EDA  add      rsp, 0x48
+00065EDE  ret      
+00065EDF  nop      

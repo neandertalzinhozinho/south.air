@@ -1,0 +1,114 @@
+# function 0x6160..0x6320  size=448
+00006160  endbr64  
+00006164  sub      rsp, 0x28
+00006168  test     rdx, rdx
+0000616B  je       0x630b
+00006171  test     r8d, r8d
+00006174  jle      0x6301
+0000617A  vucomiss xmm0, dword ptr [rip + 0x1dee00e]   ; 0x1DF4190 [.rdata] | f32=1
+00006182  jp       0x618a
+00006184  je       0x62fa
+0000618A  vxorps   xmm1, xmm1, xmm1
+0000618E  vucomiss xmm0, xmm1
+00006192  jp       0x619a
+00006194  je       0x62ea
+0000619A  cmp      r8d, 0x10
+0000619E  jl       0x62e2
+000061A4  mov      r11, rdx
+000061A7  and      r11, 0x1f
+000061AB  test     r11d, r11d
+000061AE  je       0x61c8
+000061B0  test     r11d, 3
+000061B7  jne      0x62e2
+000061BD  neg      r11d
+000061C0  add      r11d, 0x20
+000061C4  shr      r11d, 2
+000061C8  lea      eax, [r11 + 0x10]
+000061CC  cmp      r8d, eax
+000061CF  jl       0x62e2
+000061D5  mov      r9d, r8d
+000061D8  xor      eax, eax
+000061DA  sub      r9d, r11d
+000061DD  and      r9d, 0xf
+000061E1  neg      r9d
+000061E4  add      r9d, r8d
+000061E7  mov      r10d, r11d
+000061EA  test     r11d, r11d
+000061ED  jbe      0x6212
+000061EF  nop      dword ptr [rax + rax]
+000061F7  nop      dword ptr [rax]
+000061FE  nop      
+00006200  vmulss   xmm1, xmm0, dword ptr [rdx + rax*4]
+00006205  vmovss   dword ptr [rdx + rax*4], xmm1
+0000620A  inc      rax
+0000620D  cmp      rax, r10
+00006210  jb       0x6200
+00006212  vbroadcastss ymm1, xmm0
+00006217  movsxd   rax, r9d
+0000621A  nop      word ptr [rax + rax]
+00006220  vmulps   ymm2, ymm1, ymmword ptr [rdx + r10*4]
+00006226  vmulps   ymm3, ymm1, ymmword ptr [rdx + r10*4 + 0x20]
+0000622D  vmovups  ymmword ptr [rdx + r10*4], ymm2
+00006233  vmovups  ymmword ptr [rdx + r10*4 + 0x20], ymm3
+0000623A  add      r10, 0x10
+0000623E  cmp      r10, rax
+00006241  jb       0x6220
+00006243  lea      eax, [r9 + 1]
+00006247  cmp      eax, r8d
+0000624A  ja       0x62d4
+00006250  movsxd   r9, r9d
+00006253  movsxd   r8, r8d
+00006256  sub      r8, r9
+00006259  cmp      r8, 4
+0000625D  jl       0x62de
+00006263  mov      eax, r8d
+00006266  xor      r11d, r11d
+00006269  and      eax, 0xfffffffc
+0000626C  lea      r10, [rdx + r9*4]
+00006270  movsxd   rax, eax
+00006273  vbroadcastss xmm1, xmm0
+00006278  nop      dword ptr [rax + rax]
+00006280  vmulps   xmm2, xmm1, xmmword ptr [r10]
+00006285  add      r11, 4
+00006289  vmovups  xmmword ptr [r10], xmm2
+0000628E  add      r10, 0x10
+00006292  cmp      r11, rax
+00006295  jb       0x6280
+00006297  cmp      rax, r8
+0000629A  jae      0x62d4
+0000629C  lea      rdx, [rdx + r9*4]
+000062A0  lea      rdx, [rdx + rax*4]
+000062A4  nop      dword ptr [rax + rax]
+000062AC  nop      dword ptr [rax]
+000062B3  nop      dword ptr [rax + rax]
+000062B8  nop      dword ptr [rax + rax]
+000062C0  vmulss   xmm1, xmm0, dword ptr [rdx]
+000062C4  inc      rax
+000062C7  vmovss   dword ptr [rdx], xmm1
+000062CB  add      rdx, 4
+000062CF  cmp      rax, r8
+000062D2  jb       0x62c0
+000062D4  xor      eax, eax
+000062D6  vzeroupper 
+000062D9  add      rsp, 0x28
+000062DD  ret      
+000062DE  xor      eax, eax
+000062E0  jmp      0x6297
+000062E2  xor      r9d, r9d
+000062E5  jmp      0x6243
+000062EA  mov      rcx, rdx
+000062ED  mov      edx, r8d
+000062F0  call     0x2f60
+000062F5  add      rsp, 0x28
+000062F9  ret      
+000062FA  xor      eax, eax
+000062FC  add      rsp, 0x28
+00006300  ret      
+00006301  mov      eax, 0xfffffffa
+00006306  add      rsp, 0x28
+0000630A  ret      
+0000630B  mov      eax, 0xfffffff8
+00006310  add      rsp, 0x28
+00006314  ret      
+00006315  nop      dword ptr [rax]
+00006319  nop      dword ptr [rax]

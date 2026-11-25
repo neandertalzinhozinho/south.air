@@ -1,0 +1,59 @@
+008B5F80  mov        rdx, qword ptr [rbp + rbx + 0x1460]
+008B5F88  mov        r8d, esi
+008B5F8B  mov        rcx, qword ptr [rsp + rbx + 0x50]
+008B5F90  call       0x1340
+008B5F95  lea        rbx, [rbx + 8]
+008B5F99  sub        rdi, 1
+008B5F9D  jne        0x8b5f80
+008B5F9F  jmp        0x8b5fde
+008B5FA1  cmp        r8d, 1
+008B5FA5  jne        0x8b5fde
+008B5FA7  test       edi, edi
+008B5FA9  jle        0x8b5fde
+008B5FAB  mov        r14d, dword ptr [rbp + 0x1044]
+008B5FB2  lea        rbx, [rbp + 0x1460]
+008B5FB9  nop        dword ptr [rax]
+008B5FC0  mov        rdx, qword ptr [rbx]
+008B5FC3  mov        r8d, r14d
+008B5FC6  mov        rcx, rsi
+008B5FC9  call       0x1340
+008B5FCE  lea        rbx, [rbx + 8]
+008B5FD2  sub        rdi, 1
+008B5FD6  jne        0x8b5fc0
+008B5FD8  mov        r14d, 8
+008B5FDE  lea        rax, [rbp + 0x1050]
+008B5FE5  mov        rdx, r14
+008B5FE8  lea        rcx, [rbp + 0xc40]
+008B5FEF  nop        
+008B5FF0  lea        rax, [rax + 0x80]
+008B5FF7  movups     xmm0, xmmword ptr [rcx]
+008B5FFA  movups     xmm1, xmmword ptr [rcx + 0x10]
+008B5FFE  lea        rcx, [rcx + 0x80]
+008B6005  movups     xmmword ptr [rax - 0x80], xmm0
+008B6009  movups     xmm0, xmmword ptr [rcx - 0x60]
+008B600D  movups     xmmword ptr [rax - 0x70], xmm1
+008B6011  movups     xmm1, xmmword ptr [rcx - 0x50]
+008B6015  movups     xmmword ptr [rax - 0x60], xmm0
+008B6019  movups     xmm0, xmmword ptr [rcx - 0x40]
+008B601D  movups     xmmword ptr [rax - 0x50], xmm1
+008B6021  movups     xmm1, xmmword ptr [rcx - 0x30]
+008B6025  movups     xmmword ptr [rax - 0x40], xmm0
+008B6029  movups     xmm0, xmmword ptr [rcx - 0x20]
+008B602D  movups     xmmword ptr [rax - 0x30], xmm1
+008B6031  movups     xmm1, xmmword ptr [rcx - 0x10]
+008B6035  movups     xmmword ptr [rax - 0x20], xmm0
+008B6039  movups     xmmword ptr [rax - 0x10], xmm1
+008B603D  sub        rdx, 1
+008B6041  jne        0x8b5ff0
+008B6043  movups     xmm0, xmmword ptr [rcx]
+008B6046  mov        r8, qword ptr [r13 + 0x10]
+008B604A  lea        rcx, [rbp + 0x1050]
+008B6051  movss      xmm1, dword ptr [rbp]
+008B6056  mov        r9, r12
+008B6059  movups     xmmword ptr [rax], xmm0
+008B605C  call       0x8c0bd0
+008B6061  mov        r8, r12
+008B6064  lea        rdx, [rbp + 0xc40]
+008B606B  mov        rcx, r13
+008B606E  call       0x8c1440
+008B6073  movsxd     rax, dword ptr [r13 + 0x980]

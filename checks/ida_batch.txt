@@ -1,0 +1,15 @@
+base=0x180000000
+0x87B680    1240 B  void sub_18087B680()  file=ida_0087B680.c
+0x87BB60    8136 B  void sub_18087BB60()  file=ida_0087BB60.c
+0x87DB30    1763 B  void sub_18087DB30()  file=ida_0087DB30.c
+0x87E220    3739 B  void sub_18087E220()  file=ida_0087E220.c
+0x882FC0    1063 B  void sub_180882FC0()  file=ida_00882FC0.c
+0x882DE0     476 B  void sub_180882DE0()  file=ida_00882DE0.c
+0x8834C0    1139 B  void sub_1808834C0()  file=ida_008834C0.c
+0x8833F0     208 B  void sub_1808833F0()  file=ida_008833F0.c
+0x8780D0     290 B  void sub_1808780D0()  file=ida_008780D0.c
+0x87A7A0     208 B  void sub_18087A7A0()  file=ida_0087A7A0.c
+0x87B2A0     980 B  void sub_18087B2A0()  file=ida_0087B2A0.c
+0x877D90      52 B  __int64 __fastcall sub_180877D90(__int64 a1)  file=ida_00877D90.c
+0x877DD0     669 B  void sub_180877DD0()  file=ida_00877DD0.c
+DONE

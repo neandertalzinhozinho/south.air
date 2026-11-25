@@ -1,0 +1,40 @@
+# 0x8B6A30 is not a .pdata start; using next start 0x8B85F2
+# function 0x8B6A30..0x8B6AD0  size=160
+008B6A30  and      byte ptr [r15], r9b
+008B6A33  sub      dword ptr [rsp + 0x50], ecx
+008B6A37  movaps   xmm3, xmm2
+008B6A3A  movups   xmm1, xmmword ptr [rbp + 0x30]
+008B6A3E  movaps   xmmword ptr [rsp + 0x60], xmm0
+008B6A43  movups   xmm0, xmmword ptr [rbp + 0x40]
+008B6A47  movaps   xmmword ptr [rsp + 0x70], xmm1
+008B6A4C  movups   xmm1, xmmword ptr [rbp + 0x50]
+008B6A50  movaps   xmmword ptr [rbp - 0x80], xmm0
+008B6A54  movups   xmm0, xmmword ptr [rbp + 0x60]
+008B6A58  movaps   xmmword ptr [rbp - 0x70], xmm1
+008B6A5C  movups   xmm1, xmmword ptr [rbp + 0x70]
+008B6A60  movaps   xmmword ptr [rbp - 0x60], xmm0
+008B6A64  movups   xmm0, xmmword ptr [rbp + 0x80]
+008B6A6B  movaps   xmmword ptr [rbp - 0x50], xmm1
+008B6A6F  movups   xmm1, xmmword ptr [rbp + 0x90]
+008B6A76  movaps   xmmword ptr [rbp - 0x40], xmm0
+008B6A7A  movaps   xmmword ptr [rbp - 0x30], xmm1
+008B6A7E  call     0x8c33d0
+008B6A83  mov      ebx, dword ptr [r13 + 0xbb8]
+008B6A8A  lea      r8, [r13 + 0xb38]
+008B6A91  mov      eax, dword ptr [r12 + 0x18]
+008B6A96  mov      edx, r15d
+008B6A99  mov      esi, dword ptr [r8 + 0x88]
+008B6AA0  mov      dword ptr [rsp + 0x38], eax
+008B6AA4  mov      dword ptr [rbp - 0x30], ebx
+008B6AA7  mov      dword ptr [rbp - 0x2c], esi
+008B6AAA  test     ebx, ebx
+008B6AAC  jle      0x8b6ad7
+008B6AAE  lea      rax, [rsp + 0x50]
+008B6AB3  sub      r8, rax
+008B6AB6  lea      rcx, [rsp + 0x50]
+008B6ABB  nop      dword ptr [rax + rax]
+008B6AC0  mov      rax, qword ptr [r8 + rcx]
+008B6AC4  inc      edx
+008B6AC6  mov      qword ptr [rcx], rax
+008B6AC9  lea      rcx, [rcx + 8]
+008B6ACD  mov      ebx, dword ptr [rbp - 0x30]
