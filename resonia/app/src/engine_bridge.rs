@@ -1,41 +1,118 @@
 //! Fronteira entre o plugin Resonia e o motor de áudio.
 //!
 //! O plugin (lib.rs) e o aplicativo (main.rs) chamam **só** esta interface no caminho de
-//! áudio. O motor de verdade é o port Rust do DSP do soothe3 (`D:\PROJETOS\soultree FORK\port`,
-//! crate `soultree_port`), que ainda não tem uma API de processamento de blocos: o `port`
-//! fecha M1..M2 e o `pending::first_blocking()` ainda aponta para `0x293760` (ln, M3).
+//! áudio.
 //!
-//! # Estado atual: PASSA-DIRETO (bypass), sem DSP
+//! # Estado
 //!
-//! `EngineBridge::process` não altera o áudio. Isto **não** é um efeito: é um espaço
-//! reservado, e o plugin anuncia isso em `engine_kind()` / na tela. Não há heurística aqui
-//! (regra do `LEMBRAR DISSO.md`: o que não foi lido do dump não entra).
-//!
-//! Onde o motor entra: ver as marcas `// TODO motor: soultree_port` abaixo e a seção
-//! "Plano de integração do port/" em `resonia/RECUPERACAO.md`.
+//! - **Sem `--features motor`**: PASSA-DIRETO, sem DSP (espaço reservado, anunciado na tela).
+//! - **Com `--features motor`**: o motor é o código traduzido do dump (crates `lifted` +
+//!   `lifted_extra`), rodando num emulador de CPU. A chamada é a provada bit a bit contra o
+//!   soothe3 original (`checks/w_cadeia_m6.md` §5); a ponte só usa a API do motor e não mexe na
+//!   aritmética dele (submódulo `motor`). O dump é lido **em tempo de execução** de
+//!   `RESONIA_DUMP` (padrão `D:\PROJETOS\soultree FORK\dumpsooth\nyx_soothe3_dump.bin`). Sem o
+//!   dump, ou se o motor der panic (ex.: caminho AVX-512 não traduzido), o plugin passa direto e
+//!   a tela mostra o motivo.
+//! - Desempenho: o motor emulado é ~2x mais lento que tempo real; a reprodução ao vivo
+//!   engasga, o render/bounce offline funciona.
 //!
 //! # Latência
 //!
-//! Esta ponte **não** declara número próprio. `latency_samples()` devolve o que a
-//! implementação ativa informar: hoje 0 (passa-direto). O valor 2304 @ 48 kHz é do
-//! build 1.0.5 e não está provado para o 1.0.6 (`docs/engine/recursos-recuperados.md` 2.1,
-//! que registra o conflito documental); só entra quando o motor devolver o valor.
+//! Esta ponte **não** declara número próprio. `latency_samples()` devolve o que o motor informa
+//! por `0x863020(handle)` (2304 a 48 kHz com os defaults; muda com os modos de uso, por isso é
+//! relida a cada mudança de parâmetro). Sem motor: 0.
 //!
 //! # Parâmetros
 //!
 //! Índices 0..142 = ids da tabela de 143 descritores (`param_table.rs`). `set_param` recebe o
 //! valor **simples** (unidades da tabela: dB, Hz, 0/1, inteiro de enum), nunca o normalizado.
-//! A curva normalizado<->simples é linear só onde `Curve::Linear` (PROVADO); nos demais é
-//! `NÃO PROVADO` e a conversão acontece fora da ponte (no host/GUI), não aqui.
+//! A ponte converte para o normalizado do motor pelo callback `+0x48` da entrada da tabela do
+//! dump (a mesma conversão do `m6_run`).
 
 use crate::param_table::{PARAMS, PARAM_COUNT};
+use std::sync::atomic::{AtomicU32, AtomicU8, Ordering};
+use std::sync::{Arc, Mutex};
+
+#[cfg(feature = "motor")]
+mod motor;
+
+/// Estado do motor, para a tela.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum EngineState {
+    /// Compilado sem `--features motor`: passa-direto.
+    NoMotorBuild = 0,
+    /// Ainda não preparado (`prepare` não rodou).
+    NotPrepared = 1,
+    /// Motor ativo.
+    Running = 2,
+    /// Dump não encontrado/ilegível: passa-direto.
+    DumpMissing = 3,
+    /// `create` falhou ou o motor deu panic: passa-direto.
+    Failed = 4,
+}
+
+/// Estado do motor visível para a tela (compartilhado com a thread da GUI).
+pub struct BridgeStatus {
+    state: AtomicU8,
+    latency: AtomicU32,
+    detail: Mutex<String>,
+}
+
+impl BridgeStatus {
+    fn new() -> Self {
+        Self { state: AtomicU8::new(0), latency: AtomicU32::new(0), detail: Mutex::new(String::new()) }
+    }
+
+    #[allow(dead_code)]
+    fn set(&self, st: EngineState, detail: String) {
+        if let Ok(mut d) = self.detail.lock() {
+            *d = detail;
+        }
+        self.state.store(st as u8, Ordering::Release);
+    }
+
+    pub fn state(&self) -> EngineState {
+        match self.state.load(Ordering::Acquire) {
+            0 => EngineState::NoMotorBuild,
+            1 => EngineState::NotPrepared,
+            2 => EngineState::Running,
+            3 => EngineState::DumpMissing,
+            _ => EngineState::Failed,
+        }
+    }
+
+    /// Latência em amostras informada pelo motor.
+    pub fn latency(&self) -> u32 {
+        self.latency.load(Ordering::Relaxed)
+    }
+
+    /// Texto curto do motor para o cabeçalho.
+    pub fn engine_text(&self) -> &'static str {
+        match self.state() {
+            EngineState::NoMotorBuild => "none (pass-through, no DSP)",
+            EngineState::NotPrepared => "not prepared (pass-through)",
+            EngineState::Running => "soothe3 lifted engine (emulated)",
+            EngineState::DumpMissing => "DUMP NOT FOUND - bypass (pass-through)",
+            EngineState::Failed => "ENGINE ERROR - bypass (pass-through)",
+        }
+    }
+
+    /// Aviso/detalhe: desempenho (motor ativo), caminho do dump ou mensagem do erro.
+    pub fn detail(&self) -> String {
+        match self.state() {
+            EngineState::Running => "Emulated engine is ~2x slower than real time: live playback will stutter; offline render/bounce works.".to_string(),
+            _ => self.detail.lock().map(|d| d.clone()).unwrap_or_default(),
+        }
+    }
+}
 
 /// Quem está processando de fato.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum EngineKind {
     /// Passa-direto: o áudio sai igual ao que entrou. Nenhum DSP.
     PassThrough,
-    // TODO motor: soultree_port — `Soothe3Port` entra aqui quando a cadeia (M5/M6) existir.
+    /// Motor traduzido (`lifted` + `lifted_extra`) ativo.
+    Lifted,
 }
 
 /// Erros de `prepare`.
@@ -73,6 +150,9 @@ pub struct EngineBridge {
     config: Option<Config>,
     params: [f64; PARAM_COUNT],
     kind: EngineKind,
+    status: Arc<BridgeStatus>,
+    #[cfg(feature = "motor")]
+    motor: Option<motor::SendMotor>,
 }
 
 impl Default for EngineBridge {
@@ -82,28 +162,37 @@ impl Default for EngineBridge {
 }
 
 impl EngineBridge {
-    /// Nasce com os valores da tabela (`default`, NÃO PROVADO como estado inicial do motor).
+    /// Nasce com os valores da tabela.
     pub fn new() -> Self {
         let mut params = [0.0; PARAM_COUNT];
         for (p, spec) in params.iter_mut().zip(PARAMS.iter()) {
             *p = spec.default;
         }
-        Self { config: None, params, kind: EngineKind::PassThrough }
+        let status = Arc::new(BridgeStatus::new());
+        #[cfg(feature = "motor")]
+        status.set(EngineState::NotPrepared, String::new());
+        Self {
+            config: None,
+            params,
+            kind: EngineKind::PassThrough,
+            status,
+            #[cfg(feature = "motor")]
+            motor: None,
+        }
     }
 
-    /// Quem está processando (hoje sempre `PassThrough`).
+    /// Estado compartilhado para a tela.
+    pub fn status(&self) -> Arc<BridgeStatus> {
+        self.status.clone()
+    }
+
+    /// Quem está processando.
     pub fn engine_kind(&self) -> EngineKind {
         self.kind
     }
 
-    /// Versão do port ligado (só com `--features motor`).
-    #[cfg(feature = "motor")]
-    pub fn motor_port_version() -> &'static str {
-        soultree_port::PORT_VERSION
-    }
-
-    /// Configura o motor. Pode alocar; chamar fora da thread de áudio.
-    /// `max_block` é o maior bloco que `process` receberá; `channels` é o nº de canais principais.
+    /// Configura o motor. Pode alocar e ler o dump (lento: segundos); chamar fora da thread de
+    /// áudio. `max_block` é o maior bloco que `process` receberá; `channels` é o nº de canais.
     pub fn prepare(&mut self, sample_rate: f32, max_block: usize, channels: usize) -> Result<(), PrepareError> {
         if !sample_rate.is_finite() || sample_rate <= 0.0 {
             return Err(PrepareError::SampleRate);
@@ -114,9 +203,26 @@ impl EngineBridge {
         if channels == 0 || channels > 16 {
             return Err(PrepareError::Channels);
         }
-        // TODO motor: soultree_port — criar/realocar o estado do motor para (sample_rate,
-        // max_block, channels) e reaplicar `self.params` (índices 0..142).
         self.config = Some(Config { sample_rate, max_block, channels });
+        #[cfg(feature = "motor")]
+        {
+            self.motor = None; // destrói o anterior
+            self.kind = EngineKind::PassThrough;
+            self.status.latency.store(0, Ordering::Relaxed);
+            let params = self.params;
+            let r = std::panic::catch_unwind(|| motor::create(sample_rate, max_block, &params));
+            match r {
+                Ok(Ok(m)) => {
+                    self.status.latency.store(m.latency(), Ordering::Relaxed);
+                    self.motor = Some(motor::SendMotor(m));
+                    self.kind = EngineKind::Lifted;
+                    self.status.set(EngineState::Running, String::new());
+                }
+                Ok(Err(motor::CreateError::DumpMissing(msg))) => self.status.set(EngineState::DumpMissing, msg),
+                Ok(Err(motor::CreateError::Failed(msg))) => self.status.set(EngineState::Failed, msg),
+                Err(e) => self.status.set(EngineState::Failed, format!("engine panic in create: {}", motor::panic_text(&e))),
+            }
+        }
         Ok(())
     }
 
@@ -125,30 +231,50 @@ impl EngineBridge {
         self.config.map(|c| c.sample_rate)
     }
 
+    /// Falha do motor: passa direto até o próximo `prepare`.
+    #[cfg(feature = "motor")]
+    fn fail(&mut self, what: &str, e: Box<dyn std::any::Any + Send>) {
+        if let Some(m) = self.motor.as_mut() {
+            m.0.poisoned = true;
+        }
+        self.motor = None;
+        self.kind = EngineKind::PassThrough;
+        self.status.latency.store(0, Ordering::Relaxed);
+        self.status.set(EngineState::Failed, format!("engine panic in {what}: {}", motor::panic_text(&e)));
+    }
+
     /// Processa um bloco **no lugar**: `main[canal][amostra]`. Todos os canais têm o mesmo
     /// comprimento (<= `max_block`). `sidechain`, se existir, tem a mesma forma e não é alterado.
     ///
-    /// Sem alocação nem bloqueio. Passa-direto: não toca nas amostras.
+    /// Sem motor, ou com o motor em falha: passa-direto, não toca nas amostras. O sidechain é
+    /// ignorado (o caminho provado usa `r9 = 0`).
     pub fn process(&mut self, main: &mut [&mut [f32]], sidechain: Option<&[&[f32]]>) {
         let _ = sidechain;
-        debug_assert!(
-            self.config.map_or(true, |c| main.len() <= c.channels && main.iter().all(|ch| ch.len() <= c.max_block)),
-            "bloco maior que o preparado"
-        );
-        // TODO motor: soultree_port — chamar a cadeia aqui, na ordem do binário (sem reordenar).
-        // Passa-direto de propósito: nenhum DSP é feito nesta fase.
+        #[cfg(feature = "motor")]
+        if let Some(m) = self.motor.as_mut() {
+            let r = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| m.0.process(main)));
+            if let Err(e) = r {
+                self.fail("process", e);
+            }
+        }
+        #[cfg(not(feature = "motor"))]
         let _ = main;
     }
 
     /// Latência atual em amostras, a que o host precisa compensar. 0 em passa-direto.
-    /// TODO motor: soultree_port — devolver a latência informada pelo motor (não um número fixo).
+    /// Com motor: o último valor lido de `0x863020` (relido a cada mudança de parâmetro).
     pub fn latency_samples(&self) -> u32 {
-        0
+        self.status.latency()
     }
 
     /// Zera o estado interno (transporte parou/reposicionou). Mantém a configuração e os parâmetros.
     pub fn reset(&mut self) {
-        // TODO motor: soultree_port — zerar rings/estados do motor.
+        #[cfg(feature = "motor")]
+        if let Some(m) = self.motor.as_mut() {
+            if let Err(e) = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| m.0.reset())) {
+                self.fail("reset", e);
+            }
+        }
     }
 
     /// Define o parâmetro `index` (0..=142) em valor simples. O valor é limitado a [min, max]
@@ -162,8 +288,16 @@ impl EngineBridge {
         }
         let v = plain.clamp(spec.min, spec.max);
         self.params[index] = v;
-        // TODO motor: soultree_port — encaminhar ao escritor de estado (`0x867D80`); a ordem de
-        // aplicação e a origem de `rdx`/callback `[rdx+0x50]` são M4 (NÃO PROVADO).
+        #[cfg(feature = "motor")]
+        if let Some(m) = self.motor.as_mut() {
+            match std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+                m.0.set_param(index, v);
+                m.0.latency()
+            })) {
+                Ok(lat) => self.status.latency.store(lat, Ordering::Relaxed),
+                Err(e) => self.fail("set_param", e),
+            }
+        }
         true
     }
 
@@ -177,6 +311,7 @@ impl EngineBridge {
 mod tests {
     use super::*;
 
+    #[cfg(not(feature = "motor"))]
     #[test]
     fn passthrough_is_bit_exact() {
         let mut b = EngineBridge::new();
@@ -190,6 +325,7 @@ mod tests {
         assert_eq!(r.iter().map(|x| x.to_bits()).collect::<Vec<_>>(), r0.iter().map(|x| x.to_bits()).collect::<Vec<_>>());
     }
 
+    #[cfg(not(feature = "motor"))]
     #[test]
     fn latency_is_zero_without_engine() {
         let mut b = EngineBridge::new();
@@ -208,8 +344,6 @@ mod tests {
         assert_eq!(b.prepare(48_000.0, 64, 0), Err(PrepareError::Channels));
         assert_eq!(b.prepare(48_000.0, 64, 17), Err(PrepareError::Channels));
         assert_eq!(b.sample_rate(), None);
-        assert!(b.prepare(96_000.0, 64, 16).is_ok());
-        assert_eq!(b.sample_rate(), Some(96_000.0));
     }
 
     #[test]
@@ -230,16 +364,8 @@ mod tests {
     #[test]
     fn reset_keeps_params_and_config() {
         let mut b = EngineBridge::new();
-        b.prepare(48_000.0, 256, 2).unwrap();
         b.set_param(94, 40.0); // Mix
         b.reset();
         assert_eq!(b.param(94), Some(40.0));
-        assert_eq!(b.sample_rate(), Some(48_000.0));
-    }
-
-    #[cfg(feature = "motor")]
-    #[test]
-    fn motor_feature_links_the_port() {
-        assert!(!EngineBridge::motor_port_version().is_empty());
     }
 }

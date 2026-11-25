@@ -15,10 +15,10 @@ path = "src/main.rs"
 
 [features]
 default = []
-# Liga o port do motor (D:\PROJETOS\soultree FORK\port). Hoje so liga a dependencia e expoe a
-# versao do port em engine_bridge; a cadeia de processamento continua NAO chamada (ver o TODO
-# em src/engine_bridge.rs e o plano em resonia/RECUPERACAO.md).
-motor = ["dep:soultree_port"]
+# Liga o motor traduzido do dump (crates `lifted` + `lifted_extra`, por path). Sem a feature o
+# plugin passa direto (sem DSP). O dump e lido em tempo de execucao (RESONIA_DUMP); ver
+# src/engine_bridge.rs.
+motor = ["dep:soultree_lifted", "dep:soultree_lifted_extra"]
 
 [dependencies]
 nih_plug = { git = "https://github.com/robbert-vdh/nih-plug.git", default-features = false, features = ["vst3"] }
@@ -27,8 +27,21 @@ eframe = { version = "0.31.1", default-features = false, features = ["default_fo
 image = { version = "0.25", default-features = false, features = ["png"] }
 hound = "3.5"
 # Motor (opcional): so entra com `--features motor`.
-soultree_port = { path = "../../port", optional = true }
+soultree_lifted = { path = "../../lifted", optional = true }
+soultree_lifted_extra = { path = "../../lifted_extra", optional = true }
 
 [profile.release]
 lto = "thin"
 strip = "symbols"
+
+# O codigo traduzido e enorme (~24 MB de Rust): mesmo perfil de lifted/Cargo.toml (perfis de
+# dependencias nao valem, entao repetimos aqui).
+[profile.release.package.soultree_lifted]
+opt-level = 2
+codegen-units = 64
+incremental = false
+
+[profile.release.package.soultree_lifted_extra]
+opt-level = 2
+codegen-units = 64
+incremental = false

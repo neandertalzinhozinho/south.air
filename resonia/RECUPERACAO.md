@@ -157,6 +157,16 @@ cadeia (M5/M6) existir, o encaixe é **só** em `app\src\engine_bridge.rs`:
 9. Testes: `engine_bridge::tests::passthrough_is_bit_exact` deve ser trocado/estendido pelo null-test (M7), e
    `--selftest-vst3` deixa de esperar passa-direto.
 
+## Fase 3 — motor traduzido ligado (primeira build para testes pessoais)
+- `--features motor` agora depende de `lifted` + `lifted_extra` (por path), não mais de `port/`.
+- `src/engine_bridge/motor.rs` repete a chamada provada no null-test (`checks/w_cadeia_m6.md` §3 e §5):
+  create, 143 defaults (plain -> normalizado pelo callback `+0x48`), `0x863070(h,1,1)`, latência `0x863020`,
+  process `0x862F00` (rdx = saídas, r8 = entradas, r9 = 0). Latência relida a cada mudança de parâmetro.
+- O dump é lido em tempo de execução de `RESONIA_DUMP` (padrão `D:\PROJETOS\soultree FORK\dumpsooth\nyx_soothe3_dump.bin`).
+  Sem dump, ou com panic do motor, o plugin passa direto e a tela mostra o motivo.
+- Limitações: ~2x mais lento que tempo real (ao vivo engasga; render offline funciona); sidechain ignorado
+  (r9 = 0); mono duplica o canal nos dois lados; em falha o bypass não compensa a latência.
+
 ## Lacunas conhecidas
 `lib.rs` final, `settings.rs`, `ui.rs`, `host.rs`, `dsp/output.rs`, `dsp/stereo.rs`, `Cargo.lock`, `MECHANICS.md`/`mechanics.json`
 não foram recuperados (ver tabela). Nada foi inventado para substituí-los na recuperação; o que existe de novo é a camada da

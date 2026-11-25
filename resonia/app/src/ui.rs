@@ -38,6 +38,8 @@ pub struct UiInfo<'a> {
     pub latency_samples: u32,
     pub sample_rate: Option<f32>,
     pub status: Option<&'a str>,
+    /// Versão do plugin (`CARGO_PKG_VERSION`).
+    pub version: &'a str,
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Default)]
@@ -263,6 +265,7 @@ pub fn draw(ctx: &egui::Context, p: &mut dyn ParamAccess, info: &UiInfo, st: &mu
     egui::CentralPanel::default().show(ctx, |ui| {
         ui.horizontal(|ui| {
             ui.heading("Resonia");
+            ui.colored_label(LABEL, format!("v{}", info.version));
             ui.add_space(16.0);
             ui.colored_label(WARN, format!("engine: {}", info.engine));
             ui.add_space(12.0);

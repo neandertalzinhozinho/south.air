@@ -120,17 +120,19 @@ impl Plugin for Resonia {
 
     fn editor(&mut self, _async_executor: AsyncExecutor<Self>) -> Option<Box<dyn Editor>> {
         let params = self.params.clone();
-        let latency = self.latency.clone();
+        let status = self.bridge.status();
         create_egui_editor(
             self.editor_state.clone(),
             ui::UiState::default(),
             |ctx, _| ui::setup_style(ctx),
             move |ctx, setter, state| {
+                let detail = status.detail();
                 let info = ui::UiInfo {
-                    engine: "none (pass-through, no DSP)",
-                    latency_samples: latency.load(Ordering::Relaxed),
+                    engine: status.engine_text(),
+                    latency_samples: status.latency(),
                     sample_rate: None,
-                    status: None,
+                    status: if detail.is_empty() { None } else { Some(detail.as_str()) },
+                    version: env!("CARGO_PKG_VERSION"),
                 };
                 let mut access = HostAccess { params: &params, setter };
                 ui::draw(ctx, &mut access, &info, state);

@@ -2103,7 +2103,8 @@ dependencies = [
  "image",
  "nih_plug",
  "nih_plug_egui",
- "soultree_port",
+ "soultree_lifted",
+ "soultree_lifted_extra",
 ]
 
 [[package]]
@@ -2320,8 +2321,15 @@ dependencies = [
 ]
 
 [[package]]
-name = "soultree_port"
+name = "soultree_lifted"
 version = "0.0.0"
+
+[[package]]
+name = "soultree_lifted_extra"
+version = "0.0.0"
+dependencies = [
+ "soultree_lifted",
+]
 
 [[package]]
 name = "stable_deref_trait"

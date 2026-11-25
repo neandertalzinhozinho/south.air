@@ -16,7 +16,7 @@
 //!   resonia-app --selftest-vst3 Resonia.vst3 carrega o plugin, processa ruído e confere o passa-direto
 
 use eframe::egui;
-use resonia::engine_bridge::{EngineBridge, EngineKind};
+use resonia::engine_bridge::EngineBridge;
 use resonia::param_table::{PARAMS, PARAM_COUNT};
 use resonia::ui;
 use std::path::{Path, PathBuf};
@@ -66,7 +66,7 @@ fn write_wav(path: &Path, sr: f32, ch: &[Vec<f32>; 2]) -> Result<(), String> {
 }
 
 /// Processa o arquivo inteiro pela ponte, em blocos, descontando a latência que a ponte informar.
-fn process_file(src: &Source, params: &[f64; PARAM_COUNT]) -> Result<[Vec<f32>; 2], String> {
+fn process_file(src: &Source, params: &[f64; PARAM_COUNT]) -> Result<([Vec<f32>; 2], u32, String), String> {
     let block = 1024;
     let mut bridge = EngineBridge::new();
     bridge.prepare(src.sr, block, 2).map_err(|e| e.to_string())?;
@@ -74,6 +74,7 @@ fn process_file(src: &Source, params: &[f64; PARAM_COUNT]) -> Result<[Vec<f32>; 
         bridge.set_param(i, *v);
     }
     let lat = bridge.latency_samples() as usize;
+    eprintln!("engine: {} ({:?}), latency {} samples", bridge.status().engine_text(), bridge.engine_kind(), lat);
     let total = src.ch[0].len() + lat;
     let mut out = [Vec::with_capacity(total), Vec::with_capacity(total)];
     let (mut l, mut r) = (vec![0.0f32; block], vec![0.0f32; block]);
@@ -95,7 +96,7 @@ fn process_file(src: &Source, params: &[f64; PARAM_COUNT]) -> Result<[Vec<f32>; 
     for o in out.iter_mut() {
         o.drain(..lat.min(o.len()));
     }
-    Ok(out)
+    Ok((out, bridge.latency_samples(), bridge.status().engine_text().to_string()))
 }
 
 fn default_params() -> [f64; PARAM_COUNT] {
@@ -144,14 +145,14 @@ impl App {
 
 impl eframe::App for App {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
-        let engine = match self.bridge.engine_kind() {
-            EngineKind::PassThrough => "none (pass-through, no DSP)",
-        };
+        let st = self.bridge.status();
+        let detail = st.detail();
         let info = ui::UiInfo {
-            engine,
+            version: env!("CARGO_PKG_VERSION"),
+            engine: st.engine_text(),
             latency_samples: self.bridge.latency_samples(),
             sample_rate: self.bridge.sample_rate(),
-            status: Some("Standalone window: parameters only, no audio device."),
+            status: Some(if detail.is_empty() { "Standalone window: parameters only, no audio device." } else { detail.as_str() }),
         };
         let mut access = AppAccess { values: &mut self.values, bridge: &mut self.bridge };
         ui::draw(ctx, &mut access, &info, &mut self.ui_state);
@@ -230,6 +231,22 @@ fn selftest(bundle: &Path) -> Result<Vec<String>, String> {
     let input = [(0..n).map(|_| next()).collect::<Vec<f32>>(), (0..n).map(|_| next()).collect::<Vec<f32>>()];
     let output = p.run(&input)?;
     let lat = p.latency as usize;
+    if lat != 0 {
+        // Motor ativo (latência > 0): a saída é processada, não é cópia da entrada.
+        let mut peak = 0f32;
+        let mut finite = true;
+        for c in 0..2 {
+            for i in lat..n {
+                finite &= output[c][i].is_finite();
+                peak = peak.max(output[c][i].abs());
+            }
+        }
+        if !finite || peak == 0.0 {
+            return Err(format!("engine output is silent or not finite (peak {peak})"));
+        }
+        out.push(format!("ok  engine output     processed audio, peak {peak:.4}, latency {lat} samples (pass-through check skipped)"));
+        return Ok(out);
+    }
     let mut bad = 0usize;
     for c in 0..2 {
         for i in lat..n {
@@ -357,7 +374,7 @@ fn main() {
                         std::process::exit(1);
                     }
                 };
-                let data = match process_file(&src, &default_params()) {
+                let (data, lat, kind_text) = match process_file(&src, &default_params()) {
                     Ok(d) => d,
                     Err(e) => {
                         eprintln!("{e}");
@@ -368,7 +385,7 @@ fn main() {
                     eprintln!("{e}");
                     std::process::exit(1);
                 }
-                println!("processed {} samples at {} Hz through the engine bridge (pass-through) -> {}", data[0].len(), src.sr, out);
+                println!("processed {} samples at {} Hz through the engine bridge ({}, latency {} samples compensated) -> {}", data[0].len(), src.sr, kind_text, lat, out);
                 return;
             }
             other => {
