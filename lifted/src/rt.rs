@@ -86,8 +86,8 @@ pub struct Mem {
     heap: Vec<Option<Box<Page>>>,
     stack: Vec<Option<Box<Page>>>,
     other: HashMap<u64, Box<Page>>,
-    tlb_tag: [u64; TLB],
-    tlb_ptr: [*mut Page; TLB],
+    /// Cache direto: (endereço da página, ponteiro) na mesma entrada.
+    tlb: [(u64, *mut Page); TLB],
     pub image: Option<Box<dyn ImageSource>>,
     /// Páginas da imagem lidas (RVA da página), para congelar.
     pub image_touched: std::collections::BTreeSet<u64>,
@@ -105,8 +105,7 @@ impl Mem {
             heap: Vec::new(),
             stack: (0..(STACK_TOP + PAGE - STACK_LO) / PAGE).map(|_| None).collect(),
             other: HashMap::new(),
-            tlb_tag: [u64::MAX; TLB],
-            tlb_ptr: [std::ptr::null_mut(); TLB],
+            tlb: [(u64::MAX, std::ptr::null_mut()); TLB],
             image,
             image_touched: Default::default(),
             heap_next: HEAP_BASE,
@@ -116,12 +115,18 @@ impl Mem {
     #[inline(always)]
     fn page_ptr(&mut self, pa: u64) -> *mut Page {
         let i = ((pa >> 12) as usize) & (TLB - 1);
-        if self.tlb_tag[i] == pa {
-            return self.tlb_ptr[i];
+        let (tag, ptr) = self.tlb[i];
+        if tag == pa {
+            return ptr;
         }
+        self.page_miss(pa, i)
+    }
+
+    #[cold]
+    #[inline(never)]
+    fn page_miss(&mut self, pa: u64, i: usize) -> *mut Page {
         let p = self.page_slow(pa);
-        self.tlb_tag[i] = pa;
-        self.tlb_ptr[i] = p;
+        self.tlb[i] = (pa, p);
         p
     }
 
@@ -190,7 +195,8 @@ impl Mem {
         }
     }
 
-    #[inline]
+    #[cold]
+    #[inline(never)]
     pub fn read(&mut self, addr: u64, out: &mut [u8]) {
         let mut a = addr;
         let mut i = 0;
@@ -204,7 +210,8 @@ impl Mem {
         }
     }
 
-    #[inline]
+    #[cold]
+    #[inline(never)]
     pub fn write(&mut self, addr: u64, data: &[u8]) {
         let mut a = addr;
         let mut i = 0;
@@ -532,6 +539,22 @@ impl Cpu {
     pub fn c_p(&self) -> bool {
         self.pf
     }
+}
+
+/// `fl_add` sem flags (mesmo resultado): usado quando as flags escritas estão mortas.
+#[inline(always)]
+pub fn nf_add(a: u64, b: u64, bits: u32) -> u64 {
+    a.wrapping_add(b) & mask(bits)
+}
+/// `fl_sub` sem flags (mesmo resultado).
+#[inline(always)]
+pub fn nf_sub(a: u64, b: u64, bits: u32) -> u64 {
+    a.wrapping_sub(b) & mask(bits)
+}
+/// `fl_incdec` sem flags (mesmo resultado).
+#[inline(always)]
+pub fn nf_incdec(a: u64, inc: bool, bits: u32) -> u64 {
+    if inc { nf_add(a, 1, bits) } else { nf_sub(a, 1, bits) }
 }
 
 #[inline]

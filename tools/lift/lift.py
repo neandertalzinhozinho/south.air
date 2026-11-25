@@ -1236,6 +1236,72 @@ _HDR = re.compile(r'^(\s*)0x([0-9A-F]+) => \{ super::rt::set_cur\(0x\2\);(.*)$')
 _SW = re.compile(r'match t \{ ((?:0x[0-9A-F]+(?: \| )?)+) => \{ pc = t; continue; \}')
 
 
+_CREAD = {'e': 'z', 'a': 'cz', 'ae': 'c', 'b': 'c', 'be': 'cz', 'l': 'so', 'ge': 'so',
+          'le': 'zso', 'g': 'zso', 's': 's', 'p': 'p'}
+_ALLF = frozenset('zscop')
+_FLW = re.compile(r'c\.fl_(logic|add|sub|incdec|comi)\(')
+_EXIT = re.compile(r'\breturn\b|continue;|f_[0-9a-f]+\(c\)|super::(call|call_va|leaf)|soultree_lifted::(call|call_va|leaf)|panic!')
+
+
+def _call_span(ln, start):
+    """Fim (exclusivo) da chamada que começa em `start` (no '(' após o nome)."""
+    depth = 0
+    for k in range(start, len(ln)):
+        if ln[k] == '(':
+            depth += 1
+        elif ln[k] == ')':
+            depth -= 1
+            if depth == 0:
+                return k + 1
+    return None
+
+
+def flags_dce(lines):
+    """Desempenho (não muda valores): remove o cálculo de flags que nenhuma instrução lê.
+    Análise de vida para trás dentro do bloco, conservadora: no fim do bloco, em saídas,
+    chamadas e em qualquer linha com acesso direto a campo de flag, todas as flags vivas.
+    Só a linha com exatamente uma escrita `c.fl_*` incondicional é simplificada:
+    `fl_logic`/`fl_comi` mortos somem; `fl_add`/`fl_sub`/`fl_incdec` viram `nf_*` (mesmo
+    resultado, sem flags)."""
+    live = set(_ALLF)
+    out = list(lines)
+    for k in range(len(lines) - 1, -1, -1):
+        ln = lines[k]
+        code = ln.split(' // ', 1)[0]
+        reads = set()
+        for cc in re.findall(r'c\.c_([a-z]+)\(\)', code):
+            reads |= set(_CREAD[cc])
+        direct = re.search(r'c\.(zf|sf|cf|of|pf)\b', code)
+        ws = _FLW.findall(code)
+        if _EXIT.search(code) or direct:
+            # saída/chamada: tudo vivo; acesso direto: conservador (lê tudo, não mata nada)
+            live = set(_ALLF)
+            continue
+        if not ws:
+            live |= reads
+            continue
+        if len(ws) != 1 or ' if ' in code or code.lstrip().startswith('if '):
+            live |= reads | set(_ALLF)
+            continue
+        kind = ws[0]
+        wr = set(_ALLF) - ({'c'} if kind == 'incdec' else set())
+        if not (live & wr) and not reads:
+            m = _FLW.search(ln)
+            end = _call_span(ln, m.end() - 1)
+            args = ln[m.end():end - 1]
+            if kind in ('logic', 'comi'):
+                rep = '()'
+                # a chamada é uma instrução isolada `c.fl_x(..);`
+                if ln[end:end + 1] == ';':
+                    out[k] = ln[:m.start()] + ln[end + 1:]
+            else:
+                out[k] = ln[:m.start()] + f'super::rt::nf_{kind}({args})' + ln[end:]
+            # flags escritas mortas: `live` não muda (a instrução não lê flags)
+            continue
+        live = (live - wr) | reads
+    return out
+
+
 def densify(code):
     """Desempenho (não muda a semântica nem a ordem das instruções):
     - blocos numerados 0..k na ordem do texto, para o `match pc` virar tabela de saltos
@@ -1286,7 +1352,7 @@ def densify(code):
         ln = re.sub(r'pc = 0x([0-9A-F]+);', tgt, ln)
         out.append(ln)
     close()
-    return '\n'.join(out)
+    return '\n'.join(flags_dce(out))
 
 
 def main():
