@@ -13,7 +13,9 @@
 //! * `0x8C0BD0` — detector de 2 planos `R = (P0²+P1²)/max(P0+P1, eps)` e
 //!   `P_k = (1-g)·P_k + g·R` (`checks/h_primitivas_8c0bd0.md` §3.1);
 //! * `0x8B68AB` — coeficiente do one-pole `1 − 0.1^(1/x)` (`checks/p_8b68ab.dis`);
-//! * `0x88E130` — curva sigmoide `A^(1−σ)` (`checks/88e130.u8.dis`);
+//! * `0x88E130` — curva sigmoide `A^(1−σ)` (`checks/88e130.u8.dis`); o recíproco
+//!   `0088E32F` (`0x1C8530` -> `0x29B260`) é `crate::rcp::inv_32f_in_place`,
+//!   transcrito bit a bit em M2 (`checks/s_reciproco_88e130.md`);
 //! * `0x882FC0` — par de curvas `A1^(1−σ1)·A2^(1−σ2)` (`checks/882fc0.u8.dis`);
 //! * `0x8B5AF2`–`0x8B5CA7` — escalar de ganho `u·(y·v)` (ordem exata lida no dump).
 //!
@@ -24,8 +26,6 @@
 //!   imports da UCRT (`powf`/`logf`/`expf`), nao estas duas implementacoes internas.
 //!   As curvas abaixo usam `ln`/`exp` do Rust e por isso sao **matematicamente**
 //!   identicas, nao bit-exatas; a troca fica isolada em `ipp_ln`/`ipp_exp`.
-//! * o reciproco de `1.0/(1+e)` em `0x88E130` e `0x1C8530` -> `0x29B260`
-//!   (divisao vetorial da IPP); aqui e `1.0f32 / x`. A diferenca fica no ULP.
 //! * o significado fisico de `s0`, `A`, `A1`, `A2`, `k`, `G`; e a atribuicao
 //!   grupo→coeficiente de §8.4.8 (`NAO EXTRAIDO`, sem tabela no codigo).
 //!
@@ -224,7 +224,7 @@ pub fn one_pole_coef(t: f32, n: i64) -> f32 {
 /// 0088E2D0  dst *= ks
 /// 0088E2EE  dst  = exp(dst)                     (IPP exp)
 /// 0088E311  dst += 1.0f
-/// 0088E32F  dst  = 1.0f / dst                   (IPP reciproco)
+/// 0088E32F  dst  = rcp(dst)                     (0x29B260: vrcpps + 1 passo FMA)
 /// 0088E352  dst += -0.5f
 /// 0088E376  dst *= G
 /// 0088E399  dst *= 0.115129255f
@@ -261,7 +261,11 @@ pub fn shelf_curve_in_place(dst: &mut [f32], src: Option<&[f32]>, a: f32, k: f32
         *v *= ks; // 0088E2D0
         *v = ipp_exp(*v); // 0088E2EE
         *v += C_1_0; // 0088E311
-        *v = C_1_0 / *v; // 0088E32F
+    }
+    // 0088E32F call 0x1C8530 -> 0x29B260, in-place (rcx = rdx), M2: crate::rcp.
+    // O status (eax) não é lido por 0x88E130 (0088E334..0088E352).
+    crate::rcp::inv_32f_in_place(dst);
+    for v in dst.iter_mut() {
         *v += C_NEG_0_5; // 0088E352
         *v *= gain_db; // 0088E376
         *v *= C_LN10_20; // 0088E399

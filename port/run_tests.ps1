@@ -17,13 +17,15 @@ $build = Join-Path $checks '.build'
 New-Item -ItemType Directory -Force -Path $build | Out-Null
 
 $suites = [ordered]@{
-    'port (pending + chain + stage)' = $null   # cargo test
+    'port (pending + chain + stage + div + rcp)' = $null   # cargo test
     'J1/J2 core'             = 'stage_j_core.rs'
     'J3 pipe'                = 'stage_j_pipe.rs'
     'J4 contrato'            = 'stage_j_fft.rs'
     'J4 kernels'             = 'j4_fft.rs'
     'J5 canal'               = 'stage_j_chan.rs'
     'J6 engine'              = 'stage_j_engine.rs'
+    'M1 div x hardware AVX'  = 'j_div_avx.rs'
+    'M2 rcp x hardware AVX'  = 'j_rcp_avx.rs'
 }
 if ($Slow) {
     $suites['J2 dot AVX 400k'] = 'j_dot32_avx.rs'
@@ -61,4 +63,4 @@ if ($failed.Count -gt 0) {
     Write-Host ("FALHOU: " + ($failed -join ', ')) -ForegroundColor Red
     exit 1
 }
-Write-Host "OK: $total suítes verdes (57 testes J + 18 do port)" -ForegroundColor Green
+Write-Host "OK: $total suítes verdes (64 testes J = 57 + 7 de rcp.rs via J6; 44 do port; 17 de j_div_avx = 16 de div.rs + 1 x hardware; 8 de j_rcp_avx = 7 de rcp.rs + 1 x hardware)" -ForegroundColor Green

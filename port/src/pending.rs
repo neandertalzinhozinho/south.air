@@ -33,19 +33,9 @@ pub struct Gap {
 
 /// Todos os gaps conhecidos, do mais bloqueante para o menos.
 pub const GAPS: &[Gap] = &[
-    Gap {
-        id: "divisão do estagiador 0x1550 -> 0x63640 (vrcpps + Newton)",
-        rva: "0x1550 -> 0x63640",
-        status: Status::NaoTranscrito,
-        blocks_null_test: true,
-        note: "o estágio 0x8C1440 está transcrito em port/src/stage.rs, mas as 4 divisões \
-               (008C2545/008C263D/008C273B/008C2828) não são vdivps: 0x63640 tem DUAS \
-               aritméticas — 16 lanes refinam o recíproco (00063B24/00063B29) e multiplicam \
-               no fim (00063B37); 8 lanes refinam o quociente (00063791/00063796) — e o \
-               despacho depende de n e do alinhamento de dst (cabeça 00063697, 16 em \
-               00063A67, 8 em 0006400D, resto 0006401A). n = [X+0x40] = N+1 é ímpar. Ver \
-               checks/r_divisao_63640.md; falta transcrever e provar N/alinhamento",
-    },
+    // M1 (2026-11-25): a divisão 0x1550 -> 0x63640 saiu daqui — transcrita em
+    // port/src/div.rs, usada por stage.rs, conferida contra hardware em
+    // checks/j_div_avx.rs. O resíduo de M1 é o gap "identidade de E" abaixo.
     Gap {
         id: "ln da IPP vs f32::ln (bit a bit)",
         rva: "0x293760",
@@ -61,13 +51,10 @@ pub const GAPS: &[Gap] = &[
         blocks_null_test: true,
         note: "idem ln; afeta F4 e o par logf(powf(10, .)) de F5",
     },
-    Gap {
-        id: "recíproco vetorial de 0x88E130",
-        rva: "0x1C8530 -> 0x29B260",
-        status: Status::NaoProvado,
-        blocks_null_test: true,
-        note: "difere de 1.0/x no ULP; transcrever a sequência (determinística) fecha",
-    },
+    // M2 (2026-11-25): o recíproco 0x1C8530 -> 0x29B260 de 0x88E130 saiu daqui —
+    // transcrito em port/src/rcp.rs, usado por engine.rs (0088E32F), conferido
+    // contra hardware em checks/j_rcp_avx.rs (checks/s_reciproco_88e130.md).
+    // Resíduo: vrcpps é bit a bit só na CPU do oráculo (mesma ressalva de M1).
     Gap {
         id: "campo de sample rate (identidade de r13 / [ctx+0x60])",
         rva: "0x8B68AB (008B68BC)",
@@ -75,6 +62,19 @@ pub const GAPS: &[Gap] = &[
         blocks_null_test: true,
         note: "r13 = arg1 de 0x8B3ED0 (008B3F14); [ctx+0x60] é qword; 'sample rate' \
                não provado — o port hoje só roda em 48 kHz",
+    },
+    Gap {
+        id: "identidade do objeto E de 0x864410 e do arg4 de 0x8634A0 (n e alinhamento da divisão)",
+        rva: "0x864410 (0086453D) / 0x862E40 (00862E68)",
+        status: Status::NaoProvado,
+        blocks_null_test: true,
+        note: "M1: dst & 0x1c = 0 nas 4 divisões é provado dentro de 0x8C1440 (cursor align16) \
+               e na base [E+0x30] escrita por 0x868B50 (00868B98/00868B9C, 64 B) a partir de \
+               0x8634A0 (00863563); n = [X+0x40] = 257 vale para arg4 = 48000 \
+               (div::stage_division_len). Falta a instrução que ligue o E de 0x864410 \
+               (despacho indireto) ao objeto de 0x8634A0 — hoje só coincidem os offsets \
+               +0x10/+0x2C/+0x30/+0x5F8 — e a identidade de arg4 (= (float)xmm2 de 0x862E40) \
+               como taxa de amostragem (M4)",
     },
     Gap {
         id: "callback [rdx+0x50] do descritor de runtime",
@@ -164,10 +164,27 @@ mod tests {
     }
 
     #[test]
-    fn first_blocking_is_the_stage_division() {
-        // Ordem deliberada: o gap que muda o sinal grosseiramente vem primeiro.
+    fn first_blocking_is_the_ipp_ln() {
+        // M1 fechou a divisão 0x63640 (port/src/div.rs); a ordem do resto da
+        // lista não mudou, então o primeiro bloqueante passa a ser o ln da IPP.
         let g = first_blocking().expect("há gaps bloqueantes");
-        assert_eq!(g.rva, "0x1550 -> 0x63640");
+        assert_eq!(g.rva, "0x293760");
+    }
+
+    #[test]
+    fn stage_division_is_no_longer_a_gap() {
+        for g in GAPS {
+            assert!(!g.rva.contains("0x63640"), "{} ainda lista 0x63640", g.id);
+        }
+    }
+
+    #[test]
+    fn reciprocal_of_88e130_is_no_longer_a_gap() {
+        // M2: 0x1C8530 -> 0x29B260 está em port/src/rcp.rs.
+        for g in GAPS {
+            assert!(!g.rva.contains("0x29B260"), "{} ainda lista 0x29B260", g.id);
+            assert!(!g.id.contains("recíproco"), "{} ainda lista o recíproco", g.id);
+        }
     }
 
     #[test]
@@ -183,7 +200,7 @@ mod tests {
     fn label_carries_status_and_rva() {
         let g = first_blocking().unwrap();
         let l = label(g);
-        assert!(l.starts_with("NÃO TRANSCRITO: "));
-        assert!(l.contains("0x63640"));
+        assert!(l.starts_with("NÃO PROVADO: "));
+        assert!(l.contains("0x293760"));
     }
 }

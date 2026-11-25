@@ -1,6 +1,6 @@
 # PROMPT DE RETOMADA — extração do DSP do soothe3
 
-> **Atualizado em 2026-11-24**, sincronizado com `PLANO_MOTOR_AUDIO.md` §25/§23.15.
+> **Atualizado em 2026-11-25 (M2)**, sincronizado com `PLANO_MOTOR_AUDIO.md` §25/§26/§23.15.
 > Autocontido: não depende de conversa anterior. Se este arquivo divergir do plano, **o plano
 > vence** — este prompt é um resumo operacional, não a fonte.
 
@@ -189,8 +189,12 @@ Fechamento item a item (todos com RVA):
    (`soultree_port`) é a fonte única dos kernels J1–J6; os `checks/*.rs` apontam para ele com
    `#[path]` e mantêm só os testes. `port/src/pending.rs` = 12 gaps com RVA e
    `blocks_null_test`; `port/src/chain.rs` = ordem de `pipe::chain_plan` e parada no primeiro
-   gap (`0x1550 -> 0x63640`). Runner: `powershell -File port\run_tests.ps1` (57 J + 18 port,
-   0 falhas). Extração reprodutível: `tools/extract_port_modules.py`.
+   gap (desde M1: `0x293760`, ln da IPP). Runner: `powershell -File port\run_tests.ps1`
+   (64 J + 44 port + 17 de `checks/j_div_avx.rs` + 8 de `checks/j_rcp_avx.rs`, 9 suítes,
+   0 falhas — 2026-11-25, M2). Extração
+   reprodutível: `tools/extract_port_modules.py`. **Atenção:** no `-Slow`, `j_dot32_avx.rs` e
+   `j_crt_equiv.rs` só têm `main` e o runner compila com `--test` ⇒ 0 testes executados
+   (bug do runner, não corrigido).
    **Q (2026-11-25, FECHADO):** `0x8C1440` — `checks/q_8c1440_buffers.md` prova os papéis
    dos 16 buffers (pares 0/2/4/6 = `Σch²`; 1/3/5/7 = `Σch`, únicos clampados), as 4 divisões
    em **alocação nova** (`new1=par0/par1`, `T1=par2/par3`, `T2=par4/par5`, `T3=par6/par7`; o
@@ -204,19 +208,38 @@ Fechamento item a item (todos com RVA):
    (passagem A com `0x1580` FMA / `0x1370`, clamp `0x1100` modo 0 nos pares ímpares, as 4
    divisões, as somas `A/B/C/D` e a passagem B via `pipe::mix_lane`, cujo MAC foi corrigido
    para FMA — `00005C85`) com 12 testes. O gap de
-   `0x8C1440` saiu de `pending.rs`; o primeiro bloqueante agora é a divisão
-   `0x1550 -> 0x63640` (`vrcpps` + Newton, não `vdivps`).
+   `0x8C1440` saiu de `pending.rs`.
+   **M1 (2026-11-25, FECHADA):** divisão `0x1550 -> 0x63640` em `port/src/div.rs` (despacho
+   cabeça 8 / laço 16 / bloco 8 / resto 1..7, aritméticas A/B, fixup; máscara do recíproco
+   nulo **diferente** em A e B, `00063779` vs `00063AF8`/`00063B0E`), usada pelas 4 divisões
+   de `stage.rs`; conferida contra a sequência AVX/FMA do binário em `checks/j_div_avx.rs`
+   (2.807.920 lanes, `bad=0`). `n` a 48 kHz = **257** (`N = 256`, `0086FF39` com
+   `arg5 = 0x100` em `0086A579`) → 16 laços B + 1 lane A. `dst & 0x1c = 0` nos 4 sítios
+   (cursor `align16` em `0x8C1440`; base `[E+0x30]` de `0x868B50`, 64 B) → sem cabeça.
+   Os 2 testes que falhavam em `div.rs` estavam errados (o laço de 16 conta `n − h`;
+   `vrcpps(f32::MAX) = 0`). Resíduo `NÃO PROVADO` (gap em `pending.rs`): `E` de `0x864410` =
+   objeto de `0x8634A0`; `a` = taxa (M4); gêmeo `0x8C5C40`; payload de NaN; `vrcpps` só é
+   bit a bit na mesma CPU do oráculo. Prova: `checks/r_divisao_63640.md` §2/§4.1/§5/§6.
+   **M2 (2026-11-25, FECHADA):** recíproco de `0x88E130` (`0088E32F`, in-place)
+   `0x1C8530 -> 0x1C8AC0 -> [0x21C71D8] = 0x29B260` (1.856 B) em `port/src/rcp.rs`, usado por
+   `engine.rs::shelf_curve_in_place`. Lane normal (`|bits| ∈ [0x00800000, 0x7E7FE800]`):
+   `vrcpps` + `e = 1 − x·r0`, `r = e·r0 + r0` (FMA, `0029B40E`/`0029B442`/`0029B456`); lane
+   especial: `1.0f/x` por `vdivss` (`0x29B9A0`); blocos de 32 + cauda de 8 com padding `0.75`,
+   sem cabeça (valor por lane independe de `n`/alinhamento); MXCSR forçado a `0x1F80`.
+   `checks/j_rcp_avx.rs` (constantes lidas do dump): `bad = 0` estrito (com payload de NaN) e
+   **exaustivo 2^32 `bad = 0`**; 3 mutações detectadas. Resíduo `NÃO PROVADO`: `vrcpps` só na
+   mesma CPU; caminhos de CPU `0x297EE0`/`0x299C60` não lidos; outros chamadores de `0x1C8530`
+   não religados. Prova: `checks/s_reciproco_88e130.md`.
    **PRÓXIMO — roteiro até o null-test (2026-11-25):**
-   **M1** divisão `0x1550 -> 0x63640`: replicar o despacho (cabeça 8 / laço 16 / bloco 8 /
-   resto 1..7) e as duas aritméticas (`checks/r_divisao_63640.md`); provar `N`/`len` em
-   48 kHz e o alinhamento dos 4 `dst`. **M2** recíproco `0x88E130` (`0x1C8530 -> 0x29B260`).
-   **M3** `0x293760` (ln) e `0x240C00` (exp) bit a bit. **M4** sample rate (`[ctx+0x60]`) e
+   ~~**M1**~~, ~~**M2**~~ (fechadas acima).
+   **M3 (PRÓXIMO)** `0x293760` (ln) e `0x240C00` (exp) bit a bit. **M4** sample rate (`[ctx+0x60]`) e
    callback `[rdx+0x50]` (`00867E10`). **M5** port do miolo `0x8B3ED0` (F1–F5 + 6 callees +
    satélites + filtro `0x87BB60`). **M6** cadeia completa (`0x8AD2B0`, `0x8ACC40`,
    `0x885040`/`0x8875F0`, rings, estado inicial). **M7** null-test (bloco 512, alinhamento
    2304, 0 divergências).
    **Fatos novos (2026-11-25):** `0x63640` tem **duas** aritméticas (A = quociente, B =
-   recíproco; A ≠ B no ULP) e `n = N+1` é **ímpar** — a cauda sempre roda.
+   recíproco; A ≠ B no ULP) e `n = N+1` é **ímpar** — a cauda sempre roda. **Conflito com a
+   âncora:** a instrução dá `N = 256` a 48 kHz para o `X` do estágio, não 278 (§23.14).
 
 ## Armadilhas já pagas (não repita)
 
@@ -262,7 +285,8 @@ A retomada está bem-sucedida quando: (a) os documentos estiverem sincronizados 
 (`PLANO_MOTOR_AUDIO.md`, este prompt, `PROMPT_RETOMADA_4000.md`, `dsp-spec.md`);
 (b) J1–J6 compilarem e passarem (`j4_fft.rs` 13, `stage_j_core.rs` 10, `stage_j_pipe.rs` 12,
 `stage_j_fft.rs` 7, `stage_j_chan.rs` 7, `stage_j_engine.rs` 8) — verificado por
-`powershell -File port\run_tests.ps1`, que também roda os 6 testes do crate `port/`; (c) `0x88300` e os geradores
+`powershell -File port\run_tests.ps1`, que também roda os 36 testes do crate `port/` e os 17 de
+`checks/j_div_avx.rs`; (c) `0x88300` e os geradores
 de twiddle estiverem marcados `NÃO EXTRAÍDO` com RVA e alcance provado; (d) o que resta para o
 null-test estiver explícito (port completo do motor, mesmo bloco, alinhamento 2304).
 

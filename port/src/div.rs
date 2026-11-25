@@ -56,21 +56,72 @@
 //! zerado em `00063B5E`/`00063B64`). No estágio isso é inalcançável: o
 //! denominador é clampado em `1e-7` (`stage::CLAMP_MIN`).
 //!
-//! ## Alinhamento
+//! ## Máscara do recíproco nulo — A e B **não** usam o mesmo predicado
 //!
-//! A cabeça existe porque `dst` pode não estar num bloco de 32 B. No estágio o
-//! destino é a arena, **64 B alinhada** (prova em `checks/r_divisao_63640.md`
-//! §5: `0x868B50` faz `(p+0x40) & ~0x3f`), logo `dst & 0x1c == 0` e a cabeça
-//! nunca roda. [`div_block_mod32`] recebe esse valor explicitamente; o
-//! [`div_block`] genérico o lê do ponteiro.
+//! * A: `vcmpneq_oqps` + `vandps` (`00063779`/`0006377E`, `000640D5`/`000640DA`,
+//!   `00064407`/`00064410`) → `d = den'` só se `r0` for ordenado e `≠ 0`
+//!   (NaN → `d = 0`).
+//! * B: `vcmpeqps` + `vandnps` (`00063AF8`/`00063AFD`, `00063B0E`/`00063B12`) →
+//!   `d = 0` só se `r0 == ±0` (NaN → `d = den'`).
+//!
+//! `r0 == 0` acontece: `vrcpps` devolve `+0` para `|den'| ≳ 2^126` (resultado
+//! tiny, levado a zero; medido nesta CPU com `f32::MAX`). Nos dois caminhos
+//! fica `d = 0`, `e = 1` e o quociente sai `0·num` (`±0`), não `num/den`.
+//!
+//! ## Wrapper e retorno
+//!
+//! `0x1550` → `jmp [0x21C6448 + 8·[0x21C7408]]`, índice `4` no dump →
+//! `0x199BC560` = `0xC560`. `0xC560` testa os três ponteiros e `r9d ≥ 1`
+//! (`0000C568`..`0000C57A`), chama `0x63640` (`0000C57C`) e converte `eax ≠ 0`
+//! em `2` (`0000C581`..`0000C588`). O estágio descarta o retorno
+//! (`008C254A add rbx,8` logo após o `call`), então o port não o devolve.
+//!
+//! ## `n` no estágio — [`stage_division_len`]
+//!
+//! `r9d = [t+0x404] = [X+0x40]` (`008C2535`, `008C14B0`; `checks/n_canal.md`
+//! §4). `X = E+0x5F8+0x2C50` (`008638D6`, `0086A555`; `0088139D`) é escrito
+//! **só** pela 2ª chamada de `0x86FE90` (`0086A581`, `arg5 = 0x100` em
+//! `0086A579`): `N = trunc(max(x,44100)·(1/44100))·256` (`0086FEB6`,
+//! `0086FF1E`, `0086FF35`, `0086FF39`) e `[X+0x40] = ((2N)>>1)+1`
+//! (`0086FF47`..`0086FF55`), com `x = a / k`, `k = max(trunc((a+1)/44100), 1)`
+//! (`00863531`..`00863552`, `0086391C`..`00863925`) e `a` = `arg4` (float) de
+//! `0x8634A0` (`008634A3`). Para `a = 48000` → `N = 256`, `n = 257`
+//! (`16` laços de B + `1` lane de resto A; o bloco de 8 não roda). Que `a` seja
+//! a taxa de amostragem é `NÃO PROVADO` (M4: `a = (float)xmm2` de `0x862E40`,
+//! `00862E68`).
+//!
+//! ## Alinhamento de `dst` nos 4 sítios (`008C2545`/`008C263D`/`008C273B`/`008C2828`)
+//!
+//! * **PROVADO dentro de `0x8C1440`:** `dst = [arena] + 4·cursor`
+//!   (`008C247D`..`008C24EF` e análogos) e o cursor `[arena+0x18]` usado nas 4
+//!   divisões sempre veio de um `align16` em floats (`x − (x & 15) + 16`,
+//!   `cmove` se já alinhado): `008C154F`..`008C1781` e `0x8CAFD0`
+//!   (`008CB007`/`008CB03A`), que são as únicas escritas do cursor antes de
+//!   `008C24E1`. Logo `dst ≡ [arena] (mod 64 B)` e `dst & 0x1c = [arena] & 0x1c`.
+//! * **PROVADO a base, ligando por offsets:** a arena do estágio é a cópia local
+//!   `[rbp]` de `0x8646A2` (`00865210`/`00865236`: `[rbp] = [E+0x30]`,
+//!   cursor `0` em `0086523A`/`0086563A`), passada por ponteiro até
+//!   `0x8C1440` (`00865649`/`00865658` → `0086783C`/`00867843` →
+//!   `0087750C`/`00877517` → `0088107C` → `00881398` → `0088AC7C` →
+//!   `008AD2E1` → `008B5DB6`/`008B5DDF` → `008B6061`). `[E+0x30]` é escrito por
+//!   `0x868B50` (`00863563`): `base = (malloc + 0x40) & ~0x3f`
+//!   (`00868B98`/`00868B9C`/`00868BAB`) ⇒ 64 B alinhada ⇒ `dst & 0x1c == 0`
+//!   e a cabeça **não roda**.
+//! * **NÃO PROVADO:** que o `E` de `0x864410` (`0086453D`, despacho indireto)
+//!   seja o objeto construído por `0x8634A0` — só coincidem os offsets
+//!   (`+0x10`, `+0x2C`, `+0x30`, `+0x5F8`). Fica em `pending::GAPS`.
+//!
+//! [`div_block_mod32`] recebe `dst & 0x1c` explicitamente (o estágio passa `0`);
+//! o [`div_block`] genérico o lê do ponteiro.
 //!
 //! ## `vrcpps`
 //!
 //! `00063775`/`00063AF0`/`000640D1`/`00064403` são `vrcpps ymm`, não
-//! `vdivps`. O port chama a intrinsic `_mm256_rcp_ps` (mesma tabela de 12 bits
-//! do hardware, lane a lane; o `ymm` é duas metades de 128 bits com a mesma
-//! tabela). O resultado é determinístico nesta CPU e é o único caminho para o
-//! bit a bit — não há reimplementação portátil equivalente.
+//! `vdivps`. O port chama a intrinsic `_mm256_rcp_ps`, isto é, a **mesma
+//! instrução** do hardware em que roda. A tabela de `vrcpps` não é especificada
+//! pela ISA (Intel e AMD diferem): o port é bit a bit com o binário **na mesma
+//! CPU** em que o oráculo foi gerado. Conferido contra a sequência AVX/FMA do
+//! binário executada por hardware em `checks/j_div_avx.rs`.
 
 #![allow(dead_code)]
 
@@ -130,11 +181,18 @@ fn blend_den(den: f32) -> f32 {
     }
 }
 
-/// `nz = (r0 != 0)` do `vcmpneq_oqps` (`00063779`, `00063AF8`, `000640D5`,
+/// **A** — `nz = (r0 != 0)` do `vcmpneq_oqps` (`00063779`, `000640D5`,
 /// `00064407`): falso para NaN e para `±0.0`.
 #[inline]
 fn rcp_nonzero(r0: f32) -> bool {
     !r0.is_nan() && r0 != 0.0
+}
+
+/// **B** — `keep = !(r0 == 0)` do `vcmpeqps` + `vandnps` (`00063AF8`/`00063AFD`,
+/// `00063B0E`/`00063B12`): falso só para `±0.0`; NaN mantém `den'`.
+#[inline]
+fn rcp_not_zero_b(r0: f32) -> bool {
+    !(r0 == 0.0)
 }
 
 /// `d = den' & mask` (`vandps` em `0006377E`/`000640DA`,
@@ -184,7 +242,7 @@ fn lanes_b8(den: &[f32; 8], num: &[f32; 8]) -> [f32; 8] {
     let r0 = rcp8(&denp);
     let mut out = [0.0f32; 8];
     for i in 0..8 {
-        let d = masked_den(denp[i], rcp_nonzero(r0[i]));
+        let d = masked_den(denp[i], rcp_not_zero_b(r0[i])); // vcmpeqps + vandnps
         let e = residual(d, r0[i]);
         let r1 = r0[i].mul_add(e, r0[i]);
         let r2 = r1.mul_add(e, r0[i]);
@@ -231,6 +289,51 @@ fn apply_fixup(den: &[f32], num: &[f32], q: &mut [f32], neg_zero_as_positive: bo
     }
 }
 
+/// `1/44100` em f32: bits `0x37BE37C6` em `0x2079D04` (`0086353C`, `0086FF1E`).
+pub const INV_44100: f32 = f32::from_bits(0x37BE_37C6);
+/// `44100.0`: bits `0x472C4400` em `0x207A5E4` (`0086FEB6`).
+pub const FS_FLOOR: f32 = f32::from_bits(0x472C_4400);
+/// `arg5` da 2ª chamada de `0x86FE90` (`0086A579 mov dword [rsp+0x20],0x100`).
+pub const N_BASE_AUDIO: i32 = 0x100;
+
+/// `cvttss2si` (`00863544`, `0086FF35`): trunca em direção a zero; NaN ou fora
+/// de `i32` dá o inteiro indefinido `0x80000000`.
+#[inline]
+fn cvttss2si(x: f32) -> i32 {
+    if x.is_nan() || x >= 2_147_483_648.0 || x < -2_147_483_648.0 {
+        i32::MIN
+    } else {
+        x as i32
+    }
+}
+
+/// `n` das 4 divisões do estágio = `[X+0x40]` em função de `a` = `arg4` (float)
+/// de `0x8634A0` (`008634A3`). Identidade de `a` (taxa de amostragem?):
+/// `NÃO PROVADO` (M4).
+///
+/// ```text
+/// 00863531 addss  xmm0,xmm7            ; a + 1.0  (xmm7 = [0x2079F9C] = 1.0)
+/// 0086353C mulss  xmm0,[0x2079D04]     ; · 1/44100
+/// 00863544 cvttss2si ecx,xmm0
+/// 00863548 cmp ecx,1 / 0086354B cmovg  ; k = max(t, 1) -> [E+0x2C] (00863552)
+/// 0086391C movd/cvtdq2ps/divss         ; x = a / (float)k  (xmm3 de 0x86A4E0)
+/// 0086FEB6 maxss  xmm3,[0x207A5E4]     ; max(x, 44100)
+/// 0086FF1E mulss  xmm3,[0x2079D04]
+/// 0086FF35 cvttss2si eax,xmm3
+/// 0086FF39 imul   eax,[rbp+0x430]      ; arg5 = 0x100 (0086A579)
+/// 0086FF40 movsxd r8,eax               ; N -> [X+0x28]
+/// 0086FF47 lea rax,[r8+r8] / shr 1 / inc ; [X+0x40] = N+1 (0086FF55)
+/// ```
+pub fn stage_division_len(a: f32) -> i64 {
+    let t = cvttss2si((a + 1.0) * INV_44100);
+    let k = if t > 1 { t } else { 1 };
+    let x = a / (k as f32);
+    let x = if x > FS_FLOOR { x } else { FS_FLOOR }; // maxss: NaN -> 2º operando
+    let big_n = cvttss2si(x * INV_44100).wrapping_mul(N_BASE_AUDIO) as i64;
+    let two_n = big_n.wrapping_add(big_n);
+    ((two_n as u64) >> 1) as i64 + 1
+}
+
 /// `dst[i] = num[i] / den[i]` — `0x63640` com o alinhamento lido do ponteiro
 /// (`r8 & 0x1c` em `0006366A`).
 pub fn div_block(num: &[f32], den: &[f32], dst: &mut [f32]) {
@@ -242,7 +345,9 @@ pub fn div_block(num: &[f32], den: &[f32], dst: &mut [f32]) {
 ///
 /// No estágio o destino é a arena de 64 B (`dst_mod32 = 0`), então a cabeça
 /// não roda — passe `0` mesmo que o `Vec` do port não esteja alinhado; o valor
-/// que importa é o do binário, provado em `checks/r_divisao_63640.md` §5.
+/// que importa é o do binário (`checks/r_divisao_63640.md` §5: provado dentro
+/// de `0x8C1440` e na base `0x868B50`; a identidade de `E` em `0x864410` segue
+/// `NÃO PROVADO`).
 pub fn div_block_mod32(num: &[f32], den: &[f32], dst: &mut [f32], dst_mod32: usize) {
     assert_eq!(num.len(), dst.len(), "0x63640: num e dst com n diferente");
     assert_eq!(den.len(), dst.len(), "0x63640: den e dst com n diferente");
@@ -371,6 +476,10 @@ mod tests {
     #[test]
     fn head_uses_a_for_the_partial_lane_count() {
         // dst & 0x1c == 16 → h = 8 - 4 = 4 (0006369F..000636B6).
+        // O laço de 16 conta o que SOBRA da cabeça: 00063A51 sub r9d,edi vem
+        // antes de 00063A67 sar r12d,4. Com n = 16 sobram 12 → n16 = 0, bloco de
+        // 8 (0006400D) + resto 4 (0006401A): tudo A. (A versão anterior deste
+        // teste esperava B nas lanes 4..15 — o teste estava errado, não o código.)
         let n = 16;
         let (mut v, start) = buf_with_mod32(n, 16);
         let num: Vec<f32> = (0..n).map(|i| 1.0 + i as f32 * 0.37).collect();
@@ -379,13 +488,57 @@ mod tests {
         for i in 0..4 {
             assert_eq!(v[start + i], a1(den[i], num[i]), "lane {i} é cabeça (A)");
         }
-        for i in 4..16 {
-            assert_eq!(
-                v[start + i],
-                b1(den[i], num[i]),
-                "lane {i} é laço de 16 (B)"
-            );
+        for i in 4..12 {
+            assert_eq!(v[start + i], a1(den[i], num[i]), "lane {i} é bloco 8 (A)");
         }
+        for i in 12..16 {
+            assert_eq!(v[start + i], a1(den[i], num[i]), "lane {i} é resto (A)");
+        }
+        // Lane 6 é um par em que A ≠ B: prova que o caminho não é o laço de 16.
+        assert_ne!(a1(den[6], num[6]).to_bits(), b1(den[6], num[6]).to_bits());
+    }
+
+    #[test]
+    fn head_of_4_then_16_loop_when_n_is_20() {
+        // dst & 0x1c == 16, n = 20 → h = 4, sobram 16 → 1 laço B, sem cauda.
+        let n = 20;
+        let (mut v, start) = buf_with_mod32(n, 16);
+        let num: Vec<f32> = (0..n).map(|i| 1.0 + i as f32 * 0.37).collect();
+        let den: Vec<f32> = (0..n).map(|i| 0.11 + i as f32 * 0.73).collect();
+        div_block(&num, &den, &mut v[start..start + n]);
+        for i in 0..4 {
+            assert_eq!(v[start + i], a1(den[i], num[i]), "lane {i} é cabeça (A)");
+        }
+        for i in 4..20 {
+            assert_eq!(v[start + i], b1(den[i], num[i]), "lane {i} é laço de 16 (B)");
+        }
+    }
+
+    #[test]
+    fn stage_len_at_48k_is_257() {
+        // 0x8634A0/0x86FE90: a = 48000 → k = 1, N = 256, [X+0x40] = 257.
+        assert_eq!(stage_division_len(48000.0), 257);
+        // a = 44100 → 44100·(1/44100) arredonda para 1.0 em f32 → N = 256.
+        assert_eq!(stage_division_len(44100.0), 257);
+        // a = 96000 → k = 2, x = 48000 → N = 256 (o k absorve a razão).
+        assert_eq!(stage_division_len(96000.0), 257);
+        // n = 257 é ímpar (§4): a cauda sempre roda.
+        assert_eq!(stage_division_len(48000.0) & 1, 1);
+    }
+
+    #[test]
+    fn n257_aligned_is_16_b_loops_and_one_a_lane() {
+        // Despacho do estágio a 48 kHz: dst alinhado (cabeça não roda),
+        // 257 = 16·16 + 1 → 16 laços B, 257 & 8 == 0 (sem bloco de 8), resto 1 A.
+        let n = stage_division_len(48000.0) as usize;
+        let num: Vec<f32> = (0..n).map(|i| 1.0 + i as f32 * 0.37).collect();
+        let den: Vec<f32> = (0..n).map(|i| 0.11 + i as f32 * 0.73).collect();
+        let mut dst = vec![0.0f32; n];
+        div_block_mod32(&num, &den, &mut dst, 0);
+        for i in 0..256 {
+            assert_eq!(dst[i].to_bits(), b1(den[i], num[i]).to_bits(), "lane {i} B");
+        }
+        assert_eq!(dst[256].to_bits(), a1(den[256], num[256]).to_bits(), "lane 256 A");
     }
 
     #[test]
@@ -514,12 +667,25 @@ mod tests {
     }
 
     #[test]
-    fn rcp_is_never_nan_for_positive_denominator() {
-        // O caminho do estágio: den >= 1e-7 > 0, então nz é sempre verdadeiro.
-        for x in [1e-7f32, 1.0, 3.0, 1e7, f32::MAX, f32::MIN_POSITIVE] {
+    fn rcp_is_nonzero_in_normal_range_and_zero_at_f32_max() {
+        // A versão anterior afirmava "rcp(den) != 0 para todo den > 0" e incluía
+        // f32::MAX: o teste estava errado. vrcpps leva a zero o resultado tiny
+        // (|den| ≳ 2^126) — medido nesta CPU: rcp(f32::MAX) = +0.
+        for x in [1e-7f32, 1.0, 3.0, 1e7, f32::MIN_POSITIVE, f32::from_bits(0x7E00_0000)] {
             let r = rcp1(x);
             assert!(!r.is_nan() && r != 0.0, "rcp({x}) = {r}");
         }
+        assert_eq!(rcp1(f32::MAX).to_bits(), 0, "rcp(f32::MAX)");
+    }
+
+    #[test]
+    fn huge_denominator_gives_zero_quotient_in_a_and_b() {
+        // r0 = 0 → A: mask falsa (00063779) → d = 0, e = 1, q = 0·num = 0;
+        //          B: r0 == 0 (00063AF8) → vandnps zera d → r2 = 0, q = 0·num.
+        assert_eq!(a1(f32::MAX, 5.0).to_bits(), 0);
+        assert_eq!(b1(f32::MAX, 5.0).to_bits(), 0);
+        assert_eq!(a1(f32::MAX, -5.0).to_bits(), (-0.0f32).to_bits());
+        assert_eq!(b1(f32::MAX, -5.0).to_bits(), (-0.0f32).to_bits());
     }
 
     #[test]

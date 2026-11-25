@@ -3195,7 +3195,7 @@ correta é esta:
 | `0x8C02F0` / `0x8C0BD0` = detector e lei de ganho | são wrapper: montam buffers e chamam. O detector/ganho está **depois** deles: `0x8CAE90` (callee de `0x8C02F0`) e a cadeia de `0x8C0BD0` (recíproco → clamp → FMA), cujos impls faltam abrir (§23.2) |
 | "Núcleo `0x8B3ED0`, 20.209 B, 127 call, zero FMA" | bate — mas só via `show_func.py`. O `functions.csv` dá **49 B** para `0x8B3ED0`; quem confiar no CSV conclui que o núcleo é um stub (§22.5) |
 | "Cluster aritmético `0x8BF5C0–0x8C4300`" | o cluster é real, mas é **plumbing** (§22). A aritmética densa da região está antes do núcleo, em `0x8B2C30` (28 `mulss`/`addss`, zero calls) — etapa D0 |
-| "`N = 256` / `278` / `557`" | os três valores existem como bit pattern float no dump, mas `278 = round(256 × 48000/44100)` e `557 = round(256 × 96000/44100)`: os três são **uma fórmula**, não três constantes. Falta ler a instrução que escolhe o N — `NÃO PROVADO` até lá |
+| "`N = 256` / `278` / `557`" | os três valores existem como bit pattern float no dump, mas `278 = round(256 × 48000/44100)` e `557 = round(256 × 96000/44100)`: os três são **uma fórmula**, não três constantes. Falta ler a instrução que escolhe o N — `NÃO PROVADO` até lá. **Lida em 2026-11-25 (M1)** para o `X` do estágio (`E+0x5F8+0x2C50`): `N = trunc(max(a/k,44100)·(1/44100))·256` (`0086FF35`/`0086FF39`, `arg5 = 0x100` em `0086A579`; `k = max(trunc((a+1)/44100),1)` em `00863531`..`00863552`) ⇒ **`a = 48000` → `N = 256`**, não 278 (e `a = 96000` → `k = 2`, `N = 256`). A âncora diverge da instrução; fica registrado aqui e vale a leitura (`checks/r_divisao_63640.md` §4.1). A identidade de `a` como taxa de amostragem é `NÃO PROVADA` (M4) |
 | "latência 2.304 amostras @ 48 kHz", item 5 | medida no build **1.0.5** (bundle oráculo), não no dump 1.0.6. Registro histórico, **não** especificação do port (§19.5) |
 
 Não há contradição de *fato* no item 2: a âncora escreve "provavelmente", e a própria âncora
@@ -3826,8 +3826,9 @@ twiddle (`0x806E0`, `0x876E0`, `0x87AA0`), com as tabelas medidas em vez de tran
 **J6 fechado:** `checks/stage_j_engine.rs` (8 testes) transcreve `0x8C3C20` (`a=0.1`),
 `0x8C0BD0` (`R=(P0²+P1²)/max(P0+P1,eps)`, `P←(1-g)P+gR`), `0x8B68AB` (`1-0.1^(1/x)`),
 `0x88E130`, `0x882FC0` e o escalar `0x8B5AF2`–`0x8B5CA7` na ordem exata `u·(y·v)`. Ficam
-`NÃO PROVADO`: `0x293760`/`0x240C00` (ln/exp da IPP) vs `f32::ln`/`f32::exp` bit a bit e o
-recíproco vetorial de `0x88E130`; `NÃO EXTRAÍDO`: o significado físico de `s0/A/A1/A2/k/G` e a
+`NÃO PROVADO`: `0x293760`/`0x240C00` (ln/exp da IPP) vs `f32::ln`/`f32::exp` bit a bit
+(o recíproco vetorial de `0x88E130` foi fechado em M2, 2026-11-25: `port/src/rcp.rs`,
+§26); `NÃO EXTRAÍDO`: o significado físico de `s0/A/A1/A2/k/G` e a
 atribuição grupo→coeficiente de §8.4.8.
 
 **Próximo:** null-test plugin × port com o mesmo bloco e alinhamento 2304 — bloqueado até
@@ -3845,6 +3846,17 @@ provada de `pipe::chain_plan` e devolve o primeiro gap bloqueante (`0x1550 -> 0x
 vez de produzir amostras. Runner único: `powershell -File port\run_tests.ps1` (**57 testes
 J + 18 do port, 0 falhas**; `-Slow` inclui `j_dot32_avx.rs` e `j_crt_equiv.rs`). Nenhum
 número, ordem ou coeficiente foi alterado na extração.
+**Atualização M1 (2026-11-25):** o crate tem `port/src/div.rs` (`0x63640`); o primeiro gap
+bloqueante passou a ser `0x293760` (ln); o runner roda **57 J + 36 do port + 17 de
+`checks/j_div_avx.rs`** (16 de `div.rs` + 1 conferência contra hardware AVX/FMA), 0 falhas.
+Ressalva do runner: no modo `-Slow`, `j_dot32_avx.rs` e `j_crt_equiv.rs` só têm `main` e são
+compilados com `--test` ⇒ rodam **0 testes** (o `main` não executa); não corrigido em M1.
+**Atualização M2 (2026-11-25):** o crate tem `port/src/rcp.rs` (`0x29B260`, recíproco de
+`0x88E130`), usado por `engine.rs`; o gap do recíproco saiu de `pending.rs` (o primeiro
+bloqueante continua `0x293760`). O runner roda **9 suítes: 64 J (57 + 7 de `rcp.rs` incluídos
+por `checks/stage_j_engine.rs`) + 44 do port + 17 de `j_div_avx.rs` + 8 de
+`checks/j_rcp_avx.rs`** (7 de `rcp.rs` + 1 contra hardware), 0 falhas. O exaustivo 2^32 de
+`j_rcp_avx.rs` (`--exhaustive`, `-O`) roda fora do runner (~26 s).
 
 **Q — `0x8C1440` (2026-11-25, FECHADO):** `checks/q_8c1440_buffers.md`.
 - 16 buffers: pares 0/2/4/6 = `Σch²` (`0x1580`); 1/3/5/7 = `Σch` (`0x1370`) e único conjunto
@@ -4073,15 +4085,59 @@ contagem `edi*4`, não ponteiro); (5) ~~**aritmética final** de `K[32]`~~ — *
 
 ## 26. Roteiro até o null-test (2026-11-25)
 
-**M1** Divisão `0x1550 -> 0x63640`: replicar o despacho (cabeça 8 / laço 16 / bloco 8 /
-resto 1..7) e as duas aritméticas — `checks/r_divisao_63640.md`. Provar `N`/`len` em 48 kHz
-e o alinhamento dos 4 `dst`. Fato: `n = [X+0x40] = N+1` é **ímpar**; o laço de 16 refina o
-recíproco (`00063B24`/`00063B29`, `00063B37`) e as demais rotas refinam o quociente
-(`00063791`/`00063796`) — **A ≠ B no ULP**.
+**M1 — FECHADA em 2026-11-25** (resíduo `NÃO PROVADO` abaixo). Divisão `0x1550 -> 0x63640`
+transcrita em `port/src/div.rs` (despacho cabeça 8 / laço 16 / bloco 8 / resto 1..7, as duas
+aritméticas e o fixup) e usada pelas 4 divisões de `port/src/stage.rs`. Prova em
+`checks/r_divisao_63640.md` §2/§4.1/§5/§6. Fatos:
 
-**M2** Recíproco `0x88E130` (`0x1C8530 -> 0x29B260`), mesma técnica.
+- conferido instrução a instrução contra `checks/63640.dis` (1.005 instruções, re-desmontadas
+  do dump, 0 diferenças); **A ≠ B no ULP**; a máscara do recíproco nulo é **diferente** em A
+  (`vcmpneq_oqps`+`vandps`, `00063779`) e B (`vcmpeqps`+`vandnps`, `00063AF8`/`00063B0E`) —
+  corrigido no port; `vrcpps(|x| ≳ 2^126) = 0` ⇒ quociente `0·num`;
+- `n` do estágio: `N = trunc(max(a/k,44100)·(1/44100))·256` (`0086FF35`/`0086FF39`,
+  `arg5 = 0x100` em `0086A579`; `k` de `00863531`..`00863552`) ⇒ **`a = 48000` → `N = 256`,
+  `n = 257`** = 16 laços B + 1 lane A (o bloco de 8 não roda);
+- alinhamento dos 4 `dst`: `dst ≡ [arena] (mod 64 B)` provado dentro de `0x8C1440` (cursor
+  sempre `align16`); base `[E+0x30]` de `0x868B50` (`00868B98`/`00868B9C`) = 64 B ⇒
+  `dst & 0x1c = 0` ⇒ **sem cabeça**;
+- `checks/j_div_avx.rs`: emulação AVX/FMA da sequência do binário × `div.rs`, 2.807.920
+  lanes, `bad = 0` (debug, `-O`, `+fma`); mutação de controle detectada.
+- Os 2 testes que falhavam estavam **errados** (o código estava certo): o laço de 16 conta
+  `n − h` (`00063A51` antes de `00063A67`), e `vrcpps(f32::MAX) = 0`.
 
-**M3** `ln`/`exp` da IPP (`0x293760`, `0x240C00`) bit a bit; se o corpo for grande,
+**Resíduo `NÃO PROVADO` de M1** (gap em `port/src/pending.rs`): o `E` de
+`0x864410` (despacho indireto) ser o objeto de `0x8634A0` (só offsets coincidem); ausência de
+outro escritor de `[E+0x30]`; `a` = taxa de amostragem (M4); o gêmeo `0x8C5C40` não
+rastreado; sinal/payload de NaN; `vrcpps` é bit a bit só na mesma CPU do oráculo.
+
+**M2 — FECHADA em 2026-11-25** (resíduo `NÃO PROVADO` abaixo). Recíproco de `0x88E130`
+(`0088E32F`, in-place) transcrito em `port/src/rcp.rs` e usado por
+`port/src/engine.rs::shelf_curve_in_place`. Prova em `checks/s_reciproco_88e130.md`
+(`checks/29b260.dis`, `checks/29b9a0.dis`). Fatos:
+
+- despacho: `0x1C8530` → `[0x21C6AE8 + 8·[0x21C7408]=4]` = `0x1C8AC0` → `[0x21C71D8]` =
+  **`0x29B260`** (1.856 B pelo `.pdata`; o "200 B" do §15.2 está errado);
+- lane normal (`|bits| ∈ [0x00800000, 0x7E7FE800]`, constantes `0x1ED0500`/`0x1ED04C0`/
+  `0x1ED0540`): `r0 = vrcpps(x)`, `e = 1 − x·r0`, `r = e·r0 + r0` (FMA, `0029B40E`/`0029B442`/
+  `0029B456`); lane especial (`±0`, denormal, `|x| > 0x7E7FE800`, inf, NaN): `1.0f/x` por
+  `vdivss` em `0x29B9A0` (`0029B9B5`), status `0x12` para `±0`; handler `0x2D74A0` = `ret`;
+- blocos de 32 + cauda de 8 mascarada (padding `0.75`, `0x1ED0600`), sem cabeça de
+  alinhamento ⇒ o valor por lane **não depende** de `n` nem de alinhamento;
+- MXCSR forçado a `0x1F80` (RN, FTZ = DAZ = 0) e restaurado (`0029B355`..`0029B38D`,
+  `0029B59A`..`0029B5D0`), transcrito;
+- `checks/j_rcp_avx.rs` (emulador por intrinsics, constantes lidas do dump): `bad = 0`
+  estrito (inclui payload de NaN) em 917.568 lanes (debug, `-O`, `-O +avx2,+fma`; host com
+  FTZ+DAZ+RZ incluso) e **exaustivo 2^32 `bad = 0`**; 3 mutações de controle detectadas.
+
+**Resíduo `NÃO PROVADO` de M2:** `vrcpps` é bit a bit só na mesma CPU do oráculo (aqui AMD
+Ryzen 5 4600G); o índice `4` de `0x21C7408` é o do dump — os caminhos `0x297EE0` (índices
+`0..2`) e `0x299C60` (`3`) não foram lidos; os outros chamadores de `0x1C8530` (`0x879CF0`,
+`0x885040`, `0088A500`, `0087E0B0`) não foram religados ao `rcp.rs` (fora de M2).
+
+(Nota: `pending::first_blocking()` devolve `0x293760` (ln, M3), que é também o próximo item
+deste §26.)
+
+**M3 — PRÓXIMO.** `ln`/`exp` da IPP (`0x293760`, `0x240C00`) bit a bit; se o corpo for grande,
 equivalência exaustiva no domínio alcançável (precedente `j_crt_equiv.rs`).
 
 **M4** Identidades de estado: sample rate `[ctx+0x60]` (rastrear `r13` em `0x8B3ED0`) e

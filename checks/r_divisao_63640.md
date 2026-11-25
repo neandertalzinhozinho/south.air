@@ -92,8 +92,38 @@ q  = r2 · num                  00063B37 vmulps      ymm7,ymm8,[r15+r10]
 > em pontos diferentes. "vrcpps + dois Newton" **não** descreve a função: é preciso
 > replicar o despacho.
 
-O sítio `000640D1` (bloco 8) usa **A**; `00064403` (bloco 8 da cauda) usa **A**; só o laço
-`00063AF0` usa **B**.
+O sítio `000640D1` (**resto 1..7**) usa **A**; `00064403` (**bloco 8** da cauda) usa **A**;
+só o laço `00063AF0` usa **B**. *(Correção de 2026-11-25: a versão anterior chamava
+`000640D1` de "bloco 8"; pelo fluxo, `0006400D test r9d,8; jne 0x643dd` leva ao bloco 8 em
+`000643DD`, e `000640D1` fica no resto, depois de `0006401A and r9d,7`.)*
+
+**Máscara do recíproco nulo — diferente em A e B (lido em 2026-11-25):**
+
+```
+A: 00063779 vcmpneq_oqps ymm2,ymm0,ymm3 ; 0006377E vandps  ymm3,ymm5,ymm2   ; d = den' se r0 ordenado e != 0
+B: 00063AF8 vcmpeqps     ymm9,ymm0,ymm2 ; 00063B0E vandnps ymm7,ymm9,ymm7   ; d = 0 só se r0 == ±0
+```
+
+Só muda o resultado quando `r0` é NaN (`den'` NaN). `r0 == 0` ocorre de fato: `vrcpps`
+devolve `+0` para `|den'| ≳ 2^126` (medido nesta CPU: `rcp(f32::MAX) = 0`); aí `d = 0`,
+`e = 1` e o quociente sai `0·num` nas duas aritméticas.
+
+**Ordem do bloco de 8 da cauda (`000643DD`–`0006468D`) — FECHADA:** `vmovups ymm3,[rcx]` /
+`ymm5,[rbp]` (`000643DD`/`000643E3`) → cópia para o scratch (`000643E8`/`000643EE`) →
+`vcmpeqps`/`vblendvps` (`000643F8`/`000643FD`) → `vrcpps` (`00064403`) → `vcmpneq_oqps`
+(`00064407`) → `q0 = r0·num` (`0006440C`, antes de `e`; independente, mesmo valor) →
+`vandps` (`00064410`) → `e` (`00064414`) → dois `vfmadd213ps` com addend `q0`
+(`0006441D`/`00064422`) → fixup (`00064439`–`00064674`, teste `cmp [r13+4i],0` sobre o `den`
+copiado) → `vmovups [r8],ymm0` (`0006467A`) → `rcx/rbp/r8 += 0x20`
+(`00064681`–`00064689`) → `jmp 0x6401a` (resto). Não há contador interno: são exatamente
+8 lanes.
+
+**Wrapper e retorno:** `0x1550` → `jmp [0x21C6448 + 8·[0x21C7408]]`; no dump
+`[0x21C7408] = 4` e `[0x21C6468] = 0x199BC560` → `0xC560`. `0xC560` recusa ponteiro nulo e
+`r9d ≤ 0` (`0000C568`..`0000C57A`), chama `0x63640` (`0000C57C`) e troca `eax ≠ 0` por `2`
+(`0000C581`..`0000C588`). `eax` vale `1` se alguma lane passou pelo fixup
+(`000637F4`, `00063BA6`, `00064335 or eax,ecx`, `0006467F or eax,edi`). O estágio descarta
+o retorno (`008C254A add rbx,8` logo após o `call`).
 
 ---
 
@@ -131,13 +161,118 @@ fica transcrito por completude.
 ⇒ `n = N + 1` é **ímpar**, logo `n & 7 != 0` sempre e a cauda (bloco 8 e/ou resto) roda em
 toda chamada. Não existe caminho "só laço de 16".
 
+### 4.1 `x` e `[rbp+0x430]` em `0x86FE90` — PROVADO (2026-11-25)
+
+`0x86FE90` tem só dois chamadores, ambos em `0x86A4E0` (`xrefs.csv`):
+
+```
+0086A543  mov dword [rsp+0x20],0x800 ; 0086A54B call 0x86fe90 ; rcx = E'+8      (1ª, arg5 = 2048)
+0086A555  lea rcx,[r15+0x2c50]
+0086A579  mov dword [rsp+0x20],0x100 ; 0086A581 call 0x86fe90 ; rcx = E'+0x2C50 (2ª, arg5 = 256)
+```
+
+`0x86FE90`: `rbp = rsp_entrada − 0x408` (`0086FE90`/`0086FEA8`) ⇒ `[rbp+0x430]` = `arg5`;
+`xmm3` = `arg4` (float), repassado intacto por `0x86A4E0` (`0086A53B`/`0086A561`). O `X` do
+estágio é o da **2ª** chamada: `0x8774A0` passa `C = [p+0x10]+0x5F8` (`00877508`/`00877510`),
+`0x881050` faz `X = C+0x2C50` (`0088108A`/`0088139D`) e o `X` chega a `0x8B3ED0` como `r13`
+(`checks/n_canal.md` §2.3/§4). O `xmm3` vem de `0x8634A0` (único chamador de `0x86A4E0`,
+`00863929`, com `rcx = E+0x5F8` em `008638D6`):
+
+```
+008634A3  movss [rax+0x20],xmm3       ; a = arg4 de 0x8634A0 (home em rbp+0x218)
+0086350F  movss xmm0,[rbp+0x218]
+00863531  addss xmm0,xmm7             ; a + 1.0   (xmm7 = [0x2079F9C] = 0x3F800000)
+0086353C  mulss xmm0,[0x2079D04]      ; · 0x37BE37C6 (1/44100)
+00863544  cvttss2si ecx,xmm0
+00863548  cmp ecx,r13d ; 0086354B cmovg eax,ecx   ; k = max(t, 1)
+00863552  mov [r14+0x2c],eax          ; [E+0x2C] = k
+008638CE  movss xmm3,[rbp+0x218]
+0086391C  movd xmm0,[r14+0x2c] ; 00863922 cvtdq2ps ; 00863925 divss xmm3,xmm0   ; x = a / k
+0086FEB6  maxss xmm3,[0x207A5E4]      ; max(x, 44100.0)  (0x472C4400)
+0086FF1E  mulss xmm3,[0x2079D04]
+0086FF35  cvttss2si eax,xmm3
+0086FF39  imul eax,[rbp+0x430]        ; · 0x100
+```
+
+⇒ `N = trunc(max(a/k, 44100)·c)·256`, `n = [X+0x40] = N+1`. Para **`a = 48000`**: `k = 1`,
+`x = 48000`, `48000·c = 1,088…` → `N = 256`, **`n = 257`**. (Também `a = 44100` → `N = 256`,
+porque `44100·c` arredonda para `1.0` em f32; `a = 96000` → `k = 2`, `x = 48000`, `N = 256`.)
+Transcrito em `port/src/div.rs::stage_division_len`, teste `stage_len_at_48k_is_257`.
+
+Despacho a 48 kHz (`dst` alinhado, §5): `257 = 16·16 + 1` → **16 laços B**, `257 & 8 = 0`
+(o bloco de 8 **não** roda), **1 lane de resto A**.
+
+`a` é `(float)xmm2` de `0x862E40` (`00862E68 cvtsd2ss xmm3,xmm6`, único chamador de
+`0x8634A0`, `00862E72`). Que `a` seja a taxa de amostragem é **`NÃO PROVADO`** (M4).
+
+**Conflito com a âncora:** `LEMBRAR DISSO.md` lista `N = 278 @ 48 kHz`. A instrução dá
+`N = 256` para o `X` do estágio (o `k` de `0x8634A0` e o `cvttss2si` de `0x86FE90`
+truncam a razão). Registrado em `PLANO_MOTOR_AUDIO.md` §23.14; a âncora não é editada.
+
 ---
 
-## 5. `NÃO PROVADO` / a fazer
+## 5. Alinhamento dos 4 `dst` e o que fica `NÃO PROVADO` (2026-11-25)
 
-- valor de `x` e de `[rbp+0x430]` em `0x86FE90` (logo `N` e `n` em 48 kHz);
-- alinhamento da base da arena (decide se a cabeça de 8 elementos existe) nos 4 sítios
-  `008C2545` / `008C263D` / `008C273B` / `008C2828`;
-- ordem exata do bloco de 8 da cauda (`000643DD`–`0006468D`): lido que é **A**; falta a
-  cópia/contagem interna;
-- o `call 0x1796910` em `000643CC` é o `__security_check_cookie` (epílogo), não aritmética.
+**PROVADO dentro de `0x8C1440`** (`checks/8c1440.u8.dis`): `dst = [arena] + 4·cursor`, com
+`cursor = [arena+0x18]` (`008C247D`/`008C2480`/`008C249C`, `008C24E5`..`008C24EF` e os
+análogos de `T1/T2/T3`). As **únicas** escritas do cursor antes de `008C24E1` são
+`008C154F`, `008C157F`, `008C15C9`, `008C15F8`, `008C1646`, `008C1677`, `008C16C1`,
+`008C16F0`, `008C174B`, `008C1781` e `0x8CAFD0` (`008CB007`/`008CB03A`), todas
+`align16` em floats (`and eax,0xf; sub; add 0x10; test 0xf; cmove`). Os `call` entre
+`008C17E7` e `008C245B` (`0x10D0` ×8, `0x1580` ×5, `0x1370` ×5, `0x1100` ×4, `0x61B790` ×4
+com `ecx`/`edx` inteiros, `0x1798F42` = `memset([rbp+0x2a8],0,0x3f8)` ×2 em
+`008C1BA0`/`008C2053`) não recebem a arena. Logo o
+cursor nos 4 sítios é múltiplo de 16 floats e `dst ≡ [arena] (mod 64 B)`, independentemente do
+cursor de entrada (que só afeta o 1º buffer do par 0, `008C1502`). A base `[arena]` não é
+escrita em `0x8C1440`.
+
+**PROVADO a base (por instrução, com a ressalva abaixo):** a arena de `0x8C1440` é `r8 =
+r12 = r10 = [rbp+0x4a60]` = `arg9` de `0x8B3ED0` (`008B6061`, `008B5DDF`, `008B5DB6`;
+`rbp = rsp_entrada − 0x4a18` por `008B3ED0`..`008B3EE2`), que é `[rsp+0x40] = [CTX]` em
+`008AD601`/`008AD2E1`, `CTX+0 = arg7` de `0x889BB0` (`0088AC7C`), `rbx` de `0x881050`
+(`00881398`, `0088107C` = `arg5`), `[p+0x30]` em `0x8774A0` (`0087750C`/`00877517`),
+`arg5` de `0x8677F0` (`0086783C`/`00867843`), e em `0x8646A2` `lea rax,[rbp]`
+(`00865649`/`00865658`) — o ramo de `[E+0x2C] ≤ 1` (`00865231`/`00865242`), que é o de
+`a = 48000` (`k = 1`). O objeto local `[rbp]` recebe `[rbp] = [E+0x30]`
+(`00865210`/`00865222`/`00865236`, cópia de `[E+0x38] = 1` qword) e cursor `0`
+(`0086523A`, `0086563A`). `[E+0x30]` é gravado por `0x868B50` (único chamador `00863563`,
+`lea rcx,[r14+0x30]` em `0x8634A0`): `rbx = (malloc+0x40) & ~0x3f` (`00868B98`/`00868B9C`),
+`[rdi] = rbx` (`00868BAB`), `[rdi+8] = 1` (`00868BBF`). ⇒ base **64 B alinhada** ⇒
+`dst & 0x1c = 0` nos 4 sítios ⇒ a **cabeça não roda** (`00063699 je 0x63a61`).
+
+**`NÃO PROVADO` (resíduo de M1, em `port/src/pending.rs`):**
+
+- que o `E` de `0x864410`/`0x8646A2` (`0086444C`/`0086453D`, `E = arg1`; despacho
+  indireto) seja o objeto construído por `0x8634A0` — hoje só coincidem os offsets
+  (`+0x10`, `+0x2C`, `+0x30`, `+0x5F8`);
+- que nenhum outro código escreva `[E+0x30]` depois de `00868BAB` (só os chamadores diretos
+  foram varridos; `xrefs.csv` não captura `call` indireto);
+- que `a` (= `arg4` de `0x8634A0`) seja a taxa de amostragem (M4);
+- o `0x8C1440` chamado pelo gêmeo `0x8C5C40` (`008C7DDE`/`008C9E5E`, chamadores
+  `0x8BAFF0`/`0x8BBA60`/`0x8BC800`/`0x8BE210`): `n` e arena **não** rastreados;
+- sinal/payload de NaN no port (ver §6).
+
+O `call 0x1796910` em `000643CC` é o `__security_check_cookie` (epílogo), não aritmética.
+
+---
+
+## 6. Port e conferência (2026-11-25)
+
+- `port/src/div.rs` — `div_block` / `div_block_mod32` (despacho e as duas aritméticas, com a
+  máscara distinta de A/B e o fixup), `stage_division_len`. 16 testes.
+- `port/src/stage.rs` — as 4 divisões chamam `div_block_mod32(num, den, dst, 0)`; teste
+  `divisions_use_0x63640_not_ieee_division`.
+- `checks/j_div_avx.rs` — emulador por intrinsics da sequência de `checks/63640.dis` (RVA por
+  linha, alinhamento lido do ponteiro) contra `div.rs`: 40.800 chamadas (`n = 1..80, 255..258,
+  513`, os 8 alinhamentos de `dst`, valores especiais: `±0`, denormais, `2^125`, `2^126`,
+  `f32::MAX`, `±inf`, NaN) + 2.000 blocos no domínio do estágio (`n = 257`, `den ≥ 1e-7`):
+  **`bad = 0`** e **`stage_bad = 0`** em 2.807.920 lanes, em debug, `-O` e `-O +avx2,+fma`.
+  Mutação de controle (bloco 8 com B): `bad = 49.347`.
+- **NaN:** para lanes cujo resultado é NaN o veredito exige só NaN nos dois lados. O
+  sinal/payload depende da ordem de operandos que o LLVM escolhe para `vmulps`/`vfmadd*`
+  (o próprio emulador muda entre builds: ex. `den = 0x7FA00001` → `0xFFE00001` em debug,
+  `0x7FE00001` em `-O`) ⇒ payload de NaN **`NÃO PROVADO`** no port. No estágio `den ≥ 1e-7`
+  e só há NaN se a entrada já for NaN.
+- **`vrcpps` depende da CPU:** a tabela não é fixada pela ISA (Intel ≠ AMD). O port usa a
+  instrução do hardware em que roda; o bit a bit vale na mesma CPU do oráculo
+  (esta máquina: AMD Ryzen 5 4600G).

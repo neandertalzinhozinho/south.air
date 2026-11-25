@@ -464,7 +464,7 @@ ks   = -ks                              ; 0088E2B3  xorps [0x207BB20] (máscara 
 dst *= ks                               ; 0088E2D0  call 0x1220
 dst  = exp(dst)                         ; 0088E2EE  call 0x1C84A0  (impl 0x240C00)
 dst += 1.0f                             ; 0088E311  call 0x12E0
-dst  = 1.0f / dst                       ; 0088E32F  call 0x1C8530  (impl 0x29B260, vrcpps+Newton)
+dst  = rcp(dst)                         ; 0088E32F  call 0x1C8530  (impl 0x29B260, vrcpps+1 FMA; M2)
 dst += -0.5f                            ; 0088E352  call 0x12E0, 0x207A690
 dst *= G                                ; 0088E376  call 0x1220, G = [rsp+0x100]
 dst *= 0.115129255f                     ; 0088E399  call 0x1220, 0x2079DBC = ln10/20
@@ -481,7 +481,18 @@ y  = exp( G · 0.115129255 · (σ − 0.5) )
 ```
 
 Notas de port (bit-exatidão):
-- o recíproco é **aproximado** (`vrcpps` + Newton em `0029B442`/`0029B456`), não `divss`;
+- o recíproco é **aproximado** (`vrcpps` + Newton em `0029B442`/`0029B456`), não `divss`.
+  **PROVADO em M2 (2026-11-25, `checks/s_reciproco_88e130.md`):** despacho
+  `0x1C8530` → `0x1C8AC0` → `[0x21C71D8]` = `0x29B260`; lane normal
+  (`|bits(x)| ∈ [0x00800000, 0x7E7FE800]`, constantes `0x1ED0500`/`0x1ED04C0`/`0x1ED0540`):
+  `r0 = vrcpps(x)`, `e = 1 − x·r0`, `r = e·r0 + r0` (FMA, `0029B40E`/`0029B442`/`0029B456`);
+  lane especial (`±0`, denormal, `|x| > 0x7E7FE800`, inf, NaN): `r = 1.0f/x` por `vdivss`
+  (`0x29B9A0`, `0029B9B5`); blocos de 32 + cauda de 8 com padding `0.75` (`0x1ED0600`), sem
+  cabeça de alinhamento — o valor por lane não depende de `n` nem de alinhamento; MXCSR forçado
+  a `0x1F80` (FTZ = DAZ = 0) durante a conta (`0029B355`..`0029B38D`). Port:
+  `port/src/rcp.rs`; `checks/j_rcp_avx.rs`: `bad = 0` estrito, exaustivo 2^32. Resíduo
+  `NÃO PROVADO`: `vrcpps` só é bit a bit na mesma CPU do oráculo; caminhos de CPU `0..3`
+  (`0x297EE0`, `0x299C60`) não lidos;
 - `log2` é feito como `ln·1.44269502f` e `exp` é o wrapper `0x1C84A0`, não `powf`;
 - `k/6` usa a constante float `0.166666672`, não `1.0/6.0` em f64;
 - `G` é multiplicado **depois** de `σ − 0.5` (a ordem trocada muda o arredondamento).
@@ -492,9 +503,10 @@ descreve só a forma `σ`.
 Transcrição Rust (J6, `checks/stage_j_engine.rs`, 8 testes): `shelf_curve_in_place` (`0x88E130`)
 e `shelf_pair_apply` (`0x882FC0`), além de `smoother_fwd_back` (`0x8C3C20`),
 `detector2_in_place` (`0x8C0BD0`) e `one_pole_coef` (`0x8B68AB`). Como usa `f32::ln`/`f32::exp`
-no lugar das impls IPP `0x293760`/`0x240C00`, é **matematicamente** equivalente, não bit-exata;
-o recíproco vetorial de `0x88E130` (`0x1C8530` → `0x29B260`) difere no ULP. Ambos marcados
-`NÃO PROVADO` no próprio arquivo.
+no lugar das impls IPP `0x293760`/`0x240C00`, é **matematicamente** equivalente, não bit-exata
+(`NÃO PROVADO` no próprio arquivo). O recíproco vetorial de `0x88E130` (`0x1C8530` →
+`0x29B260`) **não** é mais `1.0/x`: desde M2 (2026-11-25) é `rcp::inv_32f_in_place`
+(`port/src/rcp.rs`), bit a bit com o binário na mesma CPU.
 
 **(f) `0x882FC0` — duas curvas de shelf aplicadas a buffers de banda, PROVADO (2026-11-23).**
 Desmontagem completa: `checks/882fc0.u8.dis` (249 linhas). Assinatura:
@@ -1070,14 +1082,24 @@ a **intenção musical** da média ponderada por potência; `nch > 2` (o ramo `0
 ímpares, as 4 divisões, as somas `A/B/C/D` e a passagem B via `pipe::mix_lane` (MAC com FMA,
 `00005C85`) — com 12 testes (`count <= 2`, identidade, média ponderada, clamp, roteamento
 por `(enable, tipo, sel)`, mono com `g/2`, `tipo 5` só em `sel 16..18`, `tipo 0xA` nunca).
-A divisão é a única parte **não** bit-exata: `0x1550` → `0x63640` **não** é um único
-"vrcpps + Newton". O despacho depende de `n` e do alinhamento de `dst` (cabeça 8 em
-`00063697`, laço 16 em `00063A67`, bloco 8 em `0006400D`, resto 1..7 em `0006401A`) e há
-**duas aritméticas**: o laço de 16 refina o **recíproco** (`00063B24`/`00063B29`) e
-multiplica no fim (`00063B37`); as demais rotas refinam o **quociente**
-(`00063791`/`00063796`). `n = [X+0x40] = N+1` é ímpar, então a cauda sempre roda. Prova
-completa em `checks/r_divisao_63640.md`; o port usa `/` e `pending::GAPS` registra
-`0x1550 -> 0x63640` como primeiro gap bloqueante.
+A divisão `0x1550` → `0x63640` **não** é um único "vrcpps + Newton". O despacho depende de
+`n` e do alinhamento de `dst` (cabeça 8 em `00063697`, laço 16 em `00063A67` sobre `n − h`,
+bloco 8 em `0006400D`, resto 1..7 em `0006401A`) e há **duas aritméticas**: o laço de 16
+refina o **recíproco** (`00063B24`/`00063B29`) e multiplica no fim (`00063B37`); as demais
+rotas refinam o **quociente** (`00063791`/`00063796`). A máscara do recíproco nulo também
+difere: A usa `vcmpneq_oqps`+`vandps` (`00063779`/`0006377E`), B usa `vcmpeqps`+`vandnps`
+(`00063AF8`/`00063B0E`); `vrcpps(|x| ≳ 2^126) = 0` ⇒ quociente `0·num`.
+
+**M1 (2026-11-25, PROVADO com resíduo):** `port/src/div.rs` transcreve `0x63640` e o estágio
+o usa nas 4 divisões (`div_block_mod32(num, den, dst, 0)`); conferido contra a sequência
+AVX/FMA do binário em `checks/j_div_avx.rs` (2.807.920 lanes, `bad = 0`). No estágio
+`n = [X+0x40] = 257` para `a = 48000` (`N = trunc(max(a/k,44100)·(1/44100))·256`,
+`0086FF35`/`0086FF39`, `arg5 = 0x100` em `0086A579`) ⇒ 16 laços B + 1 lane A. `dst & 0x1c = 0`
+nos 4 sítios: cursor sempre `align16` dentro de `0x8C1440` e base `[E+0x30]` de `0x868B50`
+(64 B, `00868B98`/`00868B9C`) ⇒ a cabeça não roda. `NÃO PROVADO`: o `E` de `0x864410` ser o
+objeto de `0x8634A0`; `a` = taxa de amostragem; o caminho do gêmeo `0x8C5C40`; sinal/payload
+de NaN; `vrcpps` é bit a bit só na mesma CPU do oráculo. Prova em
+`checks/r_divisao_63640.md` §2/§4.1/§5/§6.
 
 #### 8.4.9 Camada de descritores e ordem da cadeia — etapa J3 (PROVADO)
 
@@ -1714,7 +1736,7 @@ de parâmetro nem de decompilado. convenção Win64: rcx, rdx, r8, r9d / xmm0–
 
 | thunk | impl | proto provada (registradores) | aritmética provada | instrução que prova (RVA) |
 |---|---|---|---|---|
-| `0x1550` | `0x63640` via `0xC560` | `(den=rcx, num=rdx, dst=r8, n=r9d)` | `dst[i] = num[i]/den[i]` via `vrcpps` + 2× Newton; denominador 0 é substituído por 1.0 antes do recíproco | `000636E0 vmovups ymm0,[rcx]`; `000636E6 vmovups ymm1,[rbp]` (`rbp=rdx` em `00063676`); `0006376F vblendvps ymm5,ymm2,ymm4,ymm1` (zero→1.0); `00063775 vrcpps ymm0,ymm5`; `00063787 vmulps ymm0,ymm0,[r13+0x20]`; `00063791`/`00063796 vfmadd213ps`; `00063A27 vmovups [r8],ymm0` |
+| `0x1550` | `0x63640` via `0xC560` | `(den=rcx, num=rdx, dst=r8, n=r9d)` | `dst[i] = num[i]/den[i]` via `vrcpps` + série `(1+e+e²)` com FMA, em **duas** aritméticas (A quociente / B recíproco; despacho por `n` e `dst & 0x1c`, §8.4.8); denominador 0 é substituído por 1.0 antes do recíproco | `000636E0 vmovups ymm0,[rcx]`; `000636E6 vmovups ymm1,[rbp]` (`rbp=rdx` em `00063676`); `0006376F vblendvps ymm5,ymm2,ymm4,ymm1` (zero→1.0); `00063775 vrcpps ymm0,ymm5`; `00063787 vmulps ymm0,ymm0,[r13+0x20]`; `00063791`/`00063796 vfmadd213ps`; `00063A27 vmovups [r8],ymm0` |
 | `0x11F0` | `0x5BC0` | `(src=rcx, escalar=xmm1, dst=r8, n=r9d)` | `dst[i] = escalar*src[i] + dst[i]` (MAC in place) | `0005BC4 test rcx`; `0005BCD test r8`; `0005C40 vmovss xmm0,[rcx+r10*4]`; `0005C46 vfmadd213ss xmm0,xmm1,[r8+r10*4]`; `0005C4C vmovss [r8+r10*4],xmm0`; `0005C85 vfmadd213ps ymm2,ymm0,[r8+rax*4]` |
 | `0x1190` | `0x4BC0` | `(a=rcx, b=rdx, dst=r8, n=r9d)` | `dst[i] = a[i]*b[i]` — **dst é terceiro ponteiro, NÃO é in place** | `0004BC7 mov rbp,rdx`; `0004C60 vmovss xmm0,[rcx]`; `0004C65 vmulss xmm1,xmm0,[rbp]`; `0004C6B vmovss [r8],xmm1`; `0004C8B vmulps ymm1,ymm0,[rbp]`; `0004C91 vmulps ymm3,ymm2,[rbp+0x20]`; stores `0004C97`/`0004C9D vmovups [r8]` |
 | `0x10D0` | `0x2F60` | `(dst=rcx, n=edx)` | **zero-fill**: `dst[0..n-1]=0`; valor é constante `vxorps`, não argumento | `0002F71 shl edx,2`; `0002F7C call 0x1D2E9E0`; impl `01D2E9E5 mov rsi,rdx`; `01D2E9EE vxorps ymm0,ymm0,ymm0`; `01D2EA0B vmovdqu [rdi],ymm0` |

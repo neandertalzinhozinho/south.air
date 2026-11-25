@@ -27,13 +27,17 @@
 //!    (`008C2DEA`/`008C31D5`) — implementado por `pipe::mix_lane`, provado em
 //!    `checks/q_8c1440_buffers.md` §4.
 //!
+//! ## Divisão (M1, 2026-11-25)
+//!
+//! As 4 divisões chamam [`crate::div::div_block_mod32`], transcrição de
+//! `0x1550` → `0xC560` → `0x63640` (despacho cabeça/16/8/resto e as duas
+//! aritméticas A/B; `checks/r_divisao_63640.md`). `dst & 0x1c = 0` porque o
+//! `dst` é `[arena] + 4·cursor` com cursor `align16` e base de `0x868B50`
+//! (64 B) — ver `div.rs`, seção "Alinhamento"; a identidade de `E` em
+//! `0x864410` fica em `pending::GAPS`.
+//!
 //! ## Gaps (não estimados)
 //!
-//! * **Divisão `0x1550` → `0xC560` → `0x63640`**: não é `vdivps`; é `vrcpps`
-//!   + dois Newton (`00063775`, `00063782`, `00063791`, `00063796`) com
-//!   correção de zero/inf/denormal (`000637BA`..`00063889`). O port usa a
-//!   divisão exata, que difere no ULP do caminho vetorial. `pending::GAPS`
-//!   registra `0x63640` como primeiro bloqueante.
 //! * Nome/unidade dos quatro coeficientes (`state+0x2C/0x30/0x34/0x38`) e a
 //!   faixa válida de `g`: `NÃO PROVADO` (docs, §9).
 //! * `nch > 2` habilitado: o binário usa só `buffers[first_buf]` e escreve
@@ -46,6 +50,7 @@
 
 #![allow(dead_code)]
 
+use crate::div::div_block_mod32;
 use crate::pipe::{mix_lane, stage_returns_early, STAGE_GROUPS};
 
 /// Piso do denominador: `1.00000001e-07f` = bits `0x33D6BF95`
@@ -203,9 +208,8 @@ pub fn clamp_min(x: f32, bound: f32) -> f32 {
 /// passagem B. `bufs` é `track->buffers`; os registros indexam por
 /// `first_buf`.
 ///
-/// **Divisão:** aqui é a divisão IEEE exata; o binário chama `0x1550` →
-/// `0x63640` (`vrcpps` + Newton). É o gap bloqueante registrado em
-/// `pending::GAPS` (`0x63640`), não uma diferença ignorada.
+/// **Divisão:** `0x1550` → `0x63640` via [`crate::div::div_block_mod32`]
+/// com `dst & 0x1c = 0` (arena de 64 B; `div.rs`, "Alinhamento").
 pub fn process(input: &StageInput<'_>, bufs: &mut [Vec<f32>]) {
     if stage_returns_early(input.count) {
         return; // 008C1467 cmp [rdx+0x400],2 / 008C1474 jle
@@ -259,12 +263,13 @@ pub fn process(input: &StageInput<'_>, bufs: &mut [Vec<f32>]) {
     }
 
     // --- Quatro divisões (008C2545/008C263D/008C273B/008C2828) -----------
+    // 0x1550(rcx = den = par ímpar, rdx = num = par par, r8 = dst novo, r9d = n),
+    // uma chamada por canal (rbx = 0, 8: 008C2530..008C2552 e análogos).
+    // dst & 0x1c = 0: a cabeça de 0x63640 não roda (div.rs, "Alinhamento").
     let mut div: [[Vec<f32>; 2]; 4] = std::array::from_fn(|_| [vec![0.0; n], vec![0.0; n]]);
     for k in 0..4 {
         for c in 0..2 {
-            for i in 0..n {
-                div[k][c][i] = acc[2 * k][c][i] / acc[2 * k + 1][c][i];
-            }
+            div_block_mod32(&acc[2 * k][c], &acc[2 * k + 1][c], &mut div[k][c], 0);
         }
     }
 
@@ -399,6 +404,40 @@ mod tests {
         for b in bufs.iter() {
             assert_eq!(b, &vec![expected; N]);
         }
+    }
+
+    #[test]
+    fn divisions_use_0x63640_not_ieee_division() {
+        // M1: 008C2545 chama 0x1550 -> 0x63640; o D do estágio é o de
+        // div::div_block_mod32 (n = 4 → resto 1..7, aritmética A), que difere de
+        // num/den no ULP para alguns pares. Procura um par assim e confere que o
+        // estágio segue 0x63640.
+        let recs = [rec(8, 0, 2), rec(8, 2, 2)];
+        let groups: [&[BandRec]; 5] = [&recs, &[], &[], &[], &[]];
+        let st = state_with([true, false, false, false, false], COEF_ENABLED);
+        let mut checked = false;
+        for i in 0..400 {
+            let x = 0.3 + i as f32 * 0.071;
+            let y = 1.7 + i as f32 * 0.013;
+            // Passagem A sobre buffers zerados: Σch² (0x1580, FMA) e Σch (0x1370).
+            let num = y.mul_add(y, x.mul_add(x, 0.0));
+            let den = (0.0 + x) + y;
+            let mut q = [0.0f32; N];
+            div_block_mod32(&[num; N], &[den; N], &mut q, 0);
+            if q[0].to_bits() == (num / den).to_bits() {
+                continue;
+            }
+            let mut bufs = bufs_of(&[x, x, y, y]);
+            process(&input(3, groups, st, false), &mut bufs);
+            for (b, ch) in bufs.iter().zip([x, x, y, y]) {
+                let mut want = vec![ch; N];
+                mix_lane(&mut want, &q, 1.0, 2);
+                assert_eq!(b, &want, "x={x} y={y}");
+            }
+            checked = true;
+            break;
+        }
+        assert!(checked, "nenhum par com 0x63640 != num/den no intervalo testado");
     }
 
     #[test]

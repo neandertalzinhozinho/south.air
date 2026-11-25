@@ -13,6 +13,10 @@
 #[path = "../port/src/engine.rs"]
 mod engine;
 
+// M2: engine.rs chama crate::rcp (0x29B260) em 0088E32F.
+#[path = "../port/src/rcp.rs"]
+mod rcp;
+
 pub use engine::*;
 
 #[cfg(test)]

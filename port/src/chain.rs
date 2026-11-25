@@ -19,7 +19,9 @@ pub fn block_plan(flags: &ChainFlags, counts_equal: bool) -> Vec<Step> {
     chain_plan(flags, counts_equal)
 }
 
-/// Primeiro gap que impede um null-test válido (hoje `0x1550` -> `0x63640`).
+/// Primeiro gap que impede um null-test válido (desde M1, `0x293760`; a
+/// divisão `0x1550` -> `0x63640` está em `crate::div` e o recíproco
+/// `0x1C8530` -> `0x29B260` de `0x88E130` em `crate::rcp`, M2).
 pub fn blocking_gap() -> &'static Gap {
     first_blocking().expect("pending::GAPS sem gaps bloqueantes")
 }
@@ -62,7 +64,7 @@ mod tests {
     #[test]
     fn block_stops_at_first_gap_with_rva() {
         let err = process_block(&flags(true, false, false, false), false).unwrap_err();
-        assert_eq!(err.rva, "0x1550 -> 0x63640");
+        assert_eq!(err.rva, "0x293760");
         assert!(err.blocks_null_test);
     }
 }
