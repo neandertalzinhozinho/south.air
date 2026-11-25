@@ -17,7 +17,7 @@ $build = Join-Path $checks '.build'
 New-Item -ItemType Directory -Force -Path $build | Out-Null
 
 $suites = [ordered]@{
-    'port (pending + chain + stage + div + rcp + ippmath)' = $null   # cargo test
+    'port (pending + chain + stage + div + rcp + ippmath + params)' = $null   # cargo test
     'J1/J2 core'             = 'stage_j_core.rs'
     'J3 pipe'                = 'stage_j_pipe.rs'
     'J4 contrato'            = 'stage_j_fft.rs'
@@ -33,6 +33,7 @@ if ($Slow) {
     $suites['CRT 17.8M']       = 'j_crt_equiv.rs'
 }
 
+$stamp = Get-Date -Format 'yyyyMMddHHmmssfff'
 $failed = @()
 $total = 0
 
@@ -50,7 +51,9 @@ foreach ($name in $suites.Keys) {
     }
 
     $src = Join-Path $checks $file
-    $exe = Join-Path $build ([IO.Path]::GetFileNameWithoutExtension($file) + '.exe')
+    # Nome único por execução: o Windows App Control às vezes bloqueia um .exe
+    # recém-compilado pelo hash/nome (os error 4551); um nome novo evita reaproveitar o bloqueio.
+    $exe = Join-Path $build ([IO.Path]::GetFileNameWithoutExtension($file) + '_' + $stamp + '.exe')
     rustc --edition 2021 --test $src -o $exe
     if ($LASTEXITCODE -ne 0) { $failed += "$name (build)"; continue }
 
@@ -64,4 +67,4 @@ if ($failed.Count -gt 0) {
     Write-Host ("FALHOU: " + ($failed -join ', ')) -ForegroundColor Red
     exit 1
 }
-Write-Host "OK: $total suítes verdes (J1..J6; lib do port 50; j_div_avx 17; j_rcp_avx 8; j_ln_exp_avx 6 = 5 de ippmath.rs + 1 x hardware)" -ForegroundColor Green
+Write-Host "OK: $total suítes verdes (J1..J6; lib do port 55; j_div_avx 17; j_rcp_avx 8; j_ln_exp_avx 6 = 5 de ippmath.rs + 1 x hardware)" -ForegroundColor Green

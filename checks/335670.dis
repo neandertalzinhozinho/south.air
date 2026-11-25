@@ -1,0 +1,65 @@
+00335670  mov        rax, rsp
+00335673  movsd      qword ptr [rax + 0x10], xmm1
+00335678  push       rbx
+00335679  push       rsi
+0033567A  push       rdi
+0033567B  sub        rsp, 0x70
+0033567F  movsd      xmm0, qword ptr [rcx + 0x28]
+00335684  lea        rbx, [rax + 8]
+00335688  movaps     xmmword ptr [rax - 0x28], xmm6
+0033568C  movaps     xmm6, xmm1
+0033568F  movaps     xmmword ptr [rax - 0x38], xmm7
+00335693  mov        rsi, rcx
+00335696  movaps     xmmword ptr [rax - 0x48], xmm9
+0033569B  movaps     xmmword ptr [rax - 0x58], xmm10
+003356A0  xorps      xmm10, xmm10
+003356A4  movaps     xmmword ptr [rax - 0x68], xmm11
+003356A9  movsd      xmm11, qword ptr [rip + 0x1d44a86]  ; [0x207A138] f32=0.0
+003356B2  movsd      qword ptr [rax + 0x18], xmm11
+003356B8  movsd      qword ptr [rax + 8], xmm10
+003356BE  lea        rax, [rax + 0x10]
+003356C2  comisd     xmm1, xmm10
+003356C7  cmovae     rbx, rax
+003356CB  call       0x1c9a9ef
+003356D0  comisd     xmm6, xmm11
+003356D5  lea        rdi, [rsp + 0xa0]
+003356DD  movaps     xmm9, xmm0
+003356E1  movsd      xmm0, qword ptr [rsi + 0x38]
+003356E6  cmovbe     rdi, rbx
+003356EA  call       0x1c9a9ef
+003356EF  movaps     xmm7, xmm0
+003356F2  movsd      xmm0, qword ptr [rsi + 0x28]
+003356F7  call       0x1c9a9ef
+003356FC  subsd      xmm7, xmm0
+00335700  movsd      xmm0, qword ptr [rsi + 0x30]
+00335705  call       0x1c9a9ef
+0033570A  movaps     xmm6, xmm0
+0033570D  movsd      xmm0, qword ptr [rsi + 0x28]
+00335712  call       0x1c9a9ef
+00335717  subsd      xmm6, xmm0
+0033571B  divsd      xmm7, xmm6
+0033571F  movaps     xmm0, xmm7
+00335722  call       0x1c9a9ef
+00335727  mulsd      xmm0, qword ptr [rip + 0x1d44f99]  ; [0x207A6C8] f32=5.0621315495573575e+22
+0033572F  movaps     xmm1, xmm0
+00335732  movsd      xmm0, qword ptr [rdi]
+00335736  call       0x1c9a5ad
+0033573B  movaps     xmm6, xmm0
+0033573E  movsd      xmm0, qword ptr [rsi + 0x30]
+00335743  maxsd      xmm6, xmm10
+00335748  minsd      xmm6, xmm11
+0033574D  call       0x1c9a9ef
+00335752  subsd      xmm0, xmm9
+00335757  mulsd      xmm6, xmm0
+0033575B  addsd      xmm6, xmm9
+00335760  movaps     xmm0, xmm6
+00335763  movaps     xmm6, xmmword ptr [rsp + 0x60]
+00335768  movaps     xmm7, xmmword ptr [rsp + 0x50]
+0033576D  movaps     xmm9, xmmword ptr [rsp + 0x40]
+00335773  movaps     xmm10, xmmword ptr [rsp + 0x30]
+00335779  movaps     xmm11, xmmword ptr [rsp + 0x20]
+0033577F  add        rsp, 0x70
+00335783  pop        rdi
+00335784  pop        rsi
+00335785  pop        rbx
+00335786  jmp        0x1c9a9d1

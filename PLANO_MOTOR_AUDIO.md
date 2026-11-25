@@ -3195,7 +3195,7 @@ correta é esta:
 | `0x8C02F0` / `0x8C0BD0` = detector e lei de ganho | são wrapper: montam buffers e chamam. O detector/ganho está **depois** deles: `0x8CAE90` (callee de `0x8C02F0`) e a cadeia de `0x8C0BD0` (recíproco → clamp → FMA), cujos impls faltam abrir (§23.2) |
 | "Núcleo `0x8B3ED0`, 20.209 B, 127 call, zero FMA" | bate — mas só via `show_func.py`. O `functions.csv` dá **49 B** para `0x8B3ED0`; quem confiar no CSV conclui que o núcleo é um stub (§22.5) |
 | "Cluster aritmético `0x8BF5C0–0x8C4300`" | o cluster é real, mas é **plumbing** (§22). A aritmética densa da região está antes do núcleo, em `0x8B2C30` (28 `mulss`/`addss`, zero calls) — etapa D0 |
-| "`N = 256` / `278` / `557`" | os três valores existem como bit pattern float no dump, mas `278 = round(256 × 48000/44100)` e `557 = round(256 × 96000/44100)`: os três são **uma fórmula**, não três constantes. Falta ler a instrução que escolhe o N — `NÃO PROVADO` até lá. **Lida em 2026-11-25 (M1)** para o `X` do estágio (`E+0x5F8+0x2C50`): `N = trunc(max(a/k,44100)·(1/44100))·256` (`0086FF35`/`0086FF39`, `arg5 = 0x100` em `0086A579`; `k = max(trunc((a+1)/44100),1)` em `00863531`..`00863552`) ⇒ **`a = 48000` → `N = 256`**, não 278 (e `a = 96000` → `k = 2`, `N = 256`). A âncora diverge da instrução; fica registrado aqui e vale a leitura (`checks/r_divisao_63640.md` §4.1). A identidade de `a` como taxa de amostragem é `NÃO PROVADA` (M4) |
+| "`N = 256` / `278` / `557`" | os três valores existem como bit pattern float no dump, mas `278 = round(256 × 48000/44100)` e `557 = round(256 × 96000/44100)`: os três são **uma fórmula**, não três constantes. Falta ler a instrução que escolhe o N — `NÃO PROVADO` até lá. **Lida em 2026-11-25 (M1)** para o `X` do estágio (`E+0x5F8+0x2C50`): `N = trunc(max(a/k,44100)·(1/44100))·256` (`0086FF35`/`0086FF39`, `arg5 = 0x100` em `0086A579`; `k = max(trunc((a+1)/44100),1)` em `00863531`..`00863552`) ⇒ **`a = 48000` → `N = 256`**, não 278 (e `a = 96000` → `k = 2`, `N = 256`). A âncora diverge da instrução; fica registrado aqui e vale a leitura (`checks/r_divisao_63640.md` §4.1). **M4 (2026-11-25):** `a` **é** a taxa do host (medido no processo somente-leitura, 32k..192k), e `N = 2048`/`256` (ctx A/B) **em todas as taxas** (`checks/u_estado_m4.md` §5) |
 | "latência 2.304 amostras @ 48 kHz", item 5 | medida no build **1.0.5** (bundle oráculo), não no dump 1.0.6. Registro histórico, **não** especificação do port (§19.5) |
 
 Não há contradição de *fato* no item 2: a âncora escreve "provavelmente", e a própria âncora
@@ -4176,10 +4176,51 @@ transcritos em `port/src/ippmath.rs`. `engine.rs` os usa por `ipp_ln`/`ipp_exp`.
 
 (Nota: `pending::first_blocking()` agora devolve `0x8B68AB (008B68BC)`, o sample rate de M4.)
 
-**M4 — PRÓXIMO.** Identidades de estado: sample rate `[ctx+0x60]` (rastrear `r13` em `0x8B3ED0`) e
-callback `[rdx+0x50]` (`00867E10`).
+**M4 — FECHADA em 2026-11-25.** O detalhe está em `checks/u_estado_m4.md` (prova por instrução e
+medição somente-leitura).
 
-**M5** Port do miolo `0x8B3ED0`: F1–F5 (K) + `0x8B8E70`/`0x8B9E40`/`0x8BA1B0`/`0x8BA7B0`/
+- **Sample rate:**
+  - `a` = taxa do host chega a `[eng+0x28]` pela cadeia `0x861DB0` (create; `xmm1` double,
+    `maxsd 0`) → `0x862E40` (`cvtsd2ss`) → `0x8634A0` (`0086352B`);
+  - `k = max(1, trunc((a+1)/44100))` vai para `[eng+0x2C]`;
+  - `0x86A8C0` constrói dois ctx por `0x873440`, ambos com `a/k`:
+    - **A** (`eng+0x5ED8`, `arg5 = 0x800`, gate `1`);
+    - **B** (`eng+0x8B20`, `arg5 = 0x100`, gate `0`);
+  - `[ctx+0x20] = max(a/k, 44100)` e `N = trunc([ctx+0x20]/44100)·arg5`;
+  - `[ctx+0x60]` é sobrescrito no fim do construtor com `N/2` (`008769D4`). Logo o divisor de
+    `0x8B68AB` é **1024**, não sample rate.
+- **Medido** no `host` com `SOULTREE_PROBE=1` (somente-leitura):
+  - fs 32k/44,1k/48k/88,2k/96k/192k → `a` = 44100/44100/48000/88200/96000/192000;
+  - `k` = 1/1/1/2/2/4;
+  - `ctx+0x20` = 44100/44100/48000/44100/48000/48000;
+  - **N = 2048/256 em todas as taxas**. Isso refuta "N = 278 @48k / 557 @96k" da âncora
+    (§23.14).
+- **`E` de `0x864410`** é `[handle]` = objeto de `0x8634A0` (`0x862F00` = `mov rcx,[rcx]; jmp
+  0x864410`, mais medição). Isso fecha o resíduo de M1.
+- **Callback `[rdx+0x50]`:**
+  - no setter, `rdx = 0x238E9C0 + i·0x68`. Prova: `0x33A630`, mais
+    `[W+0x30] = 0x862EF0` medido;
+  - o P2 errou a base (`0x238E9B0`, deslocada em `0x10`);
+  - são 6 famílias norm→plain: linear `0x3351E0` (43), bool `0x3358F0` (43), int `0x335300`
+    (35), log+150 `0x335470` (8), log com centro `0x335670` (8), log `0x335830` (6);
+  - estão transcritas em `port/src/params.rs`, com a tabela gerada do dump em
+    `port/src/param_entries.rs`;
+  - o estado padrão medido bate com `+0x38` = plain default.
+- **Port:**
+  - `pending.rs` não tem mais gaps de M4;
+  - o primeiro bloqueante agora é `0x8B3ED0` (`NÃO TRANSCRITO`, M5), seguido de `0x8AD2B0`
+    (M6);
+  - a lib tem 55 testes verdes.
+
+**Resíduo `NÃO PROVADO` de M4:**
+
+- o elo host → create passa por código ofuscado e foi fechado só por medição;
+- a instrução do clamp a 44100 em 32 kHz não foi localizada;
+- não enumerei todos os chamadores de `[W+0x30]`;
+- os callbacks não foram conferidos valor a valor contra o plugin (precisa de parameter changes
+  no host, fica para M6).
+
+**M5 — PRÓXIMO.**  Port do miolo `0x8B3ED0`: F1–F5 (K) + `0x8B8E70`/`0x8B9E40`/`0x8BA1B0`/`0x8BA7B0`/
 `0x8A1EE0`/`0x8BA8C0` + satélites `0x8C33D0`/`0x8C3F10`/`0x8C42D0`/`0x8B35A0` + filtro
 `0x87BB60`/`0x87E220`/`0x87B2A0`.
 

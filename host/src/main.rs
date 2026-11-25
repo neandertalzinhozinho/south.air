@@ -740,7 +740,8 @@ fn main() {
             input.channels
         ));
     }
-    if input.sample_rate != 44_100 && input.sample_rate != 48_000 {
+    let probe = env::var("SOULTREE_PROBE").map_or(false, |v| v == "1");
+    if !probe && input.sample_rate != 44_100 && input.sample_rate != 48_000 {
         fail(&format!(
             "taxa de amostragem {} Hz não suportada nesta versão (use 44100 ou 48000). \
              Nada foi gravado.",
@@ -1286,6 +1287,10 @@ fn main() {
         ));
     }
 
+    if env::var("SOULTREE_PROBE").map_or(false, |v| v == "1") {
+        probe_state("apos_process");
+    }
+
     // ---------------- 10. desligar com honestidade ----------------
     let f = unsafe { (*proc_vt).set_processing };
     let hr = call0("IAudioProcessor::setProcessing(false)", f as usize, || unsafe {
@@ -1442,6 +1447,163 @@ extern "system" {
     fn GetProcAddress(module: Hmodule, name: *const u8) -> Farproc;
     fn FreeLibrary(module: Hmodule) -> i32;
     fn GetLastError() -> u32;
+    fn VirtualQuery(addr: *const c_void, info: *mut MemInfo, len: usize) -> usize;
+}
+
+#[repr(C)]
+#[derive(Default)]
+struct MemInfo {
+    base: usize,
+    alloc_base: usize,
+    alloc_protect: u32,
+    partition: u16,
+    region_size: usize,
+    state: u32,
+    protect: u32,
+    kind: u32,
+}
+
+// ---------------------------------------------------------------------------
+// M4: sonda de estado SOMENTE LEITURA (SOULTREE_PROBE=1)
+// ---------------------------------------------------------------------------
+// Lê, no próprio processo do host, campos do objeto do plugin cujos offsets
+// foram provados no dump (PLANO §26-M4, checks/u_sample_rate.md). Nenhuma
+// escrita, nenhum hook: só VirtualQuery + leitura de memória já mapeada.
+
+const RVA_VT_PROCESSOR: usize = 0x2037A58; // Soothe3AudioProcessor (00344DA6)
+const RVA_VT_W: usize = 0x2037178; // subobjeto this+0xE40 (00336E5E/00336E65)
+const RVA_API_FN1: usize = 0x862EF0; // [handle+8] (00862E89/00862E90)
+
+fn readable(addr: usize, len: usize) -> bool {
+    let mut mi = MemInfo::default();
+    let r = unsafe { VirtualQuery(addr as *const c_void, &mut mi, std::mem::size_of::<MemInfo>()) };
+    r != 0
+        && mi.state == 0x1000 // MEM_COMMIT
+        && mi.protect & 0x66 != 0 // R / RW / XR / XRW
+        && mi.protect & 0x100 == 0 // não PAGE_GUARD
+        && addr + len <= mi.base + mi.region_size
+}
+
+fn rd<T: Copy>(addr: usize) -> Option<T> {
+    if readable(addr, std::mem::size_of::<T>()) {
+        Some(unsafe { (addr as *const T).read_unaligned() })
+    } else {
+        None
+    }
+}
+
+fn probe_state(tag: &str) {
+    let base = MODULE_BASE.load(Ordering::Relaxed);
+    let want = (base + RVA_VT_PROCESSOR) as u64;
+    let mut hits = Vec::new();
+    let mut a = 0x10000usize;
+    while a < 0x7FFF_FFFF_0000 {
+        let mut mi = MemInfo::default();
+        let r = unsafe { VirtualQuery(a as *const c_void, &mut mi, std::mem::size_of::<MemInfo>()) };
+        if r == 0 {
+            break;
+        }
+        let next = mi.base + mi.region_size;
+        if mi.state == 0x1000 && mi.protect == 0x04 && mi.kind == 0x20000 {
+            let n = mi.region_size / 8;
+            let p = mi.base as *const u64;
+            for i in 0..n {
+                if unsafe { p.add(i).read() } == want {
+                    hits.push(mi.base + 8 * i);
+                }
+            }
+        }
+        if next <= a {
+            break;
+        }
+        a = next;
+    }
+    println!("PROBE[{tag}] processors={}", hits.len());
+    for obj in hits {
+        let w = obj + 0xE40;
+        let vtw = rd::<u64>(w).unwrap_or(0) as usize;
+        let h = rd::<u64>(w + 0x68).unwrap_or(0) as usize;
+        let fn1 = if h != 0 { rd::<u64>(h + 8).unwrap_or(0) as usize } else { 0 };
+        println!(
+            "PROBE[{tag}] obj=0x{obj:X} [W]=+0x{:X} (esperado +0x{RVA_VT_W:X}) handle=0x{h:X} [h+8]=+0x{:X} (esperado +0x{RVA_API_FN1:X})",
+            vtw.wrapping_sub(base),
+            fn1.wrapping_sub(base)
+        );
+        if h == 0 || fn1 != base + RVA_API_FN1 {
+            continue;
+        }
+        // M4-callback: [W+0x28]/[W+0x30] (chamados por 0x33A630 em 0033A657/0033A65F),
+        // [W+0x70] (descritor, 00336EA6) e [[W+0x70]] (base das entradas de parâmetro).
+        let w28 = rd::<u64>(w + 0x28).unwrap_or(0) as usize;
+        let w30 = rd::<u64>(w + 0x30).unwrap_or(0) as usize;
+        let w70 = rd::<u64>(w + 0x70).unwrap_or(0) as usize;
+        let tab = if w70 != 0 { rd::<u64>(w70).unwrap_or(0) as usize } else { 0 };
+        println!(
+            "PROBE[{tag}] [W+0x28]=+0x{:X} [W+0x30]=+0x{:X} [W+0x70]=+0x{:X} [[W+0x70]]=+0x{:X}",
+            w28.wrapping_sub(base), w30.wrapping_sub(base), w70.wrapping_sub(base), tab.wrapping_sub(base)
+        );
+        let mut hfns = String::new();
+        for o in (0..=0x50).step_by(8) {
+            let v = rd::<u64>(h + o).unwrap_or(0) as usize;
+            hfns.push_str(&format!(" +0x{o:X}=+0x{:X}", v.wrapping_sub(base)));
+        }
+        println!("PROBE[{tag}] handle:{hfns}");
+        let eng = rd::<u64>(h).unwrap_or(0) as usize;
+        let a28 = rd::<f32>(eng + 0x28);
+        let k2c = rd::<i32>(eng + 0x2C);
+        println!("PROBE[{tag}] engine=0x{eng:X} [eng+0x28]f32={a28:?} [eng+0x2C]i32={k2c:?}");
+        // M6: interface do host ([eng+0], 008634CD) e config ([eng+8], 008634D7)
+        let iface = rd::<u64>(eng).unwrap_or(0) as usize;
+        let cfg = rd::<u64>(eng + 8).unwrap_or(0) as usize;
+        let mut fi = String::new();
+        for o in (0..=0x40).step_by(8) {
+            let v = rd::<u64>(iface + o).unwrap_or(0) as usize;
+            fi.push_str(&format!(" +0x{o:X}=+0x{:X}", v.wrapping_sub(base)));
+        }
+        println!("PROBE[{tag}] iface=0x{iface:X}:{fi}");
+        let iobj = rd::<u64>(iface).unwrap_or(0) as usize;
+        println!("PROBE[{tag}] [[iface]+0x94] (habilita saídas do host, 0x338BA0) = {:?}", rd::<u8>(iobj + 0x94));
+        let mut fc = String::new();
+        for o in (0..0x40).step_by(4) {
+            fc.push_str(&format!(" +0x{o:X}={:#x}", rd::<u32>(cfg + o).unwrap_or(0xDEAD)));
+        }
+        println!("PROBE[{tag}] cfg=0x{cfg:X}:{fc}");
+        println!(
+            "PROBE[{tag}] eng+0x10={:?} eng+0x14={:?} eng+0x4C={:?} eng+0x50={:?} eng+0xA7..AA={:?}",
+            rd::<i32>(eng + 0x10), rd::<i32>(eng + 0x14), rd::<i32>(eng + 0x4C), rd::<i32>(eng + 0x50),
+            rd::<[u8; 4]>(eng + 0xA7)
+        );
+        if let Ok(path) = env::var("SOULTREE_PROBE_DUMP") {
+            let mut buf = vec![0u8; 0x600];
+            for (i, b) in buf.iter_mut().enumerate() {
+                *b = rd::<u8>(eng + i).unwrap_or(0);
+            }
+            let _ = std::fs::write(&path, &buf);
+            println!("PROBE[{tag}] engine[0..0x600] gravado em {path}");
+        }
+        println!("PROBE[{tag}] flags 0x863070 [eng+0x234..0x238]={:?} [eng+0x278]={:?} [eng+0xAB]={:?}", rd::<[u8; 4]>(eng + 0x234), rd::<i32>(eng + 0x278), rd::<u8>(eng + 0xAB));
+        // estado = engine+0x54 (etapa G); campos xmm6 (valor do callback +0x50)
+        let st = eng + 0x54;
+        let mut sv = String::new();
+        for (i, o) in [(0, 0x00), (5, 0x04), (6, 0x08), (7, 0x0C), (8, 0x10), (9, 0x14), (10, 0x18), (11, 0x1C), (12, 0x20), (13, 0x24), (17, 0x28), (18, 0x3C), (21, 0xBC), (22, 0xC0), (23, 0xC4), (24, 0xC8), (25, 0xCC)] {
+            sv.push_str(&format!(" p{i}={:?}", rd::<f32>(st + o)));
+        }
+        println!("PROBE[{tag}] state(engine+0x54):{sv}");
+        for (nm, off) in [("A", 0x5ED0 + 8), ("B", 0x5ED0 + 0x2C50)] {
+            let c = eng + off;
+            println!(
+                "PROBE[{tag}] ctx{nm}=eng+0x{off:X} +0x20f32={:?} +0x28={:?} +0x38={:?} +0x40={:?} +0x58={:?} +0x59={:?} +0x5C f32={:?} +0x60={:?}",
+                rd::<f32>(c + 0x20),
+                rd::<i64>(c + 0x28),
+                rd::<i64>(c + 0x38),
+                rd::<i64>(c + 0x40),
+                rd::<u8>(c + 0x58),
+                rd::<u8>(c + 0x59),
+                rd::<f32>(c + 0x5C),
+                rd::<i64>(c + 0x60),
+            );
+        }
+    }
 }
 
 // ---------------------------------------------------------------------------

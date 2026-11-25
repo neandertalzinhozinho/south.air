@@ -44,34 +44,25 @@ pub const GAPS: &[Gap] = &[
     // transcrito em port/src/rcp.rs, usado por engine.rs (0088E32F), conferido
     // contra hardware em checks/j_rcp_avx.rs (checks/s_reciproco_88e130.md).
     // Resíduo: vrcpps é bit a bit só na CPU do oráculo (mesma ressalva de M1).
+    // M4 (2026-11-25): saíram daqui o "sample rate" de 0x8B68AB, a identidade de
+    // E/arg4 e o callback [rdx+0x50] (checks/u_estado_m4.md):
+    //  - [ctx+0x20] = max(a/k, 44100) (008734C5) e [ctx+0x60] = [ctx+0x28]>>1 = N/2
+    //    (008769CA..008769D4); a = taxa do host em [eng+0x28] (medido 32k..192k);
+    //  - E de 0x864410 = [handle] = objeto de 0x8634A0 (00862F00 + medição);
+    //  - [rdx+0x50] = callback +0x50 da entrada 0x238E9C0 + i·0x68 (port/src/params.rs).
     Gap {
-        id: "campo de sample rate (identidade de r13 / [ctx+0x60])",
-        rva: "0x8B68AB (008B68BC)",
-        status: Status::NaoProvado,
+        id: "miolo de 0x8B3ED0 não transcrito (F1–F5 + callees + satélites + filtro)",
+        rva: "0x8B3ED0",
+        status: Status::NaoTranscrito,
         blocks_null_test: true,
-        note: "r13 = arg1 de 0x8B3ED0 (008B3F14); [ctx+0x60] é qword; 'sample rate' \
-               não provado — o port hoje só roda em 48 kHz",
+        note: "M5: leitura fechada em K–P; falta a transcrição do bloco inteiro no port                (0x8B8E70/0x8B9E40/0x8BA1B0/0x8BA7B0/0x8A1EE0/0x8BA8C0, 0x8C33D0/0x8C3F10/                0x8C42D0/0x8B35A0, 0x87BB60/0x87E220/0x87B2A0) e conferir que os chamadores                ignoram o eax de ln/exp (resíduo de M3)",
     },
     Gap {
-        id: "identidade do objeto E de 0x864410 e do arg4 de 0x8634A0 (n e alinhamento da divisão)",
-        rva: "0x864410 (0086453D) / 0x862E40 (00862E68)",
-        status: Status::NaoProvado,
+        id: "cadeia completa e estado inicial não transcritos",
+        rva: "0x8AD2B0",
+        status: Status::NaoTranscrito,
         blocks_null_test: true,
-        note: "M1: dst & 0x1c = 0 nas 4 divisões é provado dentro de 0x8C1440 (cursor align16) \
-               e na base [E+0x30] escrita por 0x868B50 (00868B98/00868B9C, 64 B) a partir de \
-               0x8634A0 (00863563); n = [X+0x40] = 257 vale para arg4 = 48000 \
-               (div::stage_division_len). Falta a instrução que ligue o E de 0x864410 \
-               (despacho indireto) ao objeto de 0x8634A0 — hoje só coincidem os offsets \
-               +0x10/+0x2C/+0x30/+0x5F8 — e a identidade de arg4 (= (float)xmm2 de 0x862E40) \
-               como taxa de amostragem (M4)",
-    },
-    Gap {
-        id: "callback [rdx+0x50] do descritor de runtime",
-        rva: "00867E10",
-        status: Status::NaoProvado,
-        blocks_null_test: true,
-        note: "call indireto; provado que não é campo +0x50 da tabela 0x238E9B0. \
-               Só bloqueia se o caminho default passar por ele",
+        note: "M6: 25 estágios de 0x8AD2B0, 0x8ACC40, 0x885040/0x8875F0, rings, os dois ctx                (A: eng+0x5ED8, N=2048, gate 1; B: eng+0x8B20, N=256, gate 0) e o setter                0x867D80 aplicando os defaults (+0x38 da entrada = plain default, medido)",
     },
     Gap {
         id: "packing da FFT: RToPerm/RToPack e construtor de [spec]==7",
@@ -153,11 +144,21 @@ mod tests {
     }
 
     #[test]
-    fn first_blocking_is_the_sample_rate() {
-        // M3 fechou ln/exp da IPP (port/src/ippmath.rs); o primeiro bloqueante
-        // passa a ser o campo de sample rate (M4).
+    fn first_blocking_is_the_core() {
+        // M4 fechou sample rate, identidade de E e o callback [rdx+0x50]; o
+        // primeiro bloqueante passa a ser a transcrição do miolo (M5).
         let g = first_blocking().expect("há gaps bloqueantes");
-        assert_eq!(g.rva, "0x8B68AB (008B68BC)");
+        assert_eq!(g.rva, "0x8B3ED0");
+        assert_eq!(g.status, Status::NaoTranscrito);
+    }
+
+    #[test]
+    fn m4_items_are_no_longer_gaps() {
+        for g in GAPS {
+            assert!(!g.rva.contains("0x8B68AB"), "{} ainda lista 0x8B68AB", g.id);
+            assert!(!g.rva.contains("00867E10"), "{} ainda lista 00867E10", g.id);
+            assert!(!g.rva.contains("0x864410"), "{} ainda lista 0x864410", g.id);
+        }
     }
 
     #[test]
@@ -197,7 +198,7 @@ mod tests {
     fn label_carries_status_and_rva() {
         let g = first_blocking().unwrap();
         let l = label(g);
-        assert!(l.starts_with("NÃO PROVADO: "));
-        assert!(l.contains("0x8B68AB"));
+        assert!(l.starts_with("NÃO TRANSCRITO: "));
+        assert!(l.contains("0x8B3ED0"));
     }
 }

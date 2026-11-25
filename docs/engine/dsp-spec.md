@@ -373,10 +373,16 @@ Prova: `008B6918 call 0x1C9A5AD` → IAT `0x1D8D848` = **`pow` (double)**
 `008B6901 mulss [0x207A560]` = `500.0f`; `008B6932 subsd xmm6,xmm0` com `xmm6 = 1.0`
 (`0x207A138`). `r13` é o **argumento 1 de `0x8B3ED0`** (`008B3F14 mov r13,rcx`), logo
 `+0x20`/`+0x58`/`+0x60` são campos do **objeto de contexto**, não do bloco de estado
-(`state = [ctx+0x2C38]`). **`NÃO PROVADO`:** qual campo (`+0x20`/`+0x58`/`+0x60`) é sample
-rate, qual é tempo, e em que unidade; `+0x60` é lido como `qword` inteiro de 64 bits em
-`008B68BC`, e a aritmética `(t / [ctx+0x60]) · 0.001 · 500` não é dimensionalmente
-`t·fs/1000`.
+(`state = [ctx+0x2C38]`). **PROVADO em M4 (2026-11-25, `checks/u_estado_m4.md`):**
+- `ctx` é construído por `0x873440`, e existem dois:
+  - A em `eng+0x5ED8`, com `N = 2048` e gate `[+0x58] = 1`;
+  - B em `eng+0x8B20`, com `N = 256` e gate `0`.
+- `[ctx+0x20] = max(a/k, 44100)` (`008734C5`) é a taxa efetiva, onde:
+  - `a` = taxa do host em `[eng+0x28]`;
+  - `k = max(1, trunc((a+1)/44100))`.
+- `[ctx+0x60] = [ctx+0x28] >> 1 = N/2` (`008769CA..008769D4`); **não** é sample rate.
+- Aqui só o ctx A passa pelo gate, então o divisor é **1024**, constante para
+  fs de 32 a 192 kHz (medido no processo somente-leitura).
 
 **(c) `0x8B5AF2`–`0x8B5CA7` — escalar de ganho aplicado a **todas** as bandas.** Entradas
 lidas do bloco de estado (ver §8.3): `s0 = state[0x00]` (`008B5AFB`), `A = state[0x04]`

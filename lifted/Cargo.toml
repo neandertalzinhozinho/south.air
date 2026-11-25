@@ -1,0 +1,17 @@
+[package]
+name = "soultree_lifted"
+version = "0.0.0"
+edition = "2021"
+description = "M5/M6: motor do soothe3 traduzido mecanicamente do dump (tools/lift/lift.py)"
+
+[lib]
+path = "src/lib.rs"
+
+[dev-dependencies]
+soultree_port = { path = "../port" }
+
+[profile.release]
+opt-level = 2
+codegen-units = 64
+incremental = true
+debug = false

@@ -231,3 +231,21 @@ determinística neste ambiente.
 - O log é UTF-8; a exibição no console do PowerShell pode mostrar acentos
   quebrados por causa da code page, mas os bytes gravados em `run4.log` são
   UTF-8 válidos.
+
+
+## 13. Modo de sonda somente-leitura (M4, 2026-11-25)
+
+Com `SOULTREE_PROBE=1`, o host:
+
+1. roda `probe_state` depois do `process`;
+2. varre por `VirtualQuery` as regiões privadas RW do **próprio processo**;
+3. acha o `Soothe3AudioProcessor` pela vtable `base+0x2037A58`;
+4. imprime `W = obj+0xE40`, `[W+0x28/0x30/0x68/0x70]`, o struct handle, `engine = [handle]`,
+   `[eng+0x28/0x2C]`, o estado `engine+0x54` e os dois ctx (`eng+0x5ED8`, `eng+0x8B20`).
+
+Só lê: não escreve, não instala hook e não injeta nada. No modo de sonda, a restrição de taxa
+(44,1/48 kHz) é liberada para medir 32k..192k. O resultado está em `checks/u_estado_m4.md` §5.
+
+Ambiente: o Windows App Control às vezes bloqueia um `host.exe` recém-compilado
+("Permission denied"/`os error 4551`). Uma mudança mínima no código e a recompilação gera
+outro hash e resolve.

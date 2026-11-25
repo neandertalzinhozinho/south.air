@@ -50,6 +50,12 @@ Artefatos: `checks/862f40.dis`, `checks/8634a0.dis`, `checks/8774a0.dis`, `check
 
 ## P2 — callback `[rdx+0x50]` do setter `0x867D80`: é ponteiro de código, e **não** é campo da tabela `0x238E9B0`
 
+> **Corrigido em M4 (2026-11-25, `checks/u_estado_m4.md` §4).** O erro foi a base da tabela.
+> As entradas começam em `0x238E9C0` (`[0x23926F8]`), e não em `0x238E9B0`. Com a base certa,
+> `[rdx+0x50]` **é** o campo `+0x50` da entrada `0x238E9C0 + i·0x68`. Provas:
+> `0x33A630` (`0033A642..0033A65F`) e a medição `[W+0x30] = 0x862EF0`. A refutação abaixo
+> vale só para a base deslocada.
+
 **Provado no setter:**
 
 ```

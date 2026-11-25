@@ -1,0 +1,6 @@
+003358F0  comisd     xmm1, xmmword ptr [rip + 0x1d447c0]  ; [0x207A0B8] f32=0.0
+003358F8  jae        0x3358fe
+003358FA  xorps      xmm0, xmm0
+003358FD  ret        
+003358FE  movsd      xmm0, qword ptr [rip + 0x1d44832]  ; [0x207A138] f32=0.0
+00335906  ret        

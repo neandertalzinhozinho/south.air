@@ -1,0 +1,45 @@
+00335470  mov        rax, rsp
+00335473  mov        qword ptr [rax + 0x20], rbx
+00335477  movsd      qword ptr [rax + 0x10], xmm1
+0033547C  push       rdi
+0033547D  sub        rsp, 0x60
+00335481  movsd      xmm0, qword ptr [rcx + 0x28]
+00335486  lea        rdi, [rax + 8]
+0033548A  addsd      xmm0, qword ptr [rip + 0x1d44dfe]  ; [0x207A290] f32=0.0
+00335492  movaps     xmmword ptr [rax - 0x18], xmm6
+00335496  mov        rbx, rcx
+00335499  movaps     xmmword ptr [rax - 0x28], xmm7
+0033549D  xorps      xmm7, xmm7
+003354A0  movaps     xmmword ptr [rax - 0x38], xmm9
+003354A5  movaps     xmm9, xmm1
+003354A9  movaps     xmmword ptr [rax - 0x48], xmm10
+003354AE  movsd      xmm10, qword ptr [rip + 0x1d44c81]  ; [0x207A138] f32=0.0
+003354B7  movsd      qword ptr [rax + 0x18], xmm10
+003354BD  movsd      qword ptr [rax + 8], xmm7
+003354C2  lea        rax, [rax + 0x10]
+003354C6  comisd     xmm1, xmm7
+003354CA  cmovae     rdi, rax
+003354CE  call       0x1c9a9ef
+003354D3  movaps     xmm6, xmm0
+003354D6  movsd      xmm0, qword ptr [rbx + 0x30]
+003354DB  addsd      xmm0, qword ptr [rip + 0x1d44dad]  ; [0x207A290] f32=0.0
+003354E3  call       0x1c9a9ef
+003354E8  subsd      xmm0, xmm6
+003354EC  comisd     xmm9, xmm10
+003354F1  lea        rax, [rsp + 0x80]
+003354F9  cmovbe     rax, rdi
+003354FD  movsd      xmm1, qword ptr [rax]
+00335501  maxsd      xmm1, xmm7
+00335505  minsd      xmm1, xmm10
+0033550A  mulsd      xmm0, xmm1
+0033550E  addsd      xmm0, xmm6
+00335512  call       0x1c9a9d1
+00335517  subsd      xmm0, qword ptr [rip + 0x1d44d71]  ; [0x207A290] f32=0.0
+0033551F  mov        rbx, qword ptr [rsp + 0x88]
+00335527  movaps     xmm6, xmmword ptr [rsp + 0x50]
+0033552C  movaps     xmm7, xmmword ptr [rsp + 0x40]
+00335531  movaps     xmm9, xmmword ptr [rsp + 0x30]
+00335537  movaps     xmm10, xmmword ptr [rsp + 0x20]
+0033553D  add        rsp, 0x60
+00335541  pop        rdi
+00335542  ret        

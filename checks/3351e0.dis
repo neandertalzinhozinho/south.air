@@ -1,0 +1,20 @@
+003351E0  movsd      xmm4, qword ptr [rip + 0x1d44f50]  ; [0x207A138] f32=0.0
+003351E8  lea        rax, [rsp + 0x10]
+003351ED  xorps      xmm2, xmm2
+003351F0  movsd      qword ptr [rsp + 0x10], xmm1
+003351F6  comisd     xmm1, xmm2
+003351FA  lea        rdx, [rsp + 8]
+003351FF  movsd      qword ptr [rsp + 0x18], xmm4
+00335205  movsd      qword ptr [rsp + 8], xmm2
+0033520B  cmovae     rdx, rax
+0033520F  lea        rax, [rsp + 0x18]
+00335214  comisd     xmm1, xmm4
+00335218  movsd      xmm1, qword ptr [rcx + 0x30]
+0033521D  subsd      xmm1, qword ptr [rcx + 0x28]
+00335222  cmovbe     rax, rdx
+00335226  movsd      xmm0, qword ptr [rax]
+0033522A  maxsd      xmm0, xmm2
+0033522E  minsd      xmm0, xmm4
+00335232  mulsd      xmm0, xmm1
+00335236  addsd      xmm0, qword ptr [rcx + 0x28]
+0033523B  ret        

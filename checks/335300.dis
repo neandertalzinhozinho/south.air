@@ -1,0 +1,42 @@
+00335300  mov        qword ptr [rsp + 0x20], rbx
+00335305  movsd      qword ptr [rsp + 0x10], xmm1
+0033530B  push       rdi
+0033530C  sub        rsp, 0x30
+00335310  movsd      xmm0, qword ptr [rcx + 0x28]
+00335315  mov        rbx, rcx
+00335318  movaps     xmmword ptr [rsp + 0x20], xmm6
+0033531D  movaps     xmm6, xmm1
+00335320  call       qword ptr [rip + 0x1a5849a]  ; [0x1D8D7C0] f32=-1.5652408222993937e+24
+00335326  cvttsd2si  edi, xmm0
+0033532A  movsd      xmm0, qword ptr [rbx + 0x30]
+0033532F  call       qword ptr [rip + 0x1a5848b]  ; [0x1D8D7C0] f32=-1.5652408222993937e+24
+00335335  cvttsd2si  edx, xmm0
+00335339  sub        edx, edi
+0033533B  test       edx, edx
+0033533D  jg         0x335345
+0033533F  movd       xmm0, edi
+00335343  jmp        0x335397
+00335345  movsd      xmm1, qword ptr [rip + 0x1d44deb]  ; [0x207A138] f32=0.0
+0033534D  lea        rax, [rsp + 0x48]
+00335352  xorps      xmm0, xmm0
+00335355  movsd      qword ptr [rsp + 0x50], xmm1
+0033535B  comisd     xmm6, xmm0
+0033535F  lea        rcx, [rsp + 0x40]
+00335364  movsd      qword ptr [rsp + 0x40], xmm0
+0033536A  movd       xmm0, edx
+0033536E  cmovae     rcx, rax
+00335372  lea        rax, [rsp + 0x50]
+00335377  comisd     xmm6, xmm1
+0033537B  cvtdq2pd   xmm0, xmm0
+0033537F  cmovbe     rax, rcx
+00335383  mulsd      xmm0, qword ptr [rax]
+00335387  call       qword ptr [rip + 0x1a58433]  ; [0x1D8D7C0] f32=-1.5652408222993937e+24
+0033538D  cvttsd2si  eax, xmm0
+00335391  add        eax, edi
+00335393  movd       xmm0, eax
+00335397  mov        rbx, qword ptr [rsp + 0x58]
+0033539C  movaps     xmm6, xmmword ptr [rsp + 0x20]
+003353A1  cvtdq2pd   xmm0, xmm0
+003353A5  add        rsp, 0x30
+003353A9  pop        rdi
+003353AA  ret        

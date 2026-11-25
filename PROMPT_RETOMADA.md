@@ -1,6 +1,6 @@
 # PROMPT DE RETOMADA — extração do DSP do soothe3
 
-> **Atualizado em 2026-11-25 (M3)**, sincronizado com `PLANO_MOTOR_AUDIO.md` §25/§26/§23.15.
+> **Atualizado em 2026-11-25 (M4)**, sincronizado com `PLANO_MOTOR_AUDIO.md` §25/§26/§23.15.
 > Autocontido: não depende de conversa anterior. Se este arquivo divergir do plano, **o plano
 > vence** — este prompt é um resumo operacional, não a fonte.
 
@@ -189,7 +189,7 @@ Fechamento item a item (todos com RVA):
    (`soultree_port`) é a fonte única dos kernels J1–J6; os `checks/*.rs` apontam para ele com
    `#[path]` e mantêm só os testes. `port/src/pending.rs` = 12 gaps com RVA e
    `blocks_null_test`; `port/src/chain.rs` = ordem de `pipe::chain_plan` e parada no primeiro
-   gap (desde M3: `0x8B68AB (008B68BC)`, sample rate = M4). Runner:
+   gap (desde M4: `0x8B3ED0`, miolo `NÃO TRANSCRITO` = M5). Runner:
    `powershell -ExecutionPolicy Bypass -File port\run_tests.ps1` (10 suítes desde M3, com
    `checks/j_ln_exp_avx.rs`). Em 2026-11-25 (M3), todas verdes:
    - lib do port: 50 testes;
@@ -254,8 +254,23 @@ Fechamento item a item (todos com RVA):
      ignoram o `eax` (M5).
    - Doc: `checks/t_ln_exp_ipp.md`.
 
-   **M4 (PRÓXIMO)** sample rate (`[ctx+0x60]`) e
-   callback `[rdx+0x50]` (`00867E10`). **M5** port do miolo `0x8B3ED0` (F1–F5 + 6 callees +
+   ~~**M4**~~ **(2026-11-25, FECHADA):** `checks/u_estado_m4.md`.
+   - `a` = taxa do host em `[eng+0x28]`, e `k = max(1, trunc((a+1)/44100))`.
+   - Há dois ctx, construídos por `0x873440`:
+     - **A** em `eng+0x5ED8`: `N = 2048`, gate `1`;
+     - **B** em `eng+0x8B20`: `N = 256`, gate `0`.
+   - `[ctx+0x20] = max(a/k, 44100)`.
+   - `[ctx+0x60] = N/2` (`008769D4`), então o divisor de `0x8B68AB` é 1024 e **não** é
+     sample rate.
+   - Medido 32k..192k pelo host com `SOULTREE_PROBE=1` (somente-leitura): **N não muda com fs**.
+   - `E` de `0x864410` = `[handle]` = objeto de `0x8634A0`.
+   - `[rdx+0x50]` = callback norm→plain da entrada `0x238E9C0 + i·0x68`, em 6 famílias,
+     transcritas em `port/src/params.rs` + `param_entries.rs`. O P2 tinha errado a base em
+     `0x10`.
+   - Resíduo: o elo host→create (ofuscado) está provado só por medição; a conferência dos
+     callbacks valor a valor fica para M6.
+
+   **M5 (PRÓXIMO)** port do miolo `0x8B3ED0` (F1–F5 + 6 callees +
    satélites + filtro `0x87BB60`). **M6** cadeia completa (`0x8AD2B0`, `0x8ACC40`,
    `0x885040`/`0x8875F0`, rings, estado inicial). **M7** null-test (bloco 512, alinhamento
    2304, 0 divergências).

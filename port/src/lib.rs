@@ -25,6 +25,8 @@
 //! | [`stage`] | Q | `0x8C1440`: 5 grupos, `Σch²/Σch`, 4 divisões, mistura |
 //! | [`div`] | M1 | `0x1550` → `0x63640`: despacho cabeça/16/8/resto, aritméticas A/B |
 //! | [`rcp`] | M2 | `0x1C8530` → `0x29B260`: `vrcpps` + 1 passo FMA, lanes especiais `1/x`, MXCSR |
+//! | [`params`] | M4 | callbacks norm→plain `[rdx+0x50]` do setter `0x867D80` (6 famílias) |
+//! | [`param_entries`] | M4 | 143 entradas `0x238E9C0 + i·0x68` (gerado do dump) |
 //! | [`ippmath`] | M3 | ln `0x293760` (+`0x293F80`) e exp `0x240C00` (+`0x2414C0`) da IPP |
 //!
 //! `checks/<arquivo>.rs` aponta para o mesmo arquivo com
@@ -43,6 +45,8 @@ pub mod engine;
 pub mod fft_kernels;
 pub mod fft_layout;
 pub mod ippmath;
+pub mod param_entries;
+pub mod params;
 pub mod pending;
 #[allow(unused_imports)]
 pub mod pipe;
@@ -50,4 +54,4 @@ pub mod rcp;
 pub mod stage;
 
 /// Versão do port, para carimbar o WAV do null-test.
-pub const PORT_VERSION: &str = "0.0.0-j1j6+q+m1+m2+m3";
+pub const PORT_VERSION: &str = "0.0.0-j1j6+q+m1+m2+m3+m4";

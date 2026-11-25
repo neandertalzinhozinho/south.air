@@ -1,0 +1,84 @@
+00867D80  movss      dword ptr [rsp + 0x18], xmm2
+00867D86  mov        r11, rsp
+00867D89  push       rbx
+00867D8A  push       rsi
+00867D8B  sub        rsp, 0x78
+00867D8F  movaps     xmmword ptr [rsp + 0x60], xmm6
+00867D94  lea        rax, [r11 + 0x18]
+00867D98  movsd      xmm6, qword ptr [rdx + 0x28]
+00867D9D  lea        r8, [r11 + 0x10]
+00867DA1  movaps     xmmword ptr [r11 - 0x48], xmm8
+00867DA6  mov        rbx, rcx
+00867DA9  movaps     xmmword ptr [r11 - 0x58], xmm10
+00867DAE  mov        rcx, rdx
+00867DB1  movaps     xmmword ptr [rsp + 0x50], xmm7
+00867DB6  xorps      xmm10, xmm10
+00867DBA  movsd      xmm7, qword ptr [rdx + 0x30]
+00867DBF  mov        rsi, rdx
+00867DC2  comiss     xmm2, xmm10
+00867DC6  mov        dword ptr [r11 + 0x20], 0x3f800000
+00867DCE  mov        dword ptr [r11 + 0x10], 0
+00867DD6  cvtpd2ps   xmm7, xmm7
+00867DDA  cmovae     r8, rax
+00867DDE  lea        rax, [r11 + 0x20]
+00867DE2  comiss     xmm2, dword ptr [rip + 0x18121b3]  ; [0x2079F9C] f32=1.0
+00867DE9  cvtpd2ps   xmm6, xmm6
+00867DED  cmovbe     rax, r8
+00867DF1  movss      dword ptr [rsp + 0x28], xmm7
+00867DF7  movss      xmm8, dword ptr [rax]
+00867DFC  mov        rax, qword ptr [rdx + 0x50]
+00867E00  cvtps2pd   xmm1, xmm8
+00867E04  movss      dword ptr [r11 + 0x18], xmm8
+00867E0A  movss      dword ptr [rsp + 0x20], xmm6
+00867E10  call       rax
+00867E12  xorps      xmm1, xmm1
+00867E15  lea        rax, [rsp + 0x24]
+00867E1A  cvtsd2ss   xmm1, xmm0
+00867E1E  lea        rcx, [rsp + 0x20]
+00867E23  comiss     xmm1, xmm6
+00867E26  movss      dword ptr [rsp + 0x24], xmm1
+00867E2C  cmovae     rcx, rax
+00867E30  lea        rax, [rsp + 0x28]
+00867E35  comiss     xmm7, xmm1
+00867E38  cmovae     rax, rcx
+00867E3C  movss      xmm6, dword ptr [rax]
+00867E40  movaps     xmm0, xmm6
+00867E43  call       0x1798f8a
+00867E48  comiss     xmm8, dword ptr [rip + 0x1812058]  ; [0x2079EA8] f32=0.5
+00867E50  mov        eax, dword ptr [rsi]
+00867E52  movaps     xmm7, xmmword ptr [rsp + 0x50]
+00867E57  cvttss2si  r9d, xmm0
+00867E5C  setae      r8b
+00867E60  cmp        eax, 0x8e
+00867E65  ja         0x86832f
+00867E6B  lea        r11, [rip - 0x867e72]  ; [0x0] f32=1.325670526335053e-38
+00867E72  movzx      eax, byte ptr [r11 + rax + 0x8683cc]
+00867E7B  mov        ecx, dword ptr [r11 + rax*4 + 0x868348]
+00867E83  add        rcx, r11
+00867E86  jmp        rcx
+00867E88  movzx      eax, byte ptr [rbx + 0xab]
+00867E8F  nop        
+00867E90  cmp        al, r8b
+00867E93  je         0x86832f
+00867E99  xchg       byte ptr [rbx + 0xab], r8b
+00867EA0  mov        ecx, 1
+00867EA5  mov        eax, ecx
+00867EA7  xchg       byte ptr [rbx + 0x3245], al
+00867EAD  mov        eax, ecx
+00867EAF  xchg       byte ptr [rbx + 0x5e8d], al
+00867EB5  mov        eax, ecx
+00867EB7  xchg       byte ptr [rbx + 0x8b1d], al
+00867EBD  xchg       byte ptr [rbx + 0xb765], cl
+00867EC3  jmp        0x86832f
+00867EC8  mov        eax, dword ptr [rbx + 0x104]
+00867ECE  nop        
+00867ECF  cmp        eax, r9d
+00867ED2  je         0x86832f
+00867ED8  xchg       dword ptr [rbx + 0x104], r9d
+00867EDF  mov        ecx, 1
+00867EE4  mov        eax, ecx
+00867EE6  xchg       byte ptr [rbx + 0x3240], al
+00867EEC  mov        eax, ecx
+00867EEE  xchg       byte ptr [rbx + 0x5e88], al
+00867EF4  mov        eax, ecx
+00867EF6  xchg       byte ptr [rbx + 0x8b18], al

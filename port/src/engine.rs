@@ -190,6 +190,12 @@ pub fn detector2_in_place(p0: &mut [f32], p1: &mut [f32], g: f32) {
 
 /// `N = (float)(i64)[ctx+0x60]`
 /// `x = ((float)[ctx+0x20] / N) * 0.001f * 500.0f`
+///
+/// M4 (2026-11-25, `checks/u_estado_m4.md`): `[ctx+0x20] = max(a/k, 44100)`
+/// (`0087346D`/`008734C5`), com `a` = taxa do host e `k = max(1,
+/// trunc((a+1)/44100))`; `[ctx+0x60] = [ctx+0x28] >> 1` = `N_ctx/2`
+/// (`008769CA`..`008769D4`). O gate `[ctx+0x58]` só é `1` no ctx A
+/// (`eng+0x5ED8`, `N_ctx = 2048`), então aqui `n = 1024` (medido de 32 a 192 kHz).
 /// `coef = 1 − 0.1^(1/x)` em f64, resultado convertido para f32.
 ///
 /// RVAs: `008B68BC`..`008B68E0` (conversao), `008B68F2` (`divss`),

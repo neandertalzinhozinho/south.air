@@ -1,0 +1,13 @@
+[package]
+name = "soultree_lifted_extra"
+version = "0.0.0"
+edition = "2021"
+description = "M5/M6: funções traduzidas descobertas em execução (complemento de soultree_lifted)"
+
+[dependencies]
+soultree_lifted = { path = "../lifted" }
+
+[profile.release]
+opt-level = 2
+codegen-units = 64
+incremental = true
