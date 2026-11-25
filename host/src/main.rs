@@ -491,6 +491,192 @@ unsafe extern "system" fn host_create_instance(
 }
 
 // ---------------------------------------------------------------------------
+// Parâmetros (SOULTREE_PARAMS="Título=normalizado,..."): API VST3 normal.
+// O host lista os IDs pelo IEditController e entrega os valores no primeiro
+// `process` como IParameterChanges (offset 0). Nada é escrito na memória do
+// plugin; é o mesmo caminho que um DAW usa para automação.
+// ---------------------------------------------------------------------------
+
+const IID_IEDITCONTROLLER: [u8; 16] = tuid(0xDCD7BBE3, 0x7742448D, 0xA874AACC, 0x979C759E);
+
+#[repr(C)]
+struct ParameterInfo {
+    id: u32,
+    title: [u16; 128],
+    short_title: [u16; 128],
+    units: [u16; 128],
+    step_count: i32,
+    default_normalized_value: f64,
+    unit_id: i32,
+    flags: i32,
+}
+
+/// `IEditController` (inclui `IPluginBase`), até `getParameterInfo`.
+#[repr(C)]
+struct EditControllerVtbl {
+    base: FUnknownVtbl,
+    initialize: unsafe extern "system" fn(*mut c_void, *mut c_void) -> Hr,
+    terminate: unsafe extern "system" fn(*mut c_void) -> Hr,
+    set_component_state: unsafe extern "system" fn(*mut c_void, *mut c_void) -> Hr,
+    set_state: unsafe extern "system" fn(*mut c_void, *mut c_void) -> Hr,
+    get_state: unsafe extern "system" fn(*mut c_void, *mut c_void) -> Hr,
+    get_parameter_count: unsafe extern "system" fn(*mut c_void) -> i32,
+    get_parameter_info: unsafe extern "system" fn(*mut c_void, i32, *mut ParameterInfo) -> Hr,
+}
+
+#[repr(C)]
+struct PvqVtbl {
+    base: FUnknownVtbl,
+    get_parameter_id: unsafe extern "system" fn(*mut c_void) -> u32,
+    get_point_count: unsafe extern "system" fn(*mut c_void) -> i32,
+    get_point: unsafe extern "system" fn(*mut c_void, i32, *mut i32, *mut f64) -> Hr,
+    add_point: unsafe extern "system" fn(*mut c_void, i32, f64, *mut i32) -> Hr,
+}
+
+#[repr(C)]
+struct Pvq {
+    vtbl: *const PvqVtbl,
+    id: u32,
+    value: f64,
+}
+
+#[repr(C)]
+struct PcVtbl {
+    base: FUnknownVtbl,
+    get_parameter_count: unsafe extern "system" fn(*mut c_void) -> i32,
+    get_parameter_data: unsafe extern "system" fn(*mut c_void, i32) -> *mut c_void,
+    add_parameter_data: unsafe extern "system" fn(*mut c_void, *const u32, *mut i32) -> *mut c_void,
+}
+
+#[repr(C)]
+struct ParamChanges {
+    vtbl: *const PcVtbl,
+    queues: Vec<Box<Pvq>>,
+}
+
+unsafe extern "system" fn obj_qi(_t: *mut c_void, _iid: *const u8, out: *mut *mut c_void) -> Hr {
+    if !out.is_null() {
+        *out = ptr::null_mut();
+    }
+    K_NO_INTERFACE
+}
+unsafe extern "system" fn obj_ref(_t: *mut c_void) -> u32 {
+    1
+}
+unsafe extern "system" fn pvq_id(t: *mut c_void) -> u32 {
+    (*(t as *const Pvq)).id
+}
+unsafe extern "system" fn pvq_count(_t: *mut c_void) -> i32 {
+    1
+}
+unsafe extern "system" fn pvq_get(t: *mut c_void, i: i32, off: *mut i32, v: *mut f64) -> Hr {
+    if i != 0 {
+        return K_INVALID_ARGUMENT;
+    }
+    *off = 0;
+    *v = (*(t as *const Pvq)).value;
+    K_RESULT_OK
+}
+unsafe extern "system" fn pvq_add(_t: *mut c_void, _o: i32, _v: f64, _i: *mut i32) -> Hr {
+    K_NOT_IMPLEMENTED
+}
+unsafe extern "system" fn pc_count(t: *mut c_void) -> i32 {
+    (*(t as *const ParamChanges)).queues.len() as i32
+}
+unsafe extern "system" fn pc_get(t: *mut c_void, i: i32) -> *mut c_void {
+    let pc = &mut *(t as *mut ParamChanges);
+    match pc.queues.get_mut(i as usize) {
+        Some(q) => &mut **q as *mut Pvq as *mut c_void,
+        None => ptr::null_mut(),
+    }
+}
+unsafe extern "system" fn pc_add(_t: *mut c_void, _id: *const u32, _i: *mut i32) -> *mut c_void {
+    ptr::null_mut()
+}
+
+static PVQ_VTBL: PvqVtbl = PvqVtbl {
+    base: FUnknownVtbl { query_interface: obj_qi, add_ref: obj_ref, release: obj_ref },
+    get_parameter_id: pvq_id,
+    get_point_count: pvq_count,
+    get_point: pvq_get,
+    add_point: pvq_add,
+};
+static PC_VTBL: PcVtbl = PcVtbl {
+    base: FUnknownVtbl { query_interface: obj_qi, add_ref: obj_ref, release: obj_ref },
+    get_parameter_count: pc_count,
+    get_parameter_data: pc_get,
+    add_parameter_data: pc_add,
+};
+
+/// Lê `SOULTREE_PARAMS`, acha os IDs pelos títulos no IEditController e monta o
+/// IParameterChanges. `None` se a variável não estiver definida.
+fn build_param_changes(factory: *mut c_void, comp: *mut c_void, host_ctx: *mut c_void) -> Option<Box<ParamChanges>> {
+    let spec = env::var("SOULTREE_PARAMS").ok().filter(|s| !s.trim().is_empty())?;
+    unsafe {
+        let ctrl = match query_interface(comp, &IID_IEDITCONTROLLER, "IComponent::queryInterface(IEditController)") {
+            Ok(c) => c,
+            Err(_) => {
+                let mut cid = [0u8; 16];
+                let f = (*vt_component(comp)).get_controller_class_id;
+                if f(comp, cid.as_mut_ptr()) != K_RESULT_OK {
+                    fail("SOULTREE_PARAMS: plugin sem IEditController");
+                }
+                let mut c: *mut c_void = ptr::null_mut();
+                let fc = (*vt_factory(factory)).create_instance;
+                if fc(factory, cid.as_ptr(), IID_IEDITCONTROLLER.as_ptr(), &mut c) != K_RESULT_OK || c.is_null() {
+                    fail("SOULTREE_PARAMS: createInstance(IEditController) falhou");
+                }
+                let vt = *(c as *const *const EditControllerVtbl);
+                if ((*vt).initialize)(c, host_ctx) != K_RESULT_OK {
+                    fail("SOULTREE_PARAMS: IEditController::initialize falhou");
+                }
+                c
+            }
+        };
+        // Conecta componente e controller (IConnectionPoint), como um DAW faz; sem isso o
+        // controller JUCE não enxerga o processador e lista 0 parâmetros.
+        const IID_ICONNECTIONPOINT: [u8; 16] = tuid(0x70A4156F, 0x6E6E4026, 0x989148BF, 0xAA60D8D1);
+        #[repr(C)]
+        struct CpVtbl {
+            base: FUnknownVtbl,
+            connect: unsafe extern "system" fn(*mut c_void, *mut c_void) -> Hr,
+        }
+        if let (Ok(a), Ok(b)) = (
+            query_interface(comp, &IID_ICONNECTIONPOINT, "IComponent::queryInterface(IConnectionPoint)"),
+            query_interface(ctrl, &IID_ICONNECTIONPOINT, "IEditController::queryInterface(IConnectionPoint)"),
+        ) {
+            let ca = (**(a as *const *const CpVtbl)).connect;
+            let cb = (**(b as *const *const CpVtbl)).connect;
+            let h1 = call0("IConnectionPoint::connect(componente -> controller)", ca as usize, || ca(a, b));
+            let h2 = call0("IConnectionPoint::connect(controller -> componente)", cb as usize, || cb(b, a));
+            say(&format!("     conexão componente/controller: {} / {}", hr_name(h1), hr_name(h2)));
+        }
+        let vt = *(ctrl as *const *const EditControllerVtbl);
+        let n = ((*vt).get_parameter_count)(ctrl);
+        say(&format!("     IEditController::getParameterCount = {n}"));
+        let mut by_title = std::collections::HashMap::new();
+        for i in 0..n {
+            let mut pi: ParameterInfo = std::mem::zeroed();
+            if ((*vt).get_parameter_info)(ctrl, i, &mut pi) == K_RESULT_OK {
+                let t = utf16z(&pi.title);
+                say(&format!("     parâmetro #{i}: id={} \"{t}\" passos={} default={}", pi.id, pi.step_count, pi.default_normalized_value));
+                by_title.insert(t, pi.id);
+            }
+        }
+        let mut queues = Vec::new();
+        for kv in spec.split(',').filter(|s| !s.trim().is_empty()) {
+            let (k, v) = kv.split_once('=').unwrap_or_else(|| fail("SOULTREE_PARAMS: use Título=valor"));
+            let k = k.trim();
+            let v: f64 = v.trim().parse().unwrap_or_else(|_| fail(&format!("SOULTREE_PARAMS: valor inválido em {kv}")));
+            let id = *by_title.get(k).unwrap_or_else(|| fail(&format!("SOULTREE_PARAMS: parâmetro \"{k}\" não existe")));
+            say(&format!("     SOULTREE_PARAMS: \"{k}\" (id {id}) = {v} no primeiro process"));
+            queues.push(Box::new(Pvq { vtbl: &PVQ_VTBL, id, value: v }));
+        }
+        Some(Box::new(ParamChanges { vtbl: &PC_VTBL, queues }))
+    }
+}
+
+// ---------------------------------------------------------------------------
 // WAV
 // ---------------------------------------------------------------------------
 
@@ -958,6 +1144,8 @@ fn main() {
         ));
     }
 
+    let mut param_changes = build_param_changes(factory, comp, host_ctx);
+
     // ---------------- 6. busses ----------------
     let f = unsafe { (*comp_vt).get_bus_count };
     let n_in = call_value(
@@ -1243,7 +1431,11 @@ fn main() {
             num_outputs: n_out,
             inputs: inputs.as_mut_ptr(),
             outputs: outputs.as_mut_ptr(),
-            input_parameter_changes: ptr::null_mut(),
+            // SOULTREE_PARAMS: entregue só no primeiro bloco (offset 0).
+            input_parameter_changes: match (&mut param_changes, blocks) {
+                (Some(pc), 0) => &mut **pc as *mut ParamChanges as *mut c_void,
+                _ => ptr::null_mut(),
+            },
             output_parameter_changes: ptr::null_mut(),
             input_events: ptr::null_mut(),
             output_events: ptr::null_mut(),

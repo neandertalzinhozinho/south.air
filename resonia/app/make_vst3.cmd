@@ -5,6 +5,8 @@ rem C:\Program Files\Common Files\VST3 to use it in your music software.
 cd /d "%~dp0"
 cargo build --release --features motor || exit /b 1
 if exist dist\Resonia.vst3 rmdir /s /q dist\Resonia.vst3
-target\release\resonia-app.exe --make-vst3 target\release\resonia.dll dist || exit /b 1
-copy /y target\release\resonia-app.exe dist\ >nul
+rem target explicito em .cargo\config.toml: a saida fica em target\x86_64-pc-windows-msvc\release
+set OUT=target\x86_64-pc-windows-msvc\release
+%OUT%\resonia-app.exe --make-vst3 %OUT%\resonia.dll dist || exit /b 1
+copy /y %OUT%\resonia-app.exe dist\ >nul
 echo Done: dist\Resonia.vst3

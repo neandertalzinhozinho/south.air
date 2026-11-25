@@ -1,5 +1,11 @@
 # Desempenho: o motor traduzido executa o caminho AVX2/FMA da IPP; com estes recursos
 # habilitados, os intrinsics de rt.rs (fmadd/addsub etc.) são inlinados em vez de chamados.
 # Não muda valores: cada operação float continua sendo o intrinsic explícito.
+#
+# `target` explícito: assim os rustflags valem só para o código do plugin, e não para os
+# scripts de build das dependências. Eles continuam idênticos aos já compilados e não são
+# recompilados com outro hash; um script recompilado foi bloqueado pelo Smart App Control
+# (os error 4551) em 2026-11-25. Saída: target\x86_64-pc-windows-msvc\release.
 [build]
+target = "x86_64-pc-windows-msvc"
 rustflags = ["-C", "target-feature=+avx,+avx2,+fma,+bmi1,+bmi2,+lzcnt,+popcnt,+f16c"]

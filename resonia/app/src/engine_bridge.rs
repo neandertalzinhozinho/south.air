@@ -91,7 +91,7 @@ impl BridgeStatus {
         match self.state() {
             EngineState::NoMotorBuild => "none (pass-through, no DSP)",
             EngineState::NotPrepared => "not prepared (pass-through)",
-            EngineState::Running => "soothe3 lifted engine (emulated)",
+            EngineState::Running => "soothe3 engine (translated from binary, bit-exact)",
             EngineState::DumpMissing => "DUMP NOT FOUND - bypass (pass-through)",
             EngineState::Failed => "ENGINE ERROR - bypass (pass-through)",
         }
@@ -100,7 +100,7 @@ impl BridgeStatus {
     /// Aviso/detalhe: desempenho (motor ativo), caminho do dump ou mensagem do erro.
     pub fn detail(&self) -> String {
         match self.state() {
-            EngineState::Running => "Emulated engine is ~2x slower than real time: live playback will stutter; offline render/bounce works.".to_string(),
+            EngineState::Running => "Null-test vs original: bit-identical (default at 44.1/48/96 kHz; low latency/high/ultra at 48 kHz). Ultra at 96 kHz may not keep up in real time.".to_string(),
             _ => self.detail.lock().map(|d| d.clone()).unwrap_or_default(),
         }
     }
