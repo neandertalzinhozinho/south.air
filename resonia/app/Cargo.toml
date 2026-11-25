@@ -37,11 +37,11 @@ strip = "symbols"
 # O codigo traduzido e enorme (~24 MB de Rust): mesmo perfil de lifted/Cargo.toml (perfis de
 # dependencias nao valem, entao repetimos aqui).
 [profile.release.package.soultree_lifted]
-opt-level = 2
+opt-level = 3
 codegen-units = 64
 incremental = false
 
 [profile.release.package.soultree_lifted_extra]
-opt-level = 2
+opt-level = 3
 codegen-units = 64
 incremental = false

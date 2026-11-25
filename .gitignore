@@ -37,3 +37,6 @@ __pycache__/
 # Código traduzido do dump: gerado por tools/lift/lift.py (regenerar com lifted/roots.txt e lifted_extra/roots.txt)
 /lifted/src/gen_engine.rs
 /lifted_extra/src/gen_extra.rs
+
+# Worktrees de agentes do Claude Code
+/.claude/

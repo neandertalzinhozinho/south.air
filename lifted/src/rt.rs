@@ -37,7 +37,7 @@ const PAGE: u64 = 4096;
 
 thread_local! {
     /// RVA do último bloco básico iniciado (diagnóstico em mensagens de erro).
-    pub static CUR: std::cell::Cell<u32> = std::cell::Cell::new(0);
+    pub static CUR: std::cell::Cell<u32> = const { std::cell::Cell::new(0) };
 }
 
 #[inline(always)]
@@ -50,7 +50,7 @@ pub fn cur() -> u32 {
 }
 
 /// Fonte só-leitura da imagem (bytes indexados por RVA).
-pub trait ImageSource {
+pub trait ImageSource: Send {
     fn read_page(&self, rva: u64, out: &mut [u8; 4096]);
 }
 
@@ -66,42 +66,124 @@ impl ImageSource for DumpImage {
     }
 }
 
+type Page = [u8; 4096];
+
+/// Entradas do cache direto de páginas (endereço da página -> ponteiro).
+const TLB: usize = 256;
+/// Limite do índice de páginas do heap guardado em vetor (4 GiB); acima disso, mapa.
+const HEAP_VEC_MAX: u64 = 1 << 20;
+const STACK_LO: u64 = STACK_TOP - STACK_SIZE;
+
+/// Memória emulada. Desempenho (não muda valores): páginas em vetores por região (imagem,
+/// heap, pilha) com um cache direto `endereço de página -> ponteiro`; acessos de 1..16 bytes
+/// dentro de uma página leem/escrevem direto, sem cópia por byte. As páginas são `Box` e
+/// nunca são liberadas nem movidas, então os ponteiros do cache ficam válidos.
 pub struct Mem {
-    pages: HashMap<u64, Box<[u8; 4096]>>,
+    img: Vec<Option<Box<Page>>>,
+    heap: Vec<Option<Box<Page>>>,
+    stack: Vec<Option<Box<Page>>>,
+    other: HashMap<u64, Box<Page>>,
+    tlb_tag: [u64; TLB],
+    tlb_ptr: [*mut Page; TLB],
     pub image: Option<Box<dyn ImageSource>>,
     /// Páginas da imagem lidas (RVA da página), para congelar.
     pub image_touched: std::collections::BTreeSet<u64>,
     pub heap_next: u64,
 }
 
+// Os ponteiros crus só apontam para páginas que o próprio `Mem` possui.
+unsafe impl Send for Mem {}
+
 impl Mem {
     pub fn new(image: Option<Box<dyn ImageSource>>) -> Mem {
         Mem {
-            pages: HashMap::new(),
+            img: (0..IMAGE_SIZE / PAGE).map(|_| None).collect(),
+            heap: Vec::new(),
+            stack: (0..(STACK_TOP + PAGE - STACK_LO) / PAGE).map(|_| None).collect(),
+            other: HashMap::new(),
+            tlb_tag: [u64::MAX; TLB],
+            tlb_ptr: [std::ptr::null_mut(); TLB],
             image,
             image_touched: Default::default(),
             heap_next: HEAP_BASE,
         }
     }
 
-    #[inline]
-    fn page(&mut self, addr: u64) -> &mut [u8; 4096] {
-        let pa = addr & !(PAGE - 1);
-        if !self.pages.contains_key(&pa) {
-            let mut p = Box::new([0u8; 4096]);
-            if pa >= IMAGE_BASE && pa < IMAGE_BASE + IMAGE_SIZE {
+    #[inline(always)]
+    fn page_ptr(&mut self, pa: u64) -> *mut Page {
+        let i = ((pa >> 12) as usize) & (TLB - 1);
+        if self.tlb_tag[i] == pa {
+            return self.tlb_ptr[i];
+        }
+        let p = self.page_slow(pa);
+        self.tlb_tag[i] = pa;
+        self.tlb_ptr[i] = p;
+        p
+    }
+
+    #[inline(never)]
+    fn page_slow(&mut self, pa: u64) -> *mut Page {
+        if pa >= IMAGE_BASE && pa < IMAGE_BASE + IMAGE_SIZE {
+            let idx = ((pa - IMAGE_BASE) / PAGE) as usize;
+            if self.img[idx].is_none() {
                 let rva = pa - IMAGE_BASE;
+                let mut p = Box::new([0u8; 4096]);
                 match &self.image {
                     Some(img) => img.read_page(rva, &mut p),
                     None => panic!("leitura da imagem sem fonte: RVA 0x{rva:X}"),
                 }
                 self.image_touched.insert(rva);
-            } else if !(pa >= HEAP_BASE && pa < STACK_TOP + PAGE) {
-                panic!("acesso fora das regiões conhecidas: 0x{addr:X} (bloco 0x{:X})", cur());
+                self.img[idx] = Some(p);
             }
-            self.pages.insert(pa, p);
+            return &mut **self.img[idx].as_mut().unwrap() as *mut Page;
         }
-        self.pages.get_mut(&pa).unwrap()
+        if pa >= STACK_LO && pa < STACK_TOP + PAGE {
+            let idx = ((pa - STACK_LO) / PAGE) as usize;
+            return &mut **self.stack[idx].get_or_insert_with(|| Box::new([0u8; 4096])) as *mut Page;
+        }
+        if pa >= HEAP_BASE && pa < STACK_TOP + PAGE {
+            let idx = (pa - HEAP_BASE) / PAGE;
+            if idx < HEAP_VEC_MAX {
+                let idx = idx as usize;
+                if idx >= self.heap.len() {
+                    self.heap.resize_with(idx + 1, || None);
+                }
+                return &mut **self.heap[idx].get_or_insert_with(|| Box::new([0u8; 4096])) as *mut Page;
+            }
+            return &mut **self.other.entry(pa).or_insert_with(|| Box::new([0u8; 4096])) as *mut Page;
+        }
+        panic!("acesso fora das regiões conhecidas: 0x{pa:X} (bloco 0x{:X})", cur());
+    }
+
+    #[inline]
+    fn page(&mut self, addr: u64) -> &mut Page {
+        let p = self.page_ptr(addr & !(PAGE - 1));
+        unsafe { &mut *p }
+    }
+
+    /// Leitura de `N` bytes; caminho direto quando não cruza página.
+    #[inline(always)]
+    fn rd<const N: usize>(&mut self, a: u64) -> [u8; N] {
+        let off = (a & (PAGE - 1)) as usize;
+        if off + N <= PAGE as usize {
+            let p = self.page_ptr(a & !(PAGE - 1));
+            unsafe { std::ptr::read_unaligned((p as *const u8).add(off) as *const [u8; N]) }
+        } else {
+            let mut b = [0u8; N];
+            self.read(a, &mut b);
+            b
+        }
+    }
+
+    #[inline(always)]
+    fn wr<const N: usize>(&mut self, a: u64, v: [u8; N]) {
+        let off = (a & (PAGE - 1)) as usize;
+        if off + N <= PAGE as usize {
+            let p = self.page_ptr(a & !(PAGE - 1));
+            unsafe { std::ptr::write_unaligned((p as *mut u8).add(off) as *mut [u8; N], v) }
+        } else {
+            self.write(a, &v);
+        }
     }
 
     pub fn read(&mut self, addr: u64, out: &mut [u8]) {
@@ -130,45 +212,45 @@ impl Mem {
         }
     }
 
+    #[inline(always)]
     pub fn r8(&mut self, a: u64) -> u8 {
-        let mut b = [0u8; 1];
-        self.read(a, &mut b);
-        b[0]
+        self.rd::<1>(a)[0]
     }
+    #[inline(always)]
     pub fn r16(&mut self, a: u64) -> u16 {
-        let mut b = [0u8; 2];
-        self.read(a, &mut b);
-        u16::from_le_bytes(b)
+        u16::from_le_bytes(self.rd(a))
     }
+    #[inline(always)]
     pub fn r32(&mut self, a: u64) -> u32 {
-        let mut b = [0u8; 4];
-        self.read(a, &mut b);
-        u32::from_le_bytes(b)
+        u32::from_le_bytes(self.rd(a))
     }
+    #[inline(always)]
     pub fn r64(&mut self, a: u64) -> u64 {
-        let mut b = [0u8; 8];
-        self.read(a, &mut b);
-        u64::from_le_bytes(b)
+        u64::from_le_bytes(self.rd(a))
     }
+    #[inline(always)]
     pub fn r128(&mut self, a: u64) -> u128 {
-        let mut b = [0u8; 16];
-        self.read(a, &mut b);
-        u128::from_le_bytes(b)
+        u128::from_le_bytes(self.rd(a))
     }
+    #[inline(always)]
     pub fn w8(&mut self, a: u64, v: u8) {
-        self.write(a, &[v]);
+        self.wr(a, [v]);
     }
+    #[inline(always)]
     pub fn w16(&mut self, a: u64, v: u16) {
-        self.write(a, &v.to_le_bytes());
+        self.wr(a, v.to_le_bytes());
     }
+    #[inline(always)]
     pub fn w32(&mut self, a: u64, v: u32) {
-        self.write(a, &v.to_le_bytes());
+        self.wr(a, v.to_le_bytes());
     }
+    #[inline(always)]
     pub fn w64(&mut self, a: u64, v: u64) {
-        self.write(a, &v.to_le_bytes());
+        self.wr(a, v.to_le_bytes());
     }
+    #[inline(always)]
     pub fn w128(&mut self, a: u64, v: u128) {
-        self.write(a, &v.to_le_bytes());
+        self.wr(a, v.to_le_bytes());
     }
 
     /// Bump allocator do heap emulado (alinhamento 64).
@@ -210,6 +292,10 @@ pub struct Cpu {
     /// `gs:[0x58]` (ThreadLocalStoragePointer) emulado: array de ponteiros para blocos
     /// TLS zerados, alocado sob demanda.
     pub tls: u64,
+    /// RVA do bloco básico corrente (diagnóstico).
+    pub cur: u32,
+    /// Perfil opcional: RVA do bloco -> (execuções, instruções). Ligado por `prof_on()`.
+    pub prof: Option<Box<HashMap<u32, (u64, u64)>>>,
 }
 
 impl Cpu {
@@ -228,12 +314,36 @@ impl Cpu {
             df: false,
             static_guards: Default::default(),
             tls: 0,
+            cur: 0,
+            prof: None,
         };
         c.r[RSP] = STACK_TOP - 0x100;
         c
     }
 
     /// Leitura de `gs:[disp]` (TEB). Só `0x58` (TLS) é emulado; o resto para.
+    /// Entrada de bloco básico (emitida por `tools/lift/lift.py`): RVA corrente, contador de
+    /// instruções do bloco e perfil opcional. Não toca registradores, flags nem memória.
+    #[inline(always)]
+    pub fn blk(&mut self, rva: u32, n: u64) {
+        self.cur = rva;
+        self.icount += n;
+        if self.prof.is_some() {
+            self.prof_hit(rva, n);
+        }
+    }
+
+    #[inline(never)]
+    fn prof_hit(&mut self, rva: u32, n: u64) {
+        let e = self.prof.as_mut().unwrap().entry(rva).or_insert((0, 0));
+        e.0 += 1;
+        e.1 += n;
+    }
+
+    pub fn prof_on(&mut self) {
+        self.prof = Some(Box::default());
+    }
+
     pub fn gs_read(&mut self, disp: u64, site: u32) -> u64 {
         match disp {
             0x58 => {
@@ -296,10 +406,12 @@ impl Cpu {
 
     // ---- flags ----
     #[inline]
+    #[inline(always)]
     fn parity(v: u64) -> bool {
         (v as u8).count_ones() % 2 == 0
     }
 
+    #[inline(always)]
     pub fn fl_logic(&mut self, res: u64, bits: u32) {
         let m = mask(bits);
         let r = res & m;
@@ -310,6 +422,7 @@ impl Cpu {
         self.pf = Self::parity(r);
     }
 
+    #[inline(always)]
     pub fn fl_add(&mut self, a: u64, b: u64, bits: u32) -> u64 {
         let m = mask(bits);
         let (a, b) = (a & m, b & m);
@@ -323,6 +436,7 @@ impl Cpu {
         r
     }
 
+    #[inline(always)]
     pub fn fl_sub(&mut self, a: u64, b: u64, bits: u32) -> u64 {
         let m = mask(bits);
         let (a, b) = (a & m, b & m);
@@ -337,6 +451,7 @@ impl Cpu {
     }
 
     /// inc/dec preservam CF.
+    #[inline(always)]
     pub fn fl_incdec(&mut self, a: u64, inc: bool, bits: u32) -> u64 {
         let cf = self.cf;
         let r = if inc { self.fl_add(a, 1, bits) } else { self.fl_sub(a, 1, bits) };
@@ -345,6 +460,7 @@ impl Cpu {
     }
 
     /// comiss/comisd/ucomis*: ZF,PF,CF; OF=SF=0.
+    #[inline(always)]
     pub fn fl_comi(&mut self, unordered: bool, lt: bool, eq: bool) {
         self.of = false;
         self.sf = false;

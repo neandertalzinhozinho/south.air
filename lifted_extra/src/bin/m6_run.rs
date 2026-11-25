@@ -106,9 +106,23 @@ fn main() {
         soultree_lifted::api::call_abi(&mut e.cpu, 0x863070, &[]);
         eprintln!("defaults aplicados (icount={})", e.cpu.icount);
     }
+    // M6_SET="i=norm,i=norm": parâmetros normalizados aplicados depois dos defaults
+    // (ex.: "1=1" liga Low latency, entrada 1 da tabela 0x238E9C0).
+    if let Ok(s) = std::env::var("M6_SET") {
+        for kv in s.split(',').filter(|x| !x.is_empty()) {
+            let (k, v) = kv.split_once('=').expect("M6_SET: i=valor");
+            e.set_param(k.trim().parse().unwrap(), v.trim().parse().unwrap());
+        }
+        e.cpu.r[RCX] = e.handle;
+        soultree_lifted::api::call_abi(&mut e.cpu, 0x863020, &[]);
+        eprintln!("M6_SET={s}: latência (0x863020) = {}", e.cpu.r[RAX] as u32 as i32);
+    }
     // process = 0x862F00(handle, rdx = saídas, r8 = entradas, r9 = 0 (sem sidechain), [rsp+0x28] = n).
     // Medido no motor traduzido: com r8 = sinal e rdx = buffer, a saída processada sai em rdx e
     // r8 fica intacto; com r8 = 0 a saída é 0 (checks/w_cadeia_m6.md §1).
+    if std::env::var("M6_PROF").is_ok() {
+        e.cpu.prof_on();
+    }
     let n = input[0].len();
     let mut out = vec![vec![0f32; n]; e.n_out];
     let ia = e.cpu.mem.alloc(64);
@@ -185,6 +199,16 @@ fn main() {
         pos += m;
     }
     eprintln!("processado: {n} frames, icount={} ({:?})", e.cpu.icount, t0.elapsed());
+    if let Some(p) = e.cpu.prof.take() {
+        // Perfil por bloco: "RVA execuções instruções" (agrupar por função com o gen_*.rs).
+        let mut v: Vec<_> = p.into_iter().collect();
+        v.sort_by(|a, b| b.1 .1.cmp(&a.1 .1));
+        let path = std::env::var("M6_PROF").unwrap();
+        let txt: String = v.iter().map(|(r, (k, n))| format!("{r:X} {k} {n}
+")).collect();
+        std::fs::write(&path, txt).expect("M6_PROF");
+        eprintln!("perfil gravado em {path}");
+    }
     if let Ok(p) = std::env::var("M6_DUMP") {
         let eng = e.engine_ptr();
         let mut buf = vec![0u8; 0x600];

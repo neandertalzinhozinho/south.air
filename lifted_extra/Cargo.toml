@@ -8,6 +8,6 @@ description = "M5/M6: funções traduzidas descobertas em execução (complement
 soultree_lifted = { path = "../lifted" }
 
 [profile.release]
-opt-level = 2
+opt-level = 3
 codegen-units = 64
 incremental = true

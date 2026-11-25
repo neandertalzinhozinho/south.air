@@ -1232,6 +1232,63 @@ def static_indirect_targets(entry):
     return out
 
 
+_HDR = re.compile(r'^(\s*)0x([0-9A-F]+) => \{ super::rt::set_cur\(0x\2\);(.*)$')
+_SW = re.compile(r'match t \{ ((?:0x[0-9A-F]+(?: \| )?)+) => \{ pc = t; continue; \}')
+
+
+def densify(code):
+    """Desempenho (não muda a semântica nem a ordem das instruções):
+    - blocos numerados 0..k na ordem do texto, para o `match pc` virar tabela de saltos
+      (com RVAs esparsos o compilador gera árvore de comparações a cada troca de bloco);
+    - `c.icount += 1` por instrução vira `c.blk(rva, n)` uma vez por bloco (o contador e o
+      RVA do bloco corrente continuam disponíveis para diagnóstico e perfil).
+    O RVA de cada bloco segue no cabeçalho como comentário e em `c.blk`."""
+    lines = code.split('\n')
+    idx, order = {}, []
+    for ln in lines:
+        m = _HDR.match(ln)
+        if m:
+            idx[int(m.group(2), 16)] = len(order)
+            order.append(int(m.group(2), 16))
+    if not order:
+        return code
+
+    def tgt(mo):
+        t = int(mo.group(1), 16)
+        return f'pc = {idx[t]};' if t in idx else mo.group(0)
+
+    def sw(mo):
+        arms = [int(a, 16) for a in mo.group(1).split(' | ')]
+        return 'match t { ' + ' '.join(
+            (f'0x{a:X} => {{ pc = {idx[a]}; continue; }}' if a in idx else f'0x{a:X} => {{ pc = u32::MAX; continue; }}')
+            for a in arms)
+    out, hdr_at, n = [], None, 0
+
+    def close():
+        if hdr_at is not None:
+            out[hdr_at] = out[hdr_at].replace('@@N@@', str(n))
+    for ln in lines:
+        m = _HDR.match(ln)
+        if m:
+            close()
+            rva = int(m.group(2), 16)
+            out.append(f'{m.group(1)}{idx[rva]} => {{ c.blk(0x{rva:X}, @@N@@);{m.group(3)}')
+            hdr_at, n = len(out) - 1, 0
+            continue
+        if ln.lstrip().startswith('_ => panic!("pc fora de bloco'):
+            close()
+            hdr_at = None
+        n += ln.count('c.icount += 1; ')
+        ln = ln.replace('c.icount += 1; ', '')
+        ln = re.sub(r'let mut pc: u32 = 0x([0-9A-F]+);',
+                    lambda mo: f'let mut pc: u32 = {idx[int(mo.group(1), 16)]};', ln)
+        ln = _SW.sub(sw, ln)
+        ln = re.sub(r'pc = 0x([0-9A-F]+);', tgt, ln)
+        out.append(ln)
+    close()
+    return '\n'.join(out)
+
+
 def main():
     import os
     outp = sys.argv[1]
@@ -1269,7 +1326,7 @@ def main():
            f'//! {len(done)} funções, {sum(n for _, n in done.values())} instruções.',
            '#![allow(unused_mut, unused_variables, unreachable_code, unused_braces, clippy::all)]',
            'use super::rt::Cpu;', '']
-    body = [done[f][0] for f in sorted(done)]
+    body = [densify(done[f][0]) for f in sorted(done)]
     disp = ['', '/// Funções traduzidas neste arquivo.',
             'pub fn lifted(rva: u32) -> Option<fn(&mut Cpu)> {', '    Some(match rva {']
     for f in sorted(done):
@@ -1283,6 +1340,17 @@ def main():
         disp.append(f'        0x{sl:X} => "{nm}", // {dll}')
     disp += ['        _ => return None,', '    })', '}']
     out_txt = '\n'.join(hdr + body + disp) + '\n'
+
+    # Desempenho (não muda a semântica): chamada direta a alvo traduzido, sem passar pelo
+    # despacho por `match` de `call`. Folhas e alvos desconhecidos seguem por `super::call`.
+    def _direct(mo):
+        t = int(mo.group(1), 16)
+        if t in done:
+            return f'f_{t:x}(c)'
+        if t in excluded:
+            return f'super::gen_engine::f_{t:x}(c)'
+        return mo.group(0)
+    out_txt = re.sub(r'super::call\(c, 0x([0-9A-F]+)\)', _direct, out_txt)
     if prefix != 'super::':
         out_txt = out_txt.replace('super::', prefix)
     open(outp, 'w', encoding='utf-8').write(out_txt)
