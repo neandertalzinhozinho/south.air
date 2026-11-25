@@ -1,0 +1,5 @@
+# Desempenho: o motor traduzido executa o caminho AVX2/FMA da IPP; com estes recursos
+# habilitados, os intrinsics de rt.rs (fmadd/addsub etc.) são inlinados em vez de chamados.
+# Não muda valores: cada operação float continua sendo o intrinsic explícito.
+[build]
+rustflags = ["-C", "target-feature=+avx,+avx2,+fma,+bmi1,+bmi2,+lzcnt,+popcnt,+f16c"]

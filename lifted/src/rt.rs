@@ -45,12 +45,14 @@ pub fn set_cur(rva: u32) {
     CUR.with(|c| c.set(rva));
 }
 
+#[inline]
 pub fn cur() -> u32 {
     CUR.with(|c| c.get())
 }
 
 /// Fonte só-leitura da imagem (bytes indexados por RVA).
 pub trait ImageSource: Send {
+    #[inline]
     fn read_page(&self, rva: u64, out: &mut [u8; 4096]);
 }
 
@@ -58,6 +60,7 @@ pub trait ImageSource: Send {
 pub struct DumpImage(pub Vec<u8>);
 
 impl ImageSource for DumpImage {
+    #[inline]
     fn read_page(&self, rva: u64, out: &mut [u8; 4096]) {
         let s = rva as usize;
         for (i, b) in out.iter_mut().enumerate() {
@@ -95,6 +98,7 @@ pub struct Mem {
 unsafe impl Send for Mem {}
 
 impl Mem {
+    #[inline]
     pub fn new(image: Option<Box<dyn ImageSource>>) -> Mem {
         Mem {
             img: (0..IMAGE_SIZE / PAGE).map(|_| None).collect(),
@@ -186,6 +190,7 @@ impl Mem {
         }
     }
 
+    #[inline]
     pub fn read(&mut self, addr: u64, out: &mut [u8]) {
         let mut a = addr;
         let mut i = 0;
@@ -199,6 +204,7 @@ impl Mem {
         }
     }
 
+    #[inline]
     pub fn write(&mut self, addr: u64, data: &[u8]) {
         let mut a = addr;
         let mut i = 0;
@@ -254,6 +260,7 @@ impl Mem {
     }
 
     /// Bump allocator do heap emulado (alinhamento 64).
+    #[inline]
     pub fn alloc(&mut self, size: u64) -> u64 {
         let a = (self.heap_next + 63) & !63;
         self.heap_next = a + size.max(1);
@@ -261,9 +268,11 @@ impl Mem {
         a
     }
 
+    #[inline]
     pub fn read_f32s(&mut self, a: u64, n: usize) -> Vec<f32> {
         (0..n).map(|i| f32::from_bits(self.r32(a + 4 * i as u64))).collect()
     }
+    #[inline]
     pub fn write_f32s(&mut self, a: u64, v: &[f32]) {
         for (i, x) in v.iter().enumerate() {
             self.w32(a + 4 * i as u64, x.to_bits());
@@ -299,6 +308,7 @@ pub struct Cpu {
 }
 
 impl Cpu {
+    #[inline]
     pub fn new(mem: Mem) -> Cpu {
         let mut c = Cpu {
             r: [0; 16],
@@ -340,10 +350,12 @@ impl Cpu {
         e.1 += n;
     }
 
+    #[inline]
     pub fn prof_on(&mut self) {
         self.prof = Some(Box::default());
     }
 
+    #[inline]
     pub fn gs_read(&mut self, disp: u64, site: u32) -> u64 {
         match disp {
             0x58 => {
@@ -752,82 +764,104 @@ pub mod avx {
     use std::arch::x86_64::*;
 
     #[target_feature(enable = "fma")]
+    #[inline]
     unsafe fn fmadd_ps_(a: __m128, b: __m128, c: __m128) -> __m128 {
         _mm_fmadd_ps(a, b, c)
     }
     #[target_feature(enable = "fma")]
+    #[inline]
     unsafe fn fmadd_ss_(a: __m128, b: __m128, c: __m128) -> __m128 {
         _mm_fmadd_ss(a, b, c)
     }
     #[target_feature(enable = "fma")]
+    #[inline]
     unsafe fn fmsub_ps_(a: __m128, b: __m128, c: __m128) -> __m128 {
         _mm_fmsub_ps(a, b, c)
     }
     #[target_feature(enable = "fma")]
+    #[inline]
     unsafe fn fnmadd_ps_(a: __m128, b: __m128, c: __m128) -> __m128 {
         _mm_fnmadd_ps(a, b, c)
     }
     #[target_feature(enable = "fma")]
+    #[inline]
     unsafe fn fnmadd_ss_(a: __m128, b: __m128, c: __m128) -> __m128 {
         _mm_fnmadd_ss(a, b, c)
     }
     #[target_feature(enable = "fma")]
+    #[inline]
     unsafe fn fmsub_ss_(a: __m128, b: __m128, c: __m128) -> __m128 {
         _mm_fmsub_ss(a, b, c)
     }
     #[target_feature(enable = "fma")]
+    #[inline]
     unsafe fn fmadd_sd_(a: __m128d, b: __m128d, c: __m128d) -> __m128d {
         _mm_fmadd_sd(a, b, c)
     }
     #[target_feature(enable = "fma")]
+    #[inline]
     unsafe fn fnmadd_sd_(a: __m128d, b: __m128d, c: __m128d) -> __m128d {
         _mm_fnmadd_sd(a, b, c)
     }
     #[target_feature(enable = "fma")]
+    #[inline]
     unsafe fn fmsub_sd_(a: __m128d, b: __m128d, c: __m128d) -> __m128d {
         _mm_fmsub_sd(a, b, c)
     }
 
     /// a·b + c (packed, 4 lanes)
+    #[inline]
     pub fn fmadd_ps(a: u128, b: u128, c: u128) -> u128 {
         unsafe { ups(fmadd_ps_(ps(a), ps(b), ps(c))) }
     }
+    #[inline]
     pub fn fmsub_ps(a: u128, b: u128, c: u128) -> u128 {
         unsafe { ups(fmsub_ps_(ps(a), ps(b), ps(c))) }
     }
+    #[inline]
     pub fn fnmadd_ps(a: u128, b: u128, c: u128) -> u128 {
         unsafe { ups(fnmadd_ps_(ps(a), ps(b), ps(c))) }
     }
     /// lane 0 = a0·b0 + c0; lanes 1..3 de a.
+    #[inline]
     pub fn fmadd_ss(a: u128, b: u128, c: u128) -> u128 {
         unsafe { ups(fmadd_ss_(ps(a), ps(b), ps(c))) }
     }
+    #[inline]
     pub fn fmsub_ss(a: u128, b: u128, c: u128) -> u128 {
         unsafe { ups(fmsub_ss_(ps(a), ps(b), ps(c))) }
     }
+    #[inline]
     pub fn fnmadd_ss(a: u128, b: u128, c: u128) -> u128 {
         unsafe { ups(fnmadd_ss_(ps(a), ps(b), ps(c))) }
     }
+    #[inline]
     pub fn fmadd_sd(a: u128, b: u128, c: u128) -> u128 {
         unsafe { upd(fmadd_sd_(pd(a), pd(b), pd(c))) }
     }
     /// -(a·b + c) com um arredondamento: FMA com o sinal invertido (exato).
+    #[inline]
     pub fn fnmsub_ss(a: u128, b: u128, c: u128) -> u128 {
         fmadd_ss(a, b, c) ^ 0x8000_0000u128
     }
+    #[inline]
     pub fn fnmsub_ps(a: u128, b: u128, c: u128) -> u128 {
         fmadd_ps(a, b, c) ^ 0x8000_0000_8000_0000_8000_0000_8000_0000u128
     }
+    #[inline]
     pub fn fnmsub_sd(a: u128, b: u128, c: u128) -> u128 {
         fmadd_sd(a, b, c) ^ 0x8000_0000_0000_0000u128
     }
+    #[inline]
     pub fn fnmadd_sd(a: u128, b: u128, c: u128) -> u128 {
         unsafe { upd(fnmadd_sd_(pd(a), pd(b), pd(c))) }
     }
+    #[inline]
     pub fn fmsub_sd(a: u128, b: u128, c: u128) -> u128 {
         unsafe { upd(fmsub_sd_(pd(a), pd(b), pd(c))) }
     }
     /// vblendvps por metade: lane de b onde o bit de sinal de m é 1.
+    #[inline]
     pub fn blendv_ps(a: u128, b: u128, m: u128) -> u128 {
         let (a, b, m) = (lanes32(a), lanes32(b), lanes32(m));
         let mut r = [0u32; 4];
@@ -836,12 +870,15 @@ pub mod avx {
         }
         from32(r)
     }
+    #[inline]
     pub fn broadcast32(v: u32) -> u128 {
         from32([v, v, v, v])
     }
+    #[inline]
     pub fn rcp_ps(a: u128) -> u128 {
         unsafe { ups(_mm_rcp_ps(ps(a))) }
     }
+    #[inline]
     pub fn cmp_ps(a: u128, b: u128, pred: u8) -> u128 {
         let (x, y) = (lanes32(a), lanes32(b));
         let mut r = [0u32; 4];
@@ -875,46 +912,59 @@ pub mod avx {
 // ---------------------------------------------------------------------------
 pub mod ilane {
     use super::sse::{from32, from64, lanes32, lanes64};
+    #[inline]
     pub fn map2(a: u128, b: u128, f: impl Fn(u32, u32) -> u32) -> u128 {
         let (x, y) = (lanes32(a), lanes32(b));
         from32([f(x[0], y[0]), f(x[1], y[1]), f(x[2], y[2]), f(x[3], y[3])])
     }
+    #[inline]
     pub fn paddd(a: u128, b: u128) -> u128 {
         map2(a, b, |p, q| p.wrapping_add(q))
     }
+    #[inline]
     pub fn psubd(a: u128, b: u128) -> u128 {
         map2(a, b, |p, q| p.wrapping_sub(q))
     }
+    #[inline]
     pub fn pcmpeqd(a: u128, b: u128) -> u128 {
         map2(a, b, |p, q| if p == q { u32::MAX } else { 0 })
     }
+    #[inline]
     pub fn pcmpgtd(a: u128, b: u128) -> u128 {
         map2(a, b, |p, q| if (p as i32) > (q as i32) { u32::MAX } else { 0 })
     }
+    #[inline]
     pub fn pslld(a: u128, n: u64) -> u128 {
         if n > 31 { 0 } else { map2(a, 0, |p, _| p << n) }
     }
+    #[inline]
     pub fn psrld(a: u128, n: u64) -> u128 {
         if n > 31 { 0 } else { map2(a, 0, |p, _| p >> n) }
     }
+    #[inline]
     pub fn psrad(a: u128, n: u64) -> u128 {
         let n = n.min(31);
         map2(a, 0, |p, _| ((p as i32) >> n) as u32)
     }
+    #[inline]
     pub fn punpcklqdq(a: u128, b: u128) -> u128 {
         from64([lanes64(a)[0], lanes64(b)[0]])
     }
+    #[inline]
     pub fn punpckhqdq(a: u128, b: u128) -> u128 {
         from64([lanes64(a)[1], lanes64(b)[1]])
     }
+    #[inline]
     pub fn punpckldq(a: u128, b: u128) -> u128 {
         let (x, y) = (lanes32(a), lanes32(b));
         from32([x[0], y[0], x[1], y[1]])
     }
+    #[inline]
     pub fn punpckhdq(a: u128, b: u128) -> u128 {
         let (x, y) = (lanes32(a), lanes32(b));
         from32([x[2], y[2], x[3], y[3]])
     }
+    #[inline]
     pub fn movmskps(lo: u128, hi: u128, n: usize) -> u64 {
         let mut m = 0u64;
         for i in 0..n {
@@ -924,12 +974,14 @@ pub mod ilane {
         m
     }
     /// `vrsqrtps`: aproximação do hardware (como `vrcpps`, bit a bit só na mesma CPU).
+    #[inline]
     pub fn rsqrt_ps(a: u128) -> u128 {
         use std::arch::x86_64::*;
         unsafe { super::sse::ups(_mm_rsqrt_ps(super::sse::ps(a))) }
     }
 }
 
+#[inline]
 pub fn get_mxcsr() -> u32 {
     #[allow(deprecated)]
     unsafe {
@@ -937,6 +989,7 @@ pub fn get_mxcsr() -> u32 {
     }
 }
 
+#[inline]
 pub fn set_mxcsr(v: u32) {
     #[allow(deprecated)]
     unsafe {
@@ -951,74 +1004,95 @@ pub mod avxd {
     use super::sse::*;
     use std::arch::x86_64::*;
     #[target_feature(enable = "fma")]
+    #[inline]
     unsafe fn fmadd_pd_(a: __m128d, b: __m128d, c: __m128d) -> __m128d {
         _mm_fmadd_pd(a, b, c)
     }
     #[target_feature(enable = "fma")]
+    #[inline]
     unsafe fn fmsub_pd_(a: __m128d, b: __m128d, c: __m128d) -> __m128d {
         _mm_fmsub_pd(a, b, c)
     }
     #[target_feature(enable = "fma")]
+    #[inline]
     unsafe fn fnmadd_pd_(a: __m128d, b: __m128d, c: __m128d) -> __m128d {
         _mm_fnmadd_pd(a, b, c)
     }
     #[target_feature(enable = "fma")]
+    #[inline]
     unsafe fn fmaddsub_ps_(a: __m128, b: __m128, c: __m128) -> __m128 {
         _mm_fmaddsub_ps(a, b, c)
     }
     #[target_feature(enable = "fma")]
+    #[inline]
     unsafe fn fmsubadd_ps_(a: __m128, b: __m128, c: __m128) -> __m128 {
         _mm_fmsubadd_ps(a, b, c)
     }
+    #[inline]
     pub fn fmadd_pd(a: u128, b: u128, c: u128) -> u128 {
         unsafe { upd(fmadd_pd_(pd(a), pd(b), pd(c))) }
     }
+    #[inline]
     pub fn fmsub_pd(a: u128, b: u128, c: u128) -> u128 {
         unsafe { upd(fmsub_pd_(pd(a), pd(b), pd(c))) }
     }
+    #[inline]
     pub fn fnmadd_pd(a: u128, b: u128, c: u128) -> u128 {
         unsafe { upd(fnmadd_pd_(pd(a), pd(b), pd(c))) }
     }
+    #[inline]
     pub fn fmaddsub_ps(a: u128, b: u128, c: u128) -> u128 {
         unsafe { ups(fmaddsub_ps_(ps(a), ps(b), ps(c))) }
     }
+    #[inline]
     pub fn fmsubadd_ps(a: u128, b: u128, c: u128) -> u128 {
         unsafe { ups(fmsubadd_ps_(ps(a), ps(b), ps(c))) }
     }
+    #[inline]
     pub fn addsub_ps(a: u128, b: u128) -> u128 {
         unsafe { ups(_mm_addsub_ps(ps(a), ps(b))) }
     }
+    #[inline]
     pub fn addsub_pd(a: u128, b: u128) -> u128 {
         unsafe { upd(_mm_addsub_pd(pd(a), pd(b))) }
     }
+    #[inline]
     pub fn hadd_pd(a: u128, b: u128) -> u128 {
         unsafe { upd(_mm_hadd_pd(pd(a), pd(b))) }
     }
+    #[inline]
     pub fn hadd_ps(a: u128, b: u128) -> u128 {
         unsafe { ups(_mm_hadd_ps(ps(a), ps(b))) }
     }
+    #[inline]
     pub fn max_pd(a: u128, b: u128) -> u128 {
         unsafe { upd(_mm_max_pd(pd(a), pd(b))) }
     }
+    #[inline]
     pub fn min_pd(a: u128, b: u128) -> u128 {
         unsafe { upd(_mm_min_pd(pd(a), pd(b))) }
     }
+    #[inline]
     pub fn sqrt_sd(a: u128, b: u128) -> u128 {
         unsafe { upd(_mm_sqrt_sd(pd(a), pd(b))) }
     }
+    #[inline]
     pub fn sqrt_ps(a: u128) -> u128 {
         unsafe { ups(_mm_sqrt_ps(ps(a))) }
     }
+    #[inline]
     pub fn sqrt_pd(a: u128) -> u128 {
         unsafe { upd(_mm_sqrt_pd(pd(a))) }
     }
     /// cvtps2pd de 4 floats (256 bits de saída) a partir de 128 bits.
+    #[inline]
     pub fn cvtps2pd_256(a: u128) -> (u128, u128) {
         let l = lanes32(a);
         let f = |x: u32| (f32::from_bits(x) as f64).to_bits();
         (from64([f(l[0]), f(l[1])]), from64([f(l[2]), f(l[3])]))
     }
     /// cvtpd2ps de 4 doubles (256 bits de entrada) para 128 bits.
+    #[inline]
     pub fn cvtpd2ps_256(lo: u128, hi: u128) -> u128 {
         unsafe {
             let a = _mm_cvtpd_ps(pd(lo));
@@ -1027,16 +1101,19 @@ pub mod avxd {
         }
     }
     /// vpermps (8 lanes): r[i] = src[idx[i] & 7].
+    #[inline]
     pub fn permps(idx_lo: u128, idx_hi: u128, s_lo: u128, s_hi: u128) -> (u128, u128) {
         let s = [lanes32(s_lo), lanes32(s_hi)].concat();
         let i = [lanes32(idx_lo), lanes32(idx_hi)].concat();
         let r: Vec<u32> = (0..8).map(|k| s[(i[k] & 7) as usize]).collect();
         (from32([r[0], r[1], r[2], r[3]]), from32([r[4], r[5], r[6], r[7]]))
     }
+    #[inline]
     pub fn moveldup(a: u128) -> u128 {
         let l = lanes32(a);
         from32([l[0], l[0], l[2], l[2]])
     }
+    #[inline]
     pub fn movehdup(a: u128) -> u128 {
         let l = lanes32(a);
         from32([l[1], l[1], l[3], l[3]])
