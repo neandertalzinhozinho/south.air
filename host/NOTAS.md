@@ -147,6 +147,11 @@ do plugin é 0, então não há o que rebobinar).
 
 ## 8. O plugin não é transparente no estado padrão
 
+> **INVÁLIDO (2026-11-25):** as medições das §8–§9 foram feitas com o bug de (des)intercalação do
+> laço de `process` (entrada L,R,L,R num canal; metade de cada bloco de saída sem escrita). A
+> "dependência de bloco" e os lóbulos em `Fs/bloco` eram artefato do host. Corrigido em
+> `host/src/main.rs`; ver `checks/w_cadeia_m6.md` §5.
+
 O run canônico (`test/run4.log`, bloco 512) mostra, para um seno de 1 kHz:
 
 - entrada: pico 0,5 / RMS −11,1 dBFS;

@@ -91,3 +91,36 @@ Ler o `processBlock` do plugin (`0x350F20`, slot 6 da vtable `0x2037A58`) e o `0
 (`this+0xE40`) para saber o que o wrapper faz por chamada. Candidatos: smoothing de parâmetro no
 lado JUCE (`[W+0x30]` por bloco), mix dry/wet com o atraso, ou uma chamada ao motor com outro
 argumento. O código é ofuscado (predicados opacos); a alternativa é traduzir o wrapper também.
+
+## 5. M7 — NULL-TEST FECHADO (2026-11-25)
+
+**O problema estava no oráculo, não no motor.** O host da etapa I tinha um bug de
+(des)intercalação no laço de `process` (`host/src/main.rs`):
+
+- a entrada fazia `in_l[..n] = samples[pos*2 .. pos*2+n]`, ou seja, o plugin recebia L,R,L,R…
+  num canal só;
+- a saída fazia `total[pos*2 .. pos*2+n] = out_l[..n]` e depois `out_r` deslocado 1, o que
+  deixava metade de cada bloco sem escrita.
+
+Daí vinham os 255 zeros por bloco de 512, a "dependência do tamanho de bloco" e os lóbulos em
+`Fs/bloco` de `host/NOTAS.md` §8–§9. **Os WAVs de oráculo gerados antes de 2026-11-25 estão
+errados.** Com a correção (intercalar e desintercalar por amostra):
+
+| Sinal | fs | Bloco | Resultado (motor traduzido × soothe3 original) |
+|---|---|---|---|
+| Seno 1 kHz, 0,25 s | 48000 | 512 | **24000/24000 bit-iguais**, offset 0, `max|dif| = 0` |
+| Ruído + senos, 1 s | 48000 | 512 | **96000/96000**, `max|dif| = 0` |
+| Ruído + senos, 1 s | 48000 | 64 | **96000/96000** |
+| Ruído + senos, 1 s | 48000 | 4096 | **96000/96000** |
+| Ruído + senos, 1 s | 44100 | 512 | **88200/88200** |
+| Ruído + senos, 1 s | 96000 | 512 | **192000/192000** (offset 0) |
+
+- **Chamada usada no motor traduzido:** `create` (`0x862E40`, config `0x23923E0`), os 143
+  defaults pelo setter (normalizado pelo callback `+0x48`), `0x863070(h,1,1)`, e depois
+  `process` (`0x862F00`, `rdx = saídas`, `r8 = entradas`, `r9 = 0`) por bloco. A latência
+  reportada é 2304 nos dois lados.
+- **Ressalvas:**
+  - o resultado vale na CPU do oráculo, porque `vrcpps`/`vrsqrtps` usam o hardware;
+  - os caminhos AVX-512 não foram traduzidos e param com o RVA se forem executados;
+  - o motor ainda lê as constantes do dump em tempo de execução;
+  - o desempenho é ~2× mais lento que tempo real.

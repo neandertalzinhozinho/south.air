@@ -4220,13 +4220,35 @@ medição somente-leitura).
 - os callbacks não foram conferidos valor a valor contra o plugin (precisa de parameter changes
   no host, fica para M6).
 
-**M5 — PRÓXIMO.**  Port do miolo `0x8B3ED0`: F1–F5 (K) + `0x8B8E70`/`0x8B9E40`/`0x8BA1B0`/`0x8BA7B0`/
-`0x8A1EE0`/`0x8BA8C0` + satélites `0x8C33D0`/`0x8C3F10`/`0x8C42D0`/`0x8B35A0` + filtro
-`0x87BB60`/`0x87E220`/`0x87B2A0`.
+**M5 + M6 + M7 — FECHADAS em 2026-11-25** por **tradução mecânica** do motor (`checks/v_miolo_m5.md`,
+`checks/w_cadeia_m6.md`).
 
-**M6** Cadeia completa: 25 estágios de `0x8AD2B0`, `0x8ACC40`, `0x885040`/`0x8875F0`,
-rings, estado inicial default.
-
-**M7** Null-test: bloco 512, alinhamento 2304, 0 divergências em `host/test/analise.py`.
+- **Tradutor:**
+  - `tools/lift/lift.py` traduz x86-64 para Rust, uma linha por instrução, com o RVA, por descida
+    recursiva, jump tables MSVC, VEX/FMA e imports por nome;
+  - o runtime está em `lifted/src/rt.rs`, as folhas em `leaf.rs` e o driver em `api.rs`;
+  - o crate base `lifted/` tem 691 funções e a lista de raízes em `lifted/roots.txt`;
+  - o crate `lifted_extra/` tem as funções alcançadas por ponteiro, descobertas em execução
+    (`tools/lift/iterate_extra.sh`);
+  - o código gerado fica fora do git e é regenerado do dump.
+- **Validação do tradutor:** bit a bit contra div/ln/exp/rcp/smoother provados (`lifted/src/tests.rs`).
+- **Estáticos do dump:** reinicializados como num processo novo (`_Init_thread_header` vira
+  handler; o epoch TLS começa em `INT_MIN`).
+- **API:**
+  - `create(iface, config = 0x23923E0, taxa)`;
+  - para cada parâmetro, `set(i, norm(+0x38))` e `0x863070(h,1,1)`;
+  - `process(h, rdx = saídas, r8 = entradas, r9 = 0, n)`;
+  - latência 2304.
+- **M7, null-test:** o **motor traduzido × soothe3 original dá bit a bit** em todas as amostras.
+  Casos: seno a 48 kHz/512; ruído + senos a 48 kHz nos blocos 64/512/4096; ruído + senos a
+  44,1 kHz/512; ruído + senos a 96 kHz/512.
+  - A divergência anterior era **bug do host oráculo** (des/intercalação L/R em `host/src/main.rs`).
+  - As notas do host §8–§9 estão invalidadas.
+- **Resíduo e pendências:**
+  - o resultado vale na CPU do oráculo (`vrcpps`/`vrsqrtps`);
+  - os caminhos AVX-512 não foram traduzidos (param com o RVA se executados);
+  - o motor ainda lê o dump em tempo de execução (falta congelar as páginas usadas);
+  - **o desempenho é ~2× mais lento que tempo real**, então precisa de otimização antes de ir
+    para o Resonia em DAW.
 
 Ordem: M1 -> M2 -> M3 -> M4 -> M5 -> M6 -> M7. M3/M4 independentes; M5 é o maior.

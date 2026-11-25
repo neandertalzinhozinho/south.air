@@ -1220,8 +1220,12 @@ fn main() {
     while pos < input.frames {
         let n = (input.frames - pos).min(bs);
 
-        in_l[..n].copy_from_slice(&input.samples[pos * 2..pos * 2 + n]);
-        in_r[..n].copy_from_slice(&input.samples[pos * 2 + 1..pos * 2 + 1 + n]);
+        // Desintercala L/R (corrigido em 2026-11-25, M7: antes copiava a faixa intercalada
+        // `samples[pos*2..pos*2+n]` inteira para `in_l`, o que dava L,R,L,R... ao plugin).
+        for i in 0..n {
+            in_l[i] = input.samples[(pos + i) * 2];
+            in_r[i] = input.samples[(pos + i) * 2 + 1];
+        }
         for i in n..bs {
             in_l[i] = 0.0;
             in_r[i] = 0.0;
@@ -1263,11 +1267,18 @@ fn main() {
             break;
         }
 
-        total[pos * 2..pos * 2 + n].copy_from_slice(&out_l[..n]);
-        total[pos * 2 + 1..pos * 2 + 1 + n].copy_from_slice(&out_r[..n]);
+        // Intercala L/R (corrigido em 2026-11-25, M7: antes gravava `out_l` contíguo em
+        // `total[pos*2..pos*2+n]`, o que deixava metade de cada bloco sem escrita).
+        for i in 0..n {
+            total[(pos + i) * 2] = out_l[i];
+            total[(pos + i) * 2 + 1] = out_r[i];
+        }
 
         pos += n;
         blocks += 1;
+        if let Ok(dir) = env::var("SOULTREE_PROBE_EACH") {
+            probe_dump_engine(&dir, blocks as usize);
+        }
     }
 
     if worst_hr != K_RESULT_OK {
@@ -1490,6 +1501,48 @@ fn rd<T: Copy>(addr: usize) -> Option<T> {
     } else {
         None
     }
+}
+
+static ENGINE_ADDR: AtomicUsize = AtomicUsize::new(0);
+
+/// Somente leitura: acha o engine (1ª vez por varredura) e grava engine[0..0x600] por bloco.
+fn probe_dump_engine(dir: &str, blk: usize) {
+    let mut eng = ENGINE_ADDR.load(Ordering::Relaxed);
+    if eng == 0 {
+        let base = MODULE_BASE.load(Ordering::Relaxed);
+        let want = (base + RVA_VT_PROCESSOR) as u64;
+        let mut a = 0x10000usize;
+        'scan: while a < 0x7FFF_FFFF_0000 {
+            let mut mi = MemInfo::default();
+            let r = unsafe { VirtualQuery(a as *const c_void, &mut mi, std::mem::size_of::<MemInfo>()) };
+            if r == 0 {
+                break;
+            }
+            if mi.state == 0x1000 && mi.protect == 0x04 && mi.kind == 0x20000 {
+                let p = mi.base as *const u64;
+                for i in 0..mi.region_size / 8 {
+                    if unsafe { p.add(i).read() } == want {
+                        let obj = mi.base + 8 * i;
+                        let h = rd::<u64>(obj + 0xE40 + 0x68).unwrap_or(0) as usize;
+                        if h != 0 && rd::<u64>(h + 8).unwrap_or(0) as usize == base + RVA_API_FN1 {
+                            eng = rd::<u64>(h).unwrap_or(0) as usize;
+                            break 'scan;
+                        }
+                    }
+                }
+            }
+            a = mi.base + mi.region_size;
+        }
+        ENGINE_ADDR.store(eng, Ordering::Relaxed);
+    }
+    if eng == 0 {
+        return;
+    }
+    let mut buf = vec![0u8; 0x600];
+    for (i, b) in buf.iter_mut().enumerate() {
+        *b = rd::<u8>(eng + i).unwrap_or(0);
+    }
+    let _ = std::fs::write(format!("{dir}/blk{blk:03}.bin"), &buf);
 }
 
 fn probe_state(tag: &str) {

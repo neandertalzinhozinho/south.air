@@ -158,6 +158,14 @@ fn main() {
             e.cpu.r[R8] = ia;
             e.cpu.r[R9] = 0;
         }
+        if mode == "f10" {
+            e.cpu.r[RCX] = e.handle;
+            soultree_lifted::api::call_abi(&mut e.cpu, 0x862F10, &[]);
+            e.cpu.r[RCX] = e.handle;
+            e.cpu.r[RDX] = oa;
+            e.cpu.r[R8] = ia;
+            e.cpu.r[R9] = 0;
+        }
         if mode == "sc" {
             e.cpu.r[R9] = ia; // sidechain = entrada
         }
@@ -167,7 +175,9 @@ fn main() {
                 e.cpu.mem.write_f32s(ob[ch], &v);
             }
         }
-        soultree_lifted::api::call_abi(&mut e.cpu, 0x862F00, &[m as u64]);
+        // M6_N: n passado ao motor por bloco (hipótese do wrapper); o resto da saída fica 0
+        let nn: usize = std::env::var("M6_N").ok().and_then(|v| v.parse().ok()).unwrap_or(m).min(m);
+        soultree_lifted::api::call_abi(&mut e.cpu, 0x862F00, &[nn as u64]);
         for ch in 0..e.n_out {
             let v = e.cpu.mem.read_f32s(ob[ch], m);
             out[ch][pos..pos + m].copy_from_slice(&v);

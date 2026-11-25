@@ -270,10 +270,19 @@ Fechamento item a item (todos com RVA):
    - Resíduo: o elo host→create (ofuscado) está provado só por medição; a conferência dos
      callbacks valor a valor fica para M6.
 
-   **M5 (PRÓXIMO)** port do miolo `0x8B3ED0` (F1–F5 + 6 callees +
-   satélites + filtro `0x87BB60`). **M6** cadeia completa (`0x8AD2B0`, `0x8ACC40`,
-   `0x885040`/`0x8875F0`, rings, estado inicial). **M7** null-test (bloco 512, alinhamento
-   2304, 0 divergências).
+   ~~**M5**~~, ~~**M6**~~, ~~**M7**~~ **(2026-11-25, FECHADAS):**
+   - o motor inteiro foi traduzido mecanicamente do dump (`tools/lift/lift.py`, crates
+     `lifted/` + `lifted_extra/`);
+   - **o null-test motor traduzido × soothe3 original dá bit a bit** em 48 kHz (blocos
+     64/512/4096) , 44,1 kHz e 96 kHz (bloco 512);
+   - o oráculo antigo estava errado por um bug de intercalação do host, agora corrigido;
+   - detalhes em `checks/w_cadeia_m6.md` §5 e `PLANO_MOTOR_AUDIO.md` §26.
+
+   **PRÓXIMO:** levar o motor para o Resonia. Isso pede três coisas:
+   1. desempenho, porque hoje é ~2× mais lento que tempo real;
+   2. congelar as páginas do dump usadas (`Mem::image_touched`) num blob embutido;
+   3. ligar na `engine_bridge` do Resonia (`resonia/RECUPERACAO.md`).
+
    **Fatos novos (2026-11-25):** `0x63640` tem **duas** aritméticas (A = quociente, B =
    recíproco; A ≠ B no ULP) e `n = N+1` é **ímpar** — a cauda sempre roda. **Conflito com a
    âncora:** a instrução dá `N = 256` a 48 kHz para o `X` do estágio, não 278 (§23.14).
