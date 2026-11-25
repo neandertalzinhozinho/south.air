@@ -21,11 +21,10 @@
 //!
 //! ## `NAO PROVADO` (nao implementado como se fosse verdade)
 //!
-//! * `0x293760` (`ln` da IPP) e `0x240C00` (`exp` da IPP) **nao** tem equivalencia
-//!   bit-a-bit provada com `f32::ln`/`f32::exp`. `checks/j_crt_equiv.rs` cobre os
-//!   imports da UCRT (`powf`/`logf`/`expf`), nao estas duas implementacoes internas.
-//!   As curvas abaixo usam `ln`/`exp` do Rust e por isso sao **matematicamente**
-//!   identicas, nao bit-exatas; a troca fica isolada em `ipp_ln`/`ipp_exp`.
+//! * (M3, 2026-11-25) `0x293760` (`ln` da IPP) e `0x240C00` (`exp` da IPP) sairam
+//!   daqui: `ipp_ln`/`ipp_exp` chamam `crate::ippmath`, transcrito bit a bit e
+//!   conferido contra o hardware em `checks/j_ln_exp_avx.rs`. A IPP **difere** de
+//!   `f32::ln`/`f32::exp` (ate alguns ulp), entao a troca muda bits das curvas.
 //! * o significado fisico de `s0`, `A`, `A1`, `A2`, `k`, `G`; e a atribuicao
 //!   grupo→coeficiente de §8.4.8 (`NAO EXTRAIDO`, sem tabela no codigo).
 //!
@@ -107,17 +106,18 @@ pub fn expf_ucrt(x: f32) -> f32 {
 }
 
 /// `0x1C8500` -> impl `0x293760` (**ln da IPP**, nao `logf`).
-/// `NAO PROVADO`: equivalencia bit-a-bit com `f32::ln`; parada `0x293760`.
+/// M3: transcrito bit a bit em `crate::ippmath` (`checks/t_ln_exp_ipp.md`).
+/// Por lane; o status (`eax`) nao e lido pelos chamadores do motor.
 #[inline]
 pub fn ipp_ln(x: f32) -> f32 {
-    x.ln()
+    crate::ippmath::ln_lane(x).0
 }
 
 /// `0x1C84A0` -> impl `0x240C00` (**exp da IPP**, nao `expf`).
-/// `NAO PROVADO`: equivalencia bit-a-bit com `f32::exp`; parada `0x240C00`.
+/// M3: transcrito bit a bit em `crate::ippmath` (`checks/t_ln_exp_ipp.md`).
 #[inline]
 pub fn ipp_exp(x: f32) -> f32 {
-    x.exp()
+    crate::ippmath::exp_lane(x).0
 }
 
 #[inline]

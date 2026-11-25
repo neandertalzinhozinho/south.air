@@ -4134,13 +4134,49 @@ Ryzen 5 4600G); o índice `4` de `0x21C7408` é o do dump — os caminhos `0x297
 `0..2`) e `0x299C60` (`3`) não foram lidos; os outros chamadores de `0x1C8530` (`0x879CF0`,
 `0x885040`, `0088A500`, `0087E0B0`) não foram religados ao `rcp.rs` (fora de M2).
 
-(Nota: `pending::first_blocking()` devolve `0x293760` (ln, M3), que é também o próximo item
-deste §26.)
+**M3 — FECHADA em 2026-11-25** (resíduo `NÃO PROVADO` abaixo). O `ln` (`0x1C8500` →
+`0x1C8A00` → `0x293760`) e o `exp` (`0x1C84A0` → `0x1C8880` → `0x240C00`) da IPP estão
+transcritos em `port/src/ippmath.rs`. `engine.rs` os usa por `ipp_ln`/`ipp_exp`. A prova está em
+`checks/t_ln_exp_ipp.md`, com as desmontagens `checks/293760.dis`, `293f80.dis`, `240c00.dis` e
+`2414c0.dis`. Fatos:
 
-**M3 — PRÓXIMO.** `ln`/`exp` da IPP (`0x293760`, `0x240C00`) bit a bit; se o corpo for grande,
-equivalência exaustiva no domínio alcançável (precedente `j_crt_equiv.rs`).
+- **Lane vetorial:** só usa `add`/`sub`/`mul`/FMA IEEE com RN, e as duas funções têm o mesmo
+  despacho.
+  - Blocos: 16 no ln, 32 no exp; cauda de 8 com padding `0.75`.
+  - As lanes especiais são refeitas em ordem crescente.
+  - `eax` = último status `≠ 0`.
+  - O valor por lane não depende de `n` nem do alinhamento.
+- **ln:**
+  - lane vetorial: redução `m ∈ [2/3, 4/3)` por `i − 0x3F2AAAAB` e polinômio de grau 6;
+  - lane especial `0x293F80`: f64, tabela `0x1ECAF60` de **65** entradas `[c,a,b]`, caminho
+    perto de 1 (`|d−1| ≤ 2^−6.68`) e −inf/0/negativo/NaN.
+- **exp:**
+  - lane vetorial: `t = log2e·x + 1.5·2^23`, `y = bits((t<<23) + p)`;
+  - lane especial `0x2414C0`: f32, redução **sem** FMA, overflow (`0xC`) e underflow ou
+    denormal (`0x11`).
+- **Não depende da CPU:** não há `vrcpps`, então o resultado é bit a bit em qualquer CPU com
+  FMA. Diferente de M1/M2.
+- **`checks/j_ln_exp_avx.rs`:**
+  - emulador AVX2/FMA com constantes, máscaras e tabela lidas do dump;
+  - amostral: 33.894 lanes por função, `bad = 0`, com MXCSR FTZ+DAZ+RZ restaurado;
+  - mutações detectadas: sem especial (ln 6.312, exp 5.012) e FMA partido (ln 30, exp 812);
+  - **exaustivo 2^32: `bad = 0` no ln e no exp**. Os dois diferem da libm em 92.579.785
+    (ln) e 94.993.725 (exp) entradas.
+- **A IPP ≠ libm:** o `ln` difere de `f32::ln` em ~10% das lanes da amostra, e o `exp` difere
+  de `f32::exp` em ~51%. As curvas de `0x88E130` mudaram de bits com a troca.
+- **Ambiente:** o Windows App Control bloqueia às vezes os `.exe` recém-compilados (`os error
+  4551`; o caso mais comum é o harness do `cargo test`). Quando isso acontece, rodar com
+  `rustc --test` direto em outro nome de saída. Não é falha de teste.
 
-**M4** Identidades de estado: sample rate `[ctx+0x60]` (rastrear `r13` em `0x8B3ED0`) e
+**Resíduo `NÃO PROVADO` de M3:**
+
+- os caminhos de CPU dos índices `0..3` de `0x21C7408` não foram lidos;
+- o port ignora o `eax` de ln/exp, e falta conferir que todos os chamadores do motor também
+  ignoram (fica para M5).
+
+(Nota: `pending::first_blocking()` agora devolve `0x8B68AB (008B68BC)`, o sample rate de M4.)
+
+**M4 — PRÓXIMO.** Identidades de estado: sample rate `[ctx+0x60]` (rastrear `r13` em `0x8B3ED0`) e
 callback `[rdx+0x50]` (`00867E10`).
 
 **M5** Port do miolo `0x8B3ED0`: F1–F5 (K) + `0x8B8E70`/`0x8B9E40`/`0x8BA1B0`/`0x8BA7B0`/

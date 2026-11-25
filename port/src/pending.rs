@@ -36,21 +36,10 @@ pub const GAPS: &[Gap] = &[
     // M1 (2026-11-25): a divisão 0x1550 -> 0x63640 saiu daqui — transcrita em
     // port/src/div.rs, usada por stage.rs, conferida contra hardware em
     // checks/j_div_avx.rs. O resíduo de M1 é o gap "identidade de E" abaixo.
-    Gap {
-        id: "ln da IPP vs f32::ln (bit a bit)",
-        rva: "0x293760",
-        status: Status::NaoProvado,
-        blocks_null_test: true,
-        note: "curvas J6 são matematicamente equivalentes; falta provar bit-exatidão no \
-               domínio alcançável (mesmo método de checks/j_crt_equiv.rs)",
-    },
-    Gap {
-        id: "exp da IPP vs f32::exp (bit a bit)",
-        rva: "0x240C00",
-        status: Status::NaoProvado,
-        blocks_null_test: true,
-        note: "idem ln; afeta F4 e o par logf(powf(10, .)) de F5",
-    },
+    // M3 (2026-11-25): ln 0x293760 e exp 0x240C00 da IPP saíram daqui —
+    // transcritos em port/src/ippmath.rs, usados por engine.rs (ipp_ln/ipp_exp),
+    // conferidos contra hardware em checks/j_ln_exp_avx.rs (exaustivo 2^32);
+    // sem vrcpps, então bit a bit em qualquer CPU (checks/t_ln_exp_ipp.md).
     // M2 (2026-11-25): o recíproco 0x1C8530 -> 0x29B260 de 0x88E130 saiu daqui —
     // transcrito em port/src/rcp.rs, usado por engine.rs (0088E32F), conferido
     // contra hardware em checks/j_rcp_avx.rs (checks/s_reciproco_88e130.md).
@@ -164,11 +153,19 @@ mod tests {
     }
 
     #[test]
-    fn first_blocking_is_the_ipp_ln() {
-        // M1 fechou a divisão 0x63640 (port/src/div.rs); a ordem do resto da
-        // lista não mudou, então o primeiro bloqueante passa a ser o ln da IPP.
+    fn first_blocking_is_the_sample_rate() {
+        // M3 fechou ln/exp da IPP (port/src/ippmath.rs); o primeiro bloqueante
+        // passa a ser o campo de sample rate (M4).
         let g = first_blocking().expect("há gaps bloqueantes");
-        assert_eq!(g.rva, "0x293760");
+        assert_eq!(g.rva, "0x8B68AB (008B68BC)");
+    }
+
+    #[test]
+    fn ipp_ln_exp_are_no_longer_gaps() {
+        for g in GAPS {
+            assert!(!g.rva.contains("0x293760"), "{} ainda lista 0x293760", g.id);
+            assert!(!g.rva.contains("0x240C00"), "{} ainda lista 0x240C00", g.id);
+        }
     }
 
     #[test]
@@ -201,6 +198,6 @@ mod tests {
         let g = first_blocking().unwrap();
         let l = label(g);
         assert!(l.starts_with("NÃO PROVADO: "));
-        assert!(l.contains("0x293760"));
+        assert!(l.contains("0x8B68AB"));
     }
 }

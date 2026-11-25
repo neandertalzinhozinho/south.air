@@ -1,6 +1,6 @@
 # PROMPT DE RETOMADA — extração do DSP do soothe3
 
-> **Atualizado em 2026-11-25 (M2)**, sincronizado com `PLANO_MOTOR_AUDIO.md` §25/§26/§23.15.
+> **Atualizado em 2026-11-25 (M3)**, sincronizado com `PLANO_MOTOR_AUDIO.md` §25/§26/§23.15.
 > Autocontido: não depende de conversa anterior. Se este arquivo divergir do plano, **o plano
 > vence** — este prompt é um resumo operacional, não a fonte.
 
@@ -189,9 +189,19 @@ Fechamento item a item (todos com RVA):
    (`soultree_port`) é a fonte única dos kernels J1–J6; os `checks/*.rs` apontam para ele com
    `#[path]` e mantêm só os testes. `port/src/pending.rs` = 12 gaps com RVA e
    `blocks_null_test`; `port/src/chain.rs` = ordem de `pipe::chain_plan` e parada no primeiro
-   gap (desde M1: `0x293760`, ln da IPP). Runner: `powershell -File port\run_tests.ps1`
-   (64 J + 44 port + 17 de `checks/j_div_avx.rs` + 8 de `checks/j_rcp_avx.rs`, 9 suítes,
-   0 falhas — 2026-11-25, M2). Extração
+   gap (desde M3: `0x8B68AB (008B68BC)`, sample rate = M4). Runner:
+   `powershell -ExecutionPolicy Bypass -File port\run_tests.ps1` (10 suítes desde M3, com
+   `checks/j_ln_exp_avx.rs`). Em 2026-11-25 (M3), todas verdes:
+   - lib do port: 50 testes;
+   - J1–J5: 10/12/7/13/7;
+   - J6: 20;
+   - M1: 17;
+   - M2: 8;
+   - M3: 6.
+
+   Ressalva: o Windows App Control às vezes bloqueia um `.exe` recém-compilado
+   (`os error 4551`). Quando bloqueia, rodar `rustc --test` com outro nome de saída.
+   Extração
    reprodutível: `tools/extract_port_modules.py`. **Atenção:** no `-Slow`, `j_dot32_avx.rs` e
    `j_crt_equiv.rs` só têm `main` e o runner compila com `--test` ⇒ 0 testes executados
    (bug do runner, não corrigido).
@@ -232,7 +242,19 @@ Fechamento item a item (todos com RVA):
    não religados. Prova: `checks/s_reciproco_88e130.md`.
    **PRÓXIMO — roteiro até o null-test (2026-11-25):**
    ~~**M1**~~, ~~**M2**~~ (fechadas acima).
-   **M3 (PRÓXIMO)** `0x293760` (ln) e `0x240C00` (exp) bit a bit. **M4** sample rate (`[ctx+0x60]`) e
+   ~~**M3**~~ **(2026-11-25, FECHADA):** ln `0x293760` (+ escalar `0x293F80`, f64, tabela
+   `0x1ECAF60` de 65 entradas) e exp `0x240C00` (+ escalar `0x2414C0`) da IPP, em
+   `port/src/ippmath.rs`, usados por `engine.rs::ipp_ln`/`ipp_exp`.
+   - Prova: `checks/j_ln_exp_avx.rs` (emulador AVX2/FMA com constantes do dump).
+   - **Exaustivo 2^32: `bad = 0`** no ln e no exp.
+   - Sem `vrcpps`, então o resultado não depende da CPU.
+   - A IPP **difere** de `f32::ln`/`f32::exp` (~9×10^7 entradas cada), então as curvas de
+     `0x88E130` mudaram de bits.
+   - Resíduo: os caminhos de CPU `0..3` não foram lidos; falta conferir que os chamadores
+     ignoram o `eax` (M5).
+   - Doc: `checks/t_ln_exp_ipp.md`.
+
+   **M4 (PRÓXIMO)** sample rate (`[ctx+0x60]`) e
    callback `[rdx+0x50]` (`00867E10`). **M5** port do miolo `0x8B3ED0` (F1–F5 + 6 callees +
    satélites + filtro `0x87BB60`). **M6** cadeia completa (`0x8AD2B0`, `0x8ACC40`,
    `0x885040`/`0x8875F0`, rings, estado inicial). **M7** null-test (bloco 512, alinhamento

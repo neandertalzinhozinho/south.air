@@ -502,9 +502,9 @@ descreve só a forma `σ`.
 
 Transcrição Rust (J6, `checks/stage_j_engine.rs`, 8 testes): `shelf_curve_in_place` (`0x88E130`)
 e `shelf_pair_apply` (`0x882FC0`), além de `smoother_fwd_back` (`0x8C3C20`),
-`detector2_in_place` (`0x8C0BD0`) e `one_pole_coef` (`0x8B68AB`). Como usa `f32::ln`/`f32::exp`
-no lugar das impls IPP `0x293760`/`0x240C00`, é **matematicamente** equivalente, não bit-exata
-(`NÃO PROVADO` no próprio arquivo). O recíproco vetorial de `0x88E130` (`0x1C8530` →
+`detector2_in_place` (`0x8C0BD0`) e `one_pole_coef` (`0x8B68AB`). Desde M3 (2026-11-25), o ln e
+o exp de `0088E298`/`0088E2EE`/`0088E3B7` são as impls IPP `0x293760`/`0x240C00` transcritas bit a
+bit em `port/src/ippmath.rs` (antes eram `f32::ln`/`f32::exp`, que diferem da IPP). O recíproco vetorial de `0x88E130` (`0x1C8530` →
 `0x29B260`) **não** é mais `1.0/x`: desde M2 (2026-11-25) é `rcp::inv_32f_in_place`
 (`port/src/rcp.rs`), bit a bit com o binário na mesma CPU.
 
@@ -1522,6 +1522,23 @@ out(f) = (10^(D/20)) ^ g(f)
   RVA `0x240C00`; `00240D96 vfmadd231ps ymm10, ymm4, ymm15` com `ymm4` = `0x1E6FBC0` =
   `1.44269502` (`log2 e`) e `00240D43` `ymm0` = `0x1E6FC00` = `12582912` = `1.5·2^23`
   (magic do `2^k`) — construção clássica de `e^x`.
+- **M3 (2026-11-25): ln e exp transcritos bit a bit** em `port/src/ippmath.rs`
+  (`checks/t_ln_exp_ipp.md`).
+  - **ln:**
+    - lane vetorial: `t = i − 0x3F2AAAAB`, `e = t>>23`, `m ∈ [2/3,4/3)`,
+      polinômio de grau 6 em `f = m−1` por FMA, `y = e·ln2 + (f·p·f + f)`;
+    - lanes especiais (`(i+0x800000) <s 0x1000000`) vão para `0x293F80`, em f64
+      com a tabela `0x1ECAF60` (65 × `[c,a,b]`).
+  - **exp:**
+    - lane vetorial: `t = log2e·x + 1.5·2^23`, `r = x − hi·k − lo·k` (FNMA),
+      polinômio de grau 5, `y = bits((t<<23) + p)`;
+    - `|x| > 87.33654` vai para `0x2414C0`, em f32 com redução sem FMA, escala
+      `2^k` e caminhos de overflow, underflow e denormal.
+  - **Prova:** `checks/j_ln_exp_avx.rs`, emulador AVX2/FMA com as constantes do
+    dump. Deu `bad = 0` no teste amostral, com mutações detectadas, e
+    `bad = 0` no **exaustivo 2^32** das duas funções.
+  - **Sem `vrcpps`:** vale em qualquer CPU com FMA.
+  - **A IPP difere de `f32::ln`/`f32::exp`** em até alguns ulp.
 - `0x1C9AA01` = **powf**, `0x1C9A9FB` = **logf**, `0x1C9A5A1` = **log10f**: thunks de IAT
   (não são IPP). Import descriptor em `0x2175044` (`OFT 0x2176878`, `FirstThunk 0x1D8D790`);
   índice 15 (`0x1D8D808`) = `logf`, índice 17 (`0x1D8D818`) = `powf`, índice 0 (`0x1D8D790`)

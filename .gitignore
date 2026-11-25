@@ -28,3 +28,8 @@ target/
 /checks/.build/
 __pycache__/
 *.pyc
+
+# Resonia: recursos de terceiros recuperados (soothe3) e dumps de registros de sessao
+/resonia/RECURSOS_VALIDADOS_recuperados/
+/resonia/_ferramentas/analise/
+/resonia/app/_arquivo_heuristico/descartados_NOVOS/

@@ -1,0 +1,125 @@
+00293F80  sub        rsp, 0x38
+00293F84  mov        r9, rcx
+00293F87  xor        eax, eax
+00293F89  movzx      r8d, word ptr [r9 + 2]
+00293F8E  and        r8d, 0x7f80
+00293F95  cmp        r8d, 0x7f80
+00293F9C  je         0x2941d2
+00293FA2  vxorpd     xmm2, xmm2, xmm2
+00293FA6  xor        r8d, r8d
+00293FA9  vcvtss2sd  xmm2, xmm2, dword ptr [r9]
+00293FAE  vmovsd     qword ptr [rsp + 0x30], xmm2
+00293FB4  movzx      ecx, word ptr [rsp + 0x36]
+00293FB9  test       ecx, 0x7ff0
+00293FBF  jne        0x293fd5
+00293FC1  vmulsd     xmm2, xmm2, qword ptr [rip + 0x1c375d7]  ; [0x1ECB5A0] f32=0.0
+00293FC9  mov        r8d, 0xffffffc4
+00293FCF  vmovsd     qword ptr [rsp + 0x30], xmm2
+00293FD5  vmovsd     xmm3, qword ptr [rip + 0x1c375cb]  ; [0x1ECB5A8] f32=0.0
+00293FDD  vcomisd    xmm2, xmm3
+00293FE1  jbe        0x29418e
+00293FE7  vmovsd     xmm1, qword ptr [rip + 0x1c37611]  ; [0x1ECB600] f32=0.0
+00293FEF  vsubsd     xmm3, xmm2, xmm1
+00293FF3  vmovsd     qword ptr [rsp + 0x28], xmm3
+00293FF9  and        byte ptr [rsp + 0x2f], 0x7f
+00293FFE  vmovsd     xmm0, qword ptr [rsp + 0x28]
+00294004  vcomisd    xmm0, qword ptr [rip + 0x1c3758c]  ; [0x1ECB598] f32=0.0
+0029400C  jbe        0x29413a
+00294012  vmovsd     qword ptr [rsp + 0x28], xmm2
+00294018  vxorpd     xmm0, xmm0, xmm0
+0029401C  movzx      r9d, word ptr [rsp + 0x2e]
+00294022  and        r9d, 0xffff800f
+00294029  movzx      ecx, word ptr [rsp + 0x36]
+0029402E  add        r9d, 0x3ff0
+00294035  mov        word ptr [rsp + 0x2e], r9w
+0029403B  and        ecx, 0x7ff0
+00294041  shr        ecx, 4
+00294044  vmovsd     xmm2, qword ptr [rsp + 0x28]
+0029404A  vmovsd     xmm5, qword ptr [rip + 0x1c3752e]  ; [0x1ECB580] f32=-5.03364131752959e-27
+00294052  vaddsd     xmm4, xmm2, qword ptr [rip + 0x1c3752e]  ; [0x1ECB588] f32=8.96831017167883e-44
+0029405A  vmovsd     qword ptr [rsp + 0x20], xmm4
+00294060  lea        r8d, [r8 + rcx - 0x3ff]
+00294068  vcvtsi2sd  xmm0, xmm0, r8d
+0029406D  mov        r10d, dword ptr [rsp + 0x20]
+00294072  lea        rcx, [rip - 0x294079]  ; [0x0] f32=1.325670526335053e-38
+00294079  and        r10d, 0x7f
+0029407D  mov        r8, rcx
+00294080  mov        r9, rcx
+00294083  vmovsd     xmm4, qword ptr [rip + 0x1c374ed]  ; [0x1ECB578] f32=-1.6629888378515346e+38
+0029408B  lea        r11d, [r10 + r10*2]
+0029408F  vfmadd213sd xmm4, xmm0, qword ptr [r8 + r11*8 + 0x1ecaf68]
+00294099  vfmadd213sd xmm0, xmm5, qword ptr [r9 + r11*8 + 0x1ecaf70]
+002940A3  vmovsd     xmm3, qword ptr [rcx + r11*8 + 0x1ecaf60]
+002940AD  vaddsd     xmm5, xmm2, qword ptr [rip + 0x1c374db]  ; [0x1ECB590] f32=0.0
+002940B5  vmovsd     qword ptr [rsp + 0x20], xmm5
+002940BB  vmovsd     xmm5, qword ptr [rsp + 0x20]
+002940C1  vsubsd     xmm5, xmm5, qword ptr [rip + 0x1c374c7]  ; [0x1ECB590] f32=0.0
+002940C9  vsubsd     xmm2, xmm2, xmm5
+002940CD  vfmsub213sd xmm5, xmm3, xmm1
+002940D2  vmulsd     xmm3, xmm3, xmm2
+002940D6  vaddsd     xmm4, xmm4, xmm5
+002940DA  vmovsd     xmm2, qword ptr [rip + 0x1c37506]  ; [0x1ECB5E8] f32=1.5282684993973028e-35
+002940E2  vaddsd     xmm1, xmm5, xmm3
+002940E6  vaddsd     xmm0, xmm3, xmm0
+002940EA  vfmadd213sd xmm2, xmm1, qword ptr [rip + 0x1c374ed]  ; [0x1ECB5E0] f32=5.595434136857394e-17
+002940F3  vfmadd213sd xmm2, xmm1, qword ptr [rip + 0x1c374dc]  ; [0x1ECB5D8] f32=181141749760.0
+002940FC  vfmadd213sd xmm2, xmm1, qword ptr [rip + 0x1c374cb]  ; [0x1ECB5D0] f32=-1.1594994115376651e-24
+00294105  vfmadd213sd xmm2, xmm1, qword ptr [rip + 0x1c374ba]  ; [0x1ECB5C8] f32=8.547920632381384e-43
+0029410E  vfmadd213sd xmm2, xmm1, qword ptr [rip + 0x1c374a9]  ; [0x1ECB5C0] f32=14660353916928.0
+00294117  vfmadd213sd xmm2, xmm1, qword ptr [rip + 0x1c37498]  ; [0x1ECB5B8] f32=0.0
+00294120  vmulsd     xmm1, xmm1, xmm1
+00294124  vfmadd213sd xmm2, xmm1, xmm0
+00294129  vaddsd     xmm0, xmm4, xmm2
+0029412D  vcvtsd2ss  xmm0, xmm0, xmm0
+00294131  vmovss     dword ptr [rdx], xmm0
+00294135  add        rsp, 0x38
+00294139  ret        
+0029413A  vmovsd     xmm1, qword ptr [rip + 0x1c374a6]  ; [0x1ECB5E8] f32=1.5282684993973028e-35
+00294142  vfmadd213sd xmm1, xmm3, qword ptr [rip + 0x1c37495]  ; [0x1ECB5E0] f32=5.595434136857394e-17
+0029414B  vmulsd     xmm0, xmm3, xmm3
+0029414F  vfmadd213sd xmm1, xmm3, qword ptr [rip + 0x1c37480]  ; [0x1ECB5D8] f32=181141749760.0
+00294158  vfmadd213sd xmm1, xmm3, qword ptr [rip + 0x1c3746f]  ; [0x1ECB5D0] f32=-1.1594994115376651e-24
+00294161  vfmadd213sd xmm1, xmm3, qword ptr [rip + 0x1c3745e]  ; [0x1ECB5C8] f32=8.547920632381384e-43
+0029416A  vfmadd213sd xmm1, xmm3, qword ptr [rip + 0x1c3744d]  ; [0x1ECB5C0] f32=14660353916928.0
+00294173  vfmadd213sd xmm1, xmm3, qword ptr [rip + 0x1c3743c]  ; [0x1ECB5B8] f32=0.0
+0029417C  vfmadd213sd xmm1, xmm0, xmm3
+00294181  vcvtsd2ss  xmm1, xmm1, xmm1
+00294185  vmovss     dword ptr [rdx], xmm1
+00294189  add        rsp, 0x38
+0029418D  ret        
+0029418E  vucomisd   xmm2, xmm3
+00294192  jp         0x294196
+00294194  je         0x2941ac
+00294196  vdivsd     xmm0, xmm3, xmm3
+0029419A  vcvtsd2ss  xmm0, xmm0, xmm0
+0029419E  vmovss     dword ptr [rdx], xmm0
+002941A2  mov        eax, 0x13
+002941A7  add        rsp, 0x38
+002941AB  ret        
+002941AC  vmovsd     xmm0, qword ptr [rip + 0x1c373fc]  ; [0x1ECB5B0] f32=0.0
+002941B4  mov        eax, 0x12
+002941B9  vxorpd     xmm1, xmm0, xmmword ptr [rip + 0x1c3742f]  ; [0x1ECB5F0] f32=0.0
+002941C1  vdivsd     xmm2, xmm1, xmm3
+002941C5  vcvtsd2ss  xmm2, xmm2, xmm2
+002941C9  vmovss     dword ptr [rdx], xmm2
+002941CD  add        rsp, 0x38
+002941D1  ret        
+002941D2  mov        cl, byte ptr [r9 + 3]
+002941D6  and        cl, 0x80
+002941D9  cmp        cl, 0x80
+002941DC  je         0x2941f0
+002941DE  vmovss     xmm0, dword ptr [r9]
+002941E3  vmulss     xmm1, xmm0, xmm0
+002941E7  vmovss     dword ptr [rdx], xmm1
+002941EB  add        rsp, 0x38
+002941EF  ret        
+002941F0  test       dword ptr [r9], 0x7fffff
+002941F7  jne        0x2941de
+002941F9  vmovsd     xmm0, qword ptr [rip + 0x1c373a7]  ; [0x1ECB5A8] f32=0.0
+00294201  mov        eax, 0x13
+00294206  vdivsd     xmm1, xmm0, xmm0
+0029420A  vcvtsd2ss  xmm1, xmm1, xmm1
+0029420E  vmovss     dword ptr [rdx], xmm1
+00294212  add        rsp, 0x38
+00294216  ret        
+00294217  nop        word ptr [rax + rax]

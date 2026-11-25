@@ -28,9 +28,18 @@ rápido/lento bit a bit), J5 (`checks/stage_j_chan.rs`, 7) e J6 (`checks/stage_j
 `checks/` apontam com `#[path]`); runner `powershell -File port\run_tests.ps1` = 57 J + 6
 port, 0 falhas.
 
-Falta o null-test plugin × port com alinhamento **2304** e o mesmo bloco. Ele depende de
-fechar, nesta ordem: transcrever `0x8C1440` no port (leitura fechada em 2026-11-25,
-`checks/q_8c1440_buffers.md`), `0x293760`/`0x240C00` (ln/exp bit a bit), recíproco de
-`0x88E130`, sample rate (`[ctx+0x60]`) e então o port completo. `0x88300` e os geradores de
+Falta o null-test plugin × port com alinhamento **2304** e o mesmo bloco. Já fecharam em
+2026-11-25:
+
+- Q-port: `0x8C1440`;
+- M1: divisão `0x63640`;
+- M2: recíproco de `0x88E130`;
+- M3: ln/exp da IPP `0x293760`/`0x240C00`.
+
+Falta, nesta ordem:
+
+- M4: sample rate (`[ctx+0x60]`) e callback `[rdx+0x50]`;
+- M5/M6: port completo;
+- M7: null-test. `0x88300` e os geradores de
 twiddle ficam `NÃO EXTRAÍDO` — fora do caminho de áudio (`PLANO_MOTOR_AUDIO.md` §24.5-(3)).
 Ver `PROMPT_RETOMADA.md`.

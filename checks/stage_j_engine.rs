@@ -17,6 +17,10 @@ mod engine;
 #[path = "../port/src/rcp.rs"]
 mod rcp;
 
+// M3: engine.rs chama crate::ippmath (ln 0x293760 / exp 0x240C00).
+#[path = "../port/src/ippmath.rs"]
+mod ippmath;
+
 pub use engine::*;
 
 #[cfg(test)]
