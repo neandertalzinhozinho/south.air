@@ -49,7 +49,7 @@
 ### Arquivo do motor
 
 O motor lê um arquivo de dados que **não vem no zip**. Deixe-o em
-`D:\PROJETOS\soultree FORK\dumpsooth\nyx_soothe3_dump.bin` ou indique outro caminho na variável
+`D:\PROJETOS\soultree FORK\dumpsooth\nyx_dump.bin` ou indique outro caminho na variável
 de ambiente `SOUTHAIR_DUMP`. Sem ele, o plugin só passa o áudio direto.
 
 ### Requisitos
