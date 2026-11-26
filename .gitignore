@@ -41,3 +41,6 @@ __pycache__/
 # Worktrees de agentes do Claude Code
 /.claude/
 /southair/app/_preview/
+
+# Dump do motor (local, nunca versionar)
+/southair_dump/

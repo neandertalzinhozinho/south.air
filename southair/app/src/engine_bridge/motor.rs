@@ -44,7 +44,8 @@ impl ImageSource for ArcImage {
     }
 }
 
-const DEFAULT_DUMP: &str = r"D:\PROJETOS\soultree FORK\dumpsooth\nyx_soothe3_dump.bin";
+/// Dump do motor na pasta `southair_dump` do projeto (local, fora do git).
+const DEFAULT_DUMP: &str = r"D:\PROJETOS\soultree FORK\southair_dump\southdump.bin";
 
 /// Dump compartilhado entre instâncias (lido uma vez por processo; ~137 MB).
 static DUMP: Mutex<Option<Arc<Vec<u8>>>> = Mutex::new(None);

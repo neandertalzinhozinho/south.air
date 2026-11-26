@@ -46,12 +46,6 @@
 
 > **Atualizando do Resonia?** Apague `Resonia.vst3` da pasta VST3. O South.air é um plugin novo para o DAW (novo ID), então projetos salvos com o Resonia não o abrem.
 
-### Arquivo do motor
-
-O motor lê um arquivo de dados que **não vem no zip**. Deixe-o em
-`D:\PROJETOS\soultree FORK\dumpsooth\nyx_soothe3_dump.bin` ou indique outro caminho na variável
-de ambiente `SOUTHAIR_DUMP`. Sem ele, o plugin só passa o áudio direto.
-
 ### Requisitos
 
 - Windows 10/11 x64 e um host VST3 (testado no FL Studio).
@@ -107,6 +101,7 @@ Detalhes em [`checks/w_cadeia_m6.md`](checks/w_cadeia_m6.md).
 |---|---|
 | `southair/app` | Plugin VST3 e aplicativo de teste (`southair-app`) |
 | `southair/South.air-Redesign-Kit` | Kit de identidade: marca, paleta, tokens e referência |
+| `southair_dump` | Dump do motor, lido pelo plugin (local, fora do git) |
 | `lifted`, `lifted_extra` | Motor de áudio |
 | `host` | Host VST3 de teste usado na validação |
 | `tools` | Ferramentas de tradução e análise |
