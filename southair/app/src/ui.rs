@@ -1,7 +1,7 @@
-//! Tela do South.air (ex-Resonia), compartilhada pela janela do plugin (lib.rs) e pelo
+//! Tela do South.air (NDERTAL labs), compartilhada pela janela do plugin (lib.rs) e pelo
 //! aplicativo (main.rs).
 //!
-//! Identidade e layout: `resonia/South.air-Redesign-Kit` (referência
+//! Identidade e layout: `southair/South.air-Redesign-Kit` (referência
 //! `assets/reference/southair-ui-reference.png`, tokens `design-system/tokens.css`):
 //! - coluna da esquerda: símbolo Fuji, wordmark, versão, soft/hard e os knobs
 //!   depth/detail/attack/release;

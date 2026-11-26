@@ -214,7 +214,7 @@ unsafe extern "system" fn host_qi(this: Obj, iid: *const [u8; 16], out: *mut Obj
     }
 }
 unsafe extern "system" fn host_get_name(_: Obj, name: *mut [u16; 128]) -> i32 {
-    let n: Vec<u16> = "Resonia test host".encode_utf16().collect();
+    let n: Vec<u16> = "South.air test host".encode_utf16().collect();
     let buf = &mut *name;
     buf.iter_mut().for_each(|c| *c = 0);
     buf[..n.len()].copy_from_slice(&n);

@@ -13,7 +13,7 @@
 *.pdb
 
 # Registros de sessao (podem conter dados sensiveis)
-/resonia/_fontes_recuperacao/
+/southair/_fontes_recuperacao/
 *.jsonl
 *.sqlite
 
@@ -29,10 +29,10 @@ target/
 __pycache__/
 *.pyc
 
-# Resonia: recursos de terceiros recuperados (soothe3) e dumps de registros de sessao
-/resonia/RECURSOS_VALIDADOS_recuperados/
-/resonia/_ferramentas/analise/
-/resonia/app/_arquivo_heuristico/descartados_NOVOS/
+# South.air: recursos de terceiros recuperados (soothe3) e dumps de registros de sessao
+/southair/RECURSOS_VALIDADOS_recuperados/
+/southair/_ferramentas/analise/
+/southair/app/_arquivo_heuristico/descartados_NOVOS/
 
 # Código traduzido do dump: gerado por tools/lift/lift.py (regenerar com lifted/roots.txt e lifted_extra/roots.txt)
 /lifted/src/gen_engine.rs
@@ -40,4 +40,4 @@ __pycache__/
 
 # Worktrees de agentes do Claude Code
 /.claude/
-/resonia/app/_preview/
+/southair/app/_preview/

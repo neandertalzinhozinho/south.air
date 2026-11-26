@@ -76,8 +76,8 @@ impl Resonia {
 }
 
 impl Plugin for Resonia {
-    const NAME: &'static str = "Resonia";
-    const VENDOR: &'static str = "Resonia";
+    const NAME: &'static str = "South.air";
+    const VENDOR: &'static str = "NDERTAL labs";
     const URL: &'static str = "";
     const EMAIL: &'static str = "";
     const VERSION: &'static str = env!("CARGO_PKG_VERSION");
@@ -181,8 +181,9 @@ impl Plugin for Resonia {
 }
 
 impl Vst3Plugin for Resonia {
-    // Mesmo id de classe da versão da manhã (recuperada): 16 bytes ASCII.
-    const VST3_CLASS_ID: [u8; 16] = *b"ResoniaSuppress1";
+    // Id de classe do South.air (16 bytes ASCII). Novo no rebranding: o FL trata como outro
+    // plugin, sem o nome antigo "Resonia" em cache.
+    const VST3_CLASS_ID: [u8; 16] = *b"NdertalSouthAir1";
     const VST3_SUBCATEGORIES: &'static [Vst3SubCategory] = &[Vst3SubCategory::Fx, Vst3SubCategory::Eq, Vst3SubCategory::Dynamics];
 }
 

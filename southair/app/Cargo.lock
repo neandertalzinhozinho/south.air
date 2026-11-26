@@ -2170,20 +2170,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "resonia"
-version = "0.1.0"
-dependencies = [
- "eframe",
- "hound",
- "image",
- "nih_plug",
- "nih_plug_egui",
- "resvg",
- "soultree_lifted",
- "soultree_lifted_extra",
-]
-
-[[package]]
 name = "resvg"
 version = "0.45.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2449,6 +2435,20 @@ name = "soultree_lifted_extra"
 version = "0.0.0"
 dependencies = [
  "soultree_lifted",
+]
+
+[[package]]
+name = "southair"
+version = "0.1.0"
+dependencies = [
+ "eframe",
+ "hound",
+ "image",
+ "nih_plug",
+ "nih_plug_egui",
+ "resvg",
+ "soultree_lifted",
+ "soultree_lifted_extra",
 ]
 
 [[package]]

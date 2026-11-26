@@ -1,4 +1,4 @@
-//! Builds the Resonia.vst3 bundle with the same layout as a standard VST3 bundle
+//! Builds the South.air.vst3 bundle with the same layout as a standard VST3 bundle
 //! (Contents/x86_64-win/<name>.vst3 + Contents/Resources/moduleinfo.json) and
 //! validates it by loading the plugin and asking its factory what it contains.
 
@@ -248,7 +248,7 @@ pub fn binary_in(bundle: &Path) -> PathBuf {
     bundle.join("Contents").join("x86_64-win").join(name)
 }
 
-/// Create `<out_dir>/Resonia.vst3` from the built plugin library.
+/// Create `<out_dir>/<name>.vst3` from the built plugin library.
 pub fn make_bundle(dll: &Path, out_dir: &Path, name: &str, version: &str) -> Result<PathBuf, String> {
     let bundle = out_dir.join(format!("{name}.vst3"));
     let bin = binary_in(&bundle);

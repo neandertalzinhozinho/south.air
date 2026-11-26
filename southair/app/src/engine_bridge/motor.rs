@@ -50,7 +50,11 @@ const DEFAULT_DUMP: &str = r"D:\PROJETOS\soultree FORK\dumpsooth\nyx_soothe3_dum
 static DUMP: Mutex<Option<Arc<Vec<u8>>>> = Mutex::new(None);
 
 pub fn dump_path() -> String {
-    std::env::var("RESONIA_DUMP").ok().filter(|s| !s.is_empty()).unwrap_or_else(|| DEFAULT_DUMP.to_string())
+    // SOUTHAIR_DUMP; RESONIA_DUMP (nome antigo) continua aceito.
+    ["SOUTHAIR_DUMP", "RESONIA_DUMP"]
+        .iter()
+        .find_map(|k| std::env::var(k).ok().filter(|s| !s.is_empty()))
+        .unwrap_or_else(|| DEFAULT_DUMP.to_string())
 }
 
 fn load_dump() -> Result<Arc<Vec<u8>>, CreateError> {
@@ -66,7 +70,7 @@ fn load_dump() -> Result<Arc<Vec<u8>>, CreateError> {
             Ok(a)
         }
         Ok(b) => Err(CreateError::DumpMissing(format!("dump too small ({} bytes): {path}", b.len()))),
-        Err(e) => Err(CreateError::DumpMissing(format!("cannot read dump ({e}): {path} (set RESONIA_DUMP)"))),
+        Err(e) => Err(CreateError::DumpMissing(format!("cannot read dump ({e}): {path} (set SOUTHAIR_DUMP)"))),
     }
 }
 

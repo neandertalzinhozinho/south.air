@@ -281,7 +281,7 @@ Fechamento item a item (todos com RVA):
    **PRÓXIMO:** levar o motor para o Resonia. Isso pede três coisas:
    1. desempenho, porque hoje é ~2× mais lento que tempo real;
    2. congelar as páginas do dump usadas (`Mem::image_touched`) num blob embutido;
-   3. ligar na `engine_bridge` do Resonia (`resonia/RECUPERACAO.md`).
+   3. ligar na `engine_bridge` do Resonia (`southair/RECUPERACAO.md`).
 
    **Fatos novos (2026-11-25):** `0x63640` tem **duas** aritméticas (A = quociente, B =
    recíproco; A ≠ B no ULP) e `n = N+1` é **ímpar** — a cauda sempre roda. **Conflito com a

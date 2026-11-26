@@ -1,16 +1,16 @@
 [package]
-name = "resonia"
+name = "southair"
 version = "0.1.0"
 edition = "2021"
-description = "Resonia - VST3 plugin shell (engine boundary: src/engine_bridge.rs)"
-default-run = "resonia-app"
+description = "South.air by NDERTAL labs - VST3 plugin (engine boundary: src/engine_bridge.rs)"
+default-run = "southair-app"
 
 [lib]
-name = "resonia"
+name = "southair"
 crate-type = ["cdylib", "rlib"]
 
 [[bin]]
-name = "resonia-app"
+name = "southair-app"
 path = "src/main.rs"
 
 [features]

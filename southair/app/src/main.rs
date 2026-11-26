@@ -7,18 +7,18 @@
 //! `--prove-superiority`, `--compare`, `--measure-original`) e por isso saiu do caminho de
 //! áudio. Aqui o processamento passa SÓ pela ponte `engine_bridge` (hoje passa-direto).
 //!
-//!   resonia-app                              abre a janela
-//!   resonia-app --process in.wav out.wav     processa um WAV pela ponte (sem janela)
-//!   resonia-app --screenshot out.png         desenha ~60 quadros, salva a imagem e sai
-//!   resonia-app --make-vst3 resonia.dll dir  monta dir/Resonia.vst3 (com moduleinfo.json) e confere
-//!   resonia-app --check-vst3 Resonia.vst3    confere o bundle
-//!   resonia-app --inspect-vst3 Resonia.vst3  carrega o plugin e lista os parâmetros
-//!   resonia-app --selftest-vst3 Resonia.vst3 carrega o plugin, processa ruído e confere o passa-direto
+//!   southair-app                              abre a janela
+//!   southair-app --process in.wav out.wav     processa um WAV pela ponte (sem janela)
+//!   southair-app --screenshot out.png         desenha ~60 quadros, salva a imagem e sai
+//!   southair-app --make-vst3 southair.dll dir  monta dir/South.air.vst3 (com moduleinfo.json) e confere
+//!   southair-app --check-vst3 South.air.vst3    confere o bundle
+//!   southair-app --inspect-vst3 South.air.vst3  carrega o plugin e lista os parâmetros
+//!   southair-app --selftest-vst3 South.air.vst3 carrega o plugin, processa ruído e confere o passa-direto
 
 use eframe::egui;
-use resonia::engine_bridge::EngineBridge;
-use resonia::param_table::{PARAMS, PARAM_COUNT};
-use resonia::ui;
+use southair::engine_bridge::EngineBridge;
+use southair::param_table::{PARAMS, PARAM_COUNT};
+use southair::ui;
 use std::path::{Path, PathBuf};
 
 #[cfg(windows)]
@@ -197,16 +197,16 @@ impl eframe::App for App {
 }
 
 fn usage() {
-    println!("Resonia - VST3 plugin shell (engine boundary: engine_bridge, currently pass-through)");
+    println!("South.air by NDERTAL labs");
     println!();
     println!("usage:");
-    println!("  resonia-app                               open the window");
-    println!("  resonia-app --process in.wav out.wav      run a WAV file through the engine bridge");
-    println!("  resonia-app --screenshot out.png          save a picture of the window and exit");
-    println!("  resonia-app --make-vst3 resonia.dll dir   build dir/Resonia.vst3 (with moduleinfo.json) and check it");
-    println!("  resonia-app --check-vst3 Resonia.vst3     check the bundle");
-    println!("  resonia-app --inspect-vst3 Resonia.vst3   load the plugin and list its parameters");
-    println!("  resonia-app --selftest-vst3 Resonia.vst3  load the plugin, process noise, check pass-through");
+    println!("  southair-app                               open the window");
+    println!("  southair-app --process in.wav out.wav      run a WAV file through the engine bridge");
+    println!("  southair-app --screenshot out.png          save a picture of the window and exit");
+    println!("  southair-app --make-vst3 southair.dll dir   build dir/South.air.vst3 (with moduleinfo.json) and check it");
+    println!("  southair-app --check-vst3 South.air.vst3     check the bundle");
+    println!("  southair-app --inspect-vst3 South.air.vst3   load the plugin and list its parameters");
+    println!("  southair-app --selftest-vst3 South.air.vst3  load the plugin, process noise, check pass-through");
 }
 
 #[cfg(windows)]
@@ -303,7 +303,7 @@ fn main() {
                     eprintln!("--make-vst3 needs the built plugin library and an output folder");
                     std::process::exit(2);
                 };
-                match vst3tool::make_bundle(Path::new(dll), Path::new(out), "Resonia", env!("CARGO_PKG_VERSION"))
+                match vst3tool::make_bundle(Path::new(dll), Path::new(out), "South.air", env!("CARGO_PKG_VERSION"))
                     .and_then(|b| vst3tool::check_bundle(&b).map(|lines| (b, lines)))
                 {
                     Ok((b, lines)) => {
@@ -408,7 +408,7 @@ fn main() {
     }
 
     let mut vp = egui::ViewportBuilder::default()
-        .with_title("Resonia")
+        .with_title("South.air")
         .with_inner_size([ui::WIDTH, ui::HEIGHT])
         .with_min_inner_size([900.0, 560.0]);
     if screenshot.is_some() {
@@ -420,7 +420,7 @@ fn main() {
     }
     let options = eframe::NativeOptions { viewport: vp, run_and_return: true, ..Default::default() };
     let shot = screenshot.clone();
-    if let Err(e) = eframe::run_native("Resonia", options, Box::new(move |cc| Ok(Box::new(App::new(cc, shot))))) {
+    if let Err(e) = eframe::run_native("South.air", options, Box::new(move |cc| Ok(Box::new(App::new(cc, shot))))) {
         eprintln!("could not open the window: {e}");
         std::process::exit(1);
     }
