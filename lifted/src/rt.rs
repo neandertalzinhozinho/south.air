@@ -312,6 +312,14 @@ pub struct Cpu {
     pub cur: u32,
     /// Perfil opcional: RVA do bloco -> (execuções, instruções). Ligado por `prof_on()`.
     pub prof: Option<Box<HashMap<u32, (u64, u64)>>>,
+    /// Saídas de análise para a tela (iface do host, `api.rs`): quando `true`, `iface+0x28`
+    /// responde "habilitada", como o plugin faz com o editor aberto; `false` é o medido no
+    /// oráculo sem editor.
+    pub analysis: bool,
+    /// Envios `iface+0x20` capturados: (id, cópia dos dados em bytes). Quem processa esvazia.
+    pub sent: Vec<(u32, Vec<u8>)>,
+    /// Saídas registradas por `iface+0x18` no create: (id, nome, r9).
+    pub registered: Vec<(u32, String, u64)>,
 }
 
 impl Cpu {
@@ -333,6 +341,9 @@ impl Cpu {
             tls: 0,
             cur: 0,
             prof: None,
+            analysis: false,
+            sent: Vec::new(),
+            registered: Vec::new(),
         };
         c.r[RSP] = STACK_TOP - 0x100;
         c

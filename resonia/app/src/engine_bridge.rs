@@ -51,16 +51,56 @@ pub enum EngineState {
     Failed = 4,
 }
 
+/// Curva de redução enviada pelo motor (iface+0x20; nomes registrados por ele no create:
+/// `reduction_curve_freq_points_lo/hi`, `reduction_curve_magnitudes_lo/hi`). Ganhos lineares
+/// por canal (`mag_*[ch * n + k]`), nas frequências `freq_*` (Hz). Os dois estágios do motor
+/// (FFT 4096 e 512) estão em série: a redução total é o produto.
+#[derive(Clone, Default)]
+pub struct Analysis {
+    pub freq_lo: Vec<f32>,
+    pub freq_hi: Vec<f32>,
+    pub mag_lo: Vec<f32>,
+    pub mag_hi: Vec<f32>,
+    /// Incrementado a cada curva nova.
+    pub seq: u64,
+}
+
 /// Estado do motor visível para a tela (compartilhado com a thread da GUI).
 pub struct BridgeStatus {
     state: AtomicU8,
     latency: AtomicU32,
     detail: Mutex<String>,
+    /// Editor aberto: o motor envia a curva de redução (iface+0x28 = 1, como o plugin original).
+    pub editor_open: std::sync::atomic::AtomicBool,
+    analysis: Mutex<Analysis>,
 }
 
 impl BridgeStatus {
     fn new() -> Self {
-        Self { state: AtomicU8::new(0), latency: AtomicU32::new(0), detail: Mutex::new(String::new()) }
+        Self {
+            state: AtomicU8::new(0),
+            latency: AtomicU32::new(0),
+            detail: Mutex::new(String::new()),
+            editor_open: std::sync::atomic::AtomicBool::new(false),
+            analysis: Mutex::new(Analysis::default()),
+        }
+    }
+
+    /// Cópia da última curva de redução (vazia sem motor).
+    pub fn analysis(&self) -> Option<Analysis> {
+        let a = self.analysis.lock().ok()?;
+        if a.freq_lo.is_empty() || a.mag_lo.is_empty() {
+            return None;
+        }
+        Some(a.clone())
+    }
+
+    /// Chamado pela thread de áudio: nunca bloqueia (pula se a tela estiver lendo).
+    #[allow(dead_code)]
+    fn publish(&self, f: impl FnOnce(&mut Analysis)) {
+        if let Ok(mut a) = self.analysis.try_lock() {
+            f(&mut a);
+        }
     }
 
     #[allow(dead_code)]
@@ -91,7 +131,7 @@ impl BridgeStatus {
         match self.state() {
             EngineState::NoMotorBuild => "none (pass-through, no DSP)",
             EngineState::NotPrepared => "not prepared (pass-through)",
-            EngineState::Running => "soothe3 engine (translated from binary, bit-exact)",
+            EngineState::Running => "engine (translated from binary, bit-exact)",
             EngineState::DumpMissing => "DUMP NOT FOUND - bypass (pass-through)",
             EngineState::Failed => "ENGINE ERROR - bypass (pass-through)",
         }
@@ -214,6 +254,10 @@ impl EngineBridge {
             match r {
                 Ok(Ok(m)) => {
                     self.status.latency.store(m.latency(), Ordering::Relaxed);
+                    let (fl, fh) = (m.freq_lo.clone(), m.freq_hi.clone());
+                    if let Ok(mut a) = self.status.analysis.lock() {
+                        *a = Analysis { freq_lo: fl, freq_hi: fh, ..Default::default() };
+                    }
                     self.motor = Some(motor::SendMotor(m));
                     self.kind = EngineKind::Lifted;
                     self.status.set(EngineState::Running, String::new());
@@ -248,11 +292,17 @@ impl EngineBridge {
     ///
     /// Sem motor, ou com o motor em falha: passa-direto, não toca nas amostras. O sidechain é
     /// ignorado (o caminho provado usa `r9 = 0`).
+    /// Editor aberto ou fechado (o motor só envia a curva de redução com o editor aberto).
+    pub fn set_editor_open(&self, open: bool) {
+        self.status.editor_open.store(open, Ordering::Relaxed);
+    }
+
     pub fn process(&mut self, main: &mut [&mut [f32]], sidechain: Option<&[&[f32]]>) {
         let _ = sidechain;
         #[cfg(feature = "motor")]
         if let Some(m) = self.motor.as_mut() {
-            let r = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| m.0.process(main)));
+            let st = &self.status;
+            let r = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| m.0.process(main, st)));
             if let Err(e) = r {
                 self.fail("process", e);
             }

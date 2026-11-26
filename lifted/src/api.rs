@@ -30,17 +30,38 @@ pub static SENDS: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::n
 pub fn host_call(c: &mut Cpu, va: u64, site: u32) -> bool {
     match va {
         HOST_FN_REGISTER => {
+            // `0x863xxx`: edx = id, r8 = nome (C string na imagem), r9 = parâmetro.
+            let (id, name_va, r9) = (c.r[RDX] as u32, c.r[R8], c.r[R9]);
+            let mut name = Vec::new();
+            for k in 0..64 {
+                let b = c.mem.r8(name_va + k);
+                if b == 0 {
+                    break;
+                }
+                name.push(b);
+            }
+            c.registered.push((id, String::from_utf8_lossy(&name).into_owned(), r9));
             c.r[RAX] = 0;
         }
         HOST_FN_SEND => {
             // 0x338A80 no plugin: copia os dados para buffers de visualização do plugin; nada
             // volta ao motor. Em 0x863690 (create) o motor envia o valor inicial 0 da saída 13
-            // sem consultar +0x28. Aqui é inerte; só conta.
+            // sem consultar +0x28. Aqui só copia para `c.sent`: edx = id, r8 = dados,
+            // r9d = quantidade de floats (`00866737..0086674C`).
             let _ = site;
             SENDS.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+            // Sempre capturado: no create (`0x8634A0` -> `0x86A4E0`) o motor envia os pontos de
+            // frequência e as curvas de offset sem consultar +0x28. Quem processa esvazia.
+            let (id, ptr, n) = (c.r[RDX] as u32, c.r[R8], (c.r[R9] as u32).min(1 << 16) as usize);
+            let mut buf = vec![0u8; 4 * n];
+            if n > 0 {
+                c.mem.read(ptr, &mut buf);
+            }
+            c.sent.push((id, buf));
         }
         HOST_FN_ENABLED => {
-            c.r[RAX] = 0; // 0x338BA0: movzx eax, byte [[iface]+0x94] = 0 (medido)
+            // 0x338BA0: movzx eax, byte [[iface]+0x94]; medido 0 no oráculo sem editor.
+            c.r[RAX] = c.analysis as u64;
         }
         _ => return false,
     }

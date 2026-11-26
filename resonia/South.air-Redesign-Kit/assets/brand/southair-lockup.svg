@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 250" role="img" aria-labelledby="title desc">
+  <title id="title">South.air</title>
+  <desc id="desc">Logotipo South.air com símbolo do Monte Fuji e sol nascente.</desc>
+  <g transform="translate(0 2) scale(.72)">
+    <circle cx="161" cy="91" r="61" fill="#F36D03"/>
+    <path d="M28 151h78M54 132h56M210 126h82M230 143h49" fill="none" stroke="#DADADA" stroke-width="5" stroke-linecap="round" opacity=".9"/>
+    <path d="M32 174 94 142 142 91 159 70 176 89 218 132 286 166 248 164 212 151 183 145 157 151 124 145 87 162Z" fill="#34383D"/>
+    <path d="m111 126 31-35 17-21 17 19 26 29-20-8-13-15-10 8-10-7-11 18-13 8Z" fill="#E8E8E6"/>
+    <path d="m142 91 17-21 17 19-13-5-5 9-7-7Z" fill="#FFFFFF"/>
+    <path d="m94 142 48-21 19 10 19-11 38 12-26-5-30 17-25-10-27 12Z" fill="#4A5056" opacity=".85"/>
+  </g>
+  <text x="226" y="153" font-family="Oxanium, Rajdhani, Segoe UI, sans-serif" font-size="91" font-weight="700" font-style="italic" letter-spacing="-3">
+    <tspan fill="#E3E3E2">South.</tspan><tspan fill="#F36D03">air</tspan>
+  </text>
+  <text x="550" y="204" text-anchor="end" font-family="Inter, Segoe UI, sans-serif" font-size="24" fill="#A1A1A2">0.1.0</text>
+</svg>

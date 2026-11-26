@@ -152,8 +152,14 @@ impl eframe::App for App {
             engine: st.engine_text(),
             latency_samples: self.bridge.latency_samples(),
             sample_rate: self.bridge.sample_rate(),
+            analysis: st.analysis(),
             status: Some(if detail.is_empty() { "Standalone window: parameters only, no audio device." } else { detail.as_str() }),
         };
+        if self.frames == 0 && self.screenshot.is_some() {
+            if let Ok(v) = std::env::var("RESONIA_SHOT_VIEW") {
+                self.ui_state.show_view(&v);
+            }
+        }
         let mut access = AppAccess { values: &mut self.values, bridge: &mut self.bridge };
         ui::draw(ctx, &mut access, &info, &mut self.ui_state);
 

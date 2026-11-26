@@ -80,6 +80,13 @@ pub struct Motor {
     lat: u32,
     /// Após um panic o estado emulado não é confiável: não chama destroy.
     pub poisoned: bool,
+    /// Frequências (Hz) das curvas de redução, enviadas pelo motor no create (ids 0 e 1).
+    pub freq_lo: Vec<f32>,
+    pub freq_hi: Vec<f32>,
+}
+
+fn floats(b: &[u8]) -> Vec<f32> {
+    b.chunks_exact(4).map(|c| f32::from_le_bytes([c[0], c[1], c[2], c[3]])).collect()
 }
 
 /// O emulador não é `Send` por causa do `Box<dyn ImageSource>`; aqui a fonte é um
@@ -127,7 +134,16 @@ pub fn create(sample_rate: f32, max_block: usize, params: &[f64; PARAM_COUNT]) -
         ib[ch as usize] = i;
         ob[ch as usize] = o;
     }
-    let mut m = Motor { e, ia, oa, ib, ob, cap, lat: 0, poisoned: false };
+    // Envios do create: pontos de frequência das curvas (ids 0 = lo, 1 = hi).
+    let (mut freq_lo, mut freq_hi) = (Vec::new(), Vec::new());
+    for (id, d) in e.cpu.sent.drain(..) {
+        match id {
+            0 => freq_lo = floats(&d),
+            1 => freq_hi = floats(&d),
+            _ => {}
+        }
+    }
+    let mut m = Motor { e, ia, oa, ib, ob, cap, lat: 0, poisoned: false, freq_lo, freq_hi };
     m.refresh_latency();
     Ok(m)
 }
@@ -157,10 +173,13 @@ impl Motor {
 
     /// Processa no lugar. Estéreo: canais 0 e 1. Mono: o canal 0 vai aos dois lados e volta o
     /// lado esquerdo. Canais acima do segundo passam direto.
-    pub fn process(&mut self, main: &mut [&mut [f32]]) {
+    pub fn process(&mut self, main: &mut [&mut [f32]], st: &super::BridgeStatus) {
         if main.is_empty() {
             return;
         }
+        // Editor aberto: iface+0x28 responde 1 e o motor envia a curva de redução. O áudio não
+        // muda (null-test com e sem envio: idêntico byte a byte).
+        self.e.cpu.analysis = st.editor_open.load(std::sync::atomic::Ordering::Relaxed);
         let len = main[0].len();
         let mono = main.len() == 1;
         let mut pos = 0;
@@ -181,6 +200,26 @@ impl Motor {
                 main[ch][pos..pos + m].copy_from_slice(&v);
             }
             pos += m;
+        }
+        // Última curva enviada neste bloco (ids 2 = lo, 3 = hi); o resto é descartado.
+        let (mut lo, mut hi) = (None, None);
+        for (id, d) in self.e.cpu.sent.drain(..) {
+            match id {
+                2 => lo = Some(d),
+                3 => hi = Some(d),
+                _ => {}
+            }
+        }
+        if lo.is_some() || hi.is_some() {
+            st.publish(|a| {
+                if let Some(d) = lo {
+                    a.mag_lo = floats(&d);
+                }
+                if let Some(d) = hi {
+                    a.mag_hi = floats(&d);
+                }
+                a.seq += 1;
+            });
         }
     }
 }

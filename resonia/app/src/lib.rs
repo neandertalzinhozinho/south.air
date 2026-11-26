@@ -10,6 +10,7 @@
 pub mod engine_bridge;
 pub mod param_table;
 pub mod params;
+pub mod presets;
 pub mod ui;
 
 use engine_bridge::EngineBridge;
@@ -124,7 +125,12 @@ impl Plugin for Resonia {
         create_egui_editor(
             self.editor_state.clone(),
             ui::UiState::default(),
-            |ctx, _| ui::setup_style(ctx),
+            |ctx, state| {
+                // Cada abertura do editor cria um contexto gráfico novo: as texturas (ícones SVG,
+                // PNG dos knobs) do contexto anterior não valem mais e precisam ser recarregadas.
+                ui::setup_style(ctx);
+                state.reset_assets();
+            },
             move |ctx, setter, state| {
                 let detail = status.detail();
                 let info = ui::UiInfo {
@@ -133,6 +139,7 @@ impl Plugin for Resonia {
                     sample_rate: None,
                     status: if detail.is_empty() { None } else { Some(detail.as_str()) },
                     version: env!("CARGO_PKG_VERSION"),
+                    analysis: status.analysis(),
                 };
                 let mut access = HostAccess { params: &params, setter };
                 ui::draw(ctx, &mut access, &info, state);
@@ -166,6 +173,7 @@ impl Plugin for Resonia {
         }
         // O sidechain é entregue à ponte sem cópia; hoje ela o ignora (passa-direto).
         let _ = aux;
+        self.bridge.set_editor_open(self.editor_state.is_open());
         self.bridge.process(buffer.as_slice(), None);
         // TODO motor: soultree_port — repassar `aux.inputs` como sidechain quando o motor o definir.
         ProcessStatus::Normal

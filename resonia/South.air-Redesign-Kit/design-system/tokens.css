@@ -1,0 +1,32 @@
+:root {
+  /* South.air — structural palette */
+  --sa-background: #100E0E;
+  --sa-panel: #141414;
+  --sa-surface: #1A1A1B;
+  --sa-control: #202123;
+  --sa-border: #2B2B2D;
+  --sa-graph-grid: #292727;
+
+  /* Brand orange */
+  --sa-orange: #F36D03;
+  --sa-orange-active: #FA8603;
+  --sa-orange-deep: #A54D05;
+  --sa-orange-glow: #522304;
+  --sa-orange-soft: #FBA45A;
+
+  /* Typography */
+  --sa-text-primary: #E3E3E2;
+  --sa-text-secondary: #A1A1A2;
+  --sa-text-muted: #68686B;
+
+  /* Suggested design tokens */
+  --sa-radius-sm: 6px;
+  --sa-radius-md: 10px;
+  --sa-radius-lg: 14px;
+  --sa-border-width: 1px;
+  --sa-transition-fast: 120ms ease;
+  --sa-transition-normal: 180ms ease;
+
+  --sa-font-ui: Inter, "Segoe UI", sans-serif;
+  --sa-font-brand: Oxanium, Rajdhani, "Segoe UI", sans-serif;
+}

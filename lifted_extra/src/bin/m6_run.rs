@@ -84,6 +84,10 @@ fn main() {
     let cpu = Cpu::new(Mem::new(Some(Box::new(ArcImage(dump)))));
     let t0 = std::time::Instant::now();
     let mut e = Engine::new(cpu, fs as f64);
+    // M6_ANALYSIS: habilitado já antes dos defaults, para ver o que o setter envia.
+    if std::env::var("M6_ANALYSIS").is_ok() {
+        e.cpu.analysis = true;
+    }
     eprintln!("create ok: handle=0x{:X} in={} out={} icount={} ({:?})", e.handle, e.n_in, e.n_out, e.cpu.icount, t0.elapsed());
     // Como o plugin faz depois do create (estado medido no oráculo, checks/w_cadeia_m6.md §4):
     // 1) para cada parâmetro i: norm = callback +0x48 (plain->norm) aplicado ao default +0x38,
@@ -120,6 +124,21 @@ fn main() {
     // process = 0x862F00(handle, rdx = saídas, r8 = entradas, r9 = 0 (sem sidechain), [rsp+0x28] = n).
     // Medido no motor traduzido: com r8 = sinal e rdx = buffer, a saída processada sai em rdx e
     // r8 fica intacto; com r8 = 0 a saída é 0 (checks/w_cadeia_m6.md §1).
+    // M6_ANALYSIS=1: iface+0x28 responde habilitado (editor aberto); lista registros e envios.
+    let analysis = std::env::var("M6_ANALYSIS").is_ok();
+    if analysis {
+        for (id, d) in &e.cpu.sent {
+            let f: Vec<f32> = d.chunks(4).map(|b| f32::from_le_bytes([b[0], b[1], b[2], b[3]])).collect();
+            eprintln!("envio antes do process: id={id} n={} primeiros={:?} últimos={:?}", f.len(), &f[..f.len().min(5)], &f[f.len().saturating_sub(3)..]);
+        }
+        e.cpu.sent.clear();
+        e.cpu.analysis = true;
+        for (id, name, r9) in &e.cpu.registered {
+            eprintln!("registro iface+0x18: id={id} nome={name:?} r9={r9}");
+        }
+    }
+    let mut blk_no = 0usize;
+    let mut hist: std::collections::BTreeMap<u32, (usize, usize, usize)> = Default::default();
     if std::env::var("M6_PROF").is_ok() {
         e.cpu.prof_on();
     }
@@ -192,11 +211,38 @@ fn main() {
         // M6_N: n passado ao motor por bloco (hipótese do wrapper); o resto da saída fica 0
         let nn: usize = std::env::var("M6_N").ok().and_then(|v| v.parse().ok()).unwrap_or(m).min(m);
         soultree_lifted::api::call_abi(&mut e.cpu, 0x862F00, &[nn as u64]);
+        if analysis {
+            for (id, d) in &e.cpu.sent {
+                let ent = hist.entry(*id).or_insert((0usize, usize::MAX, 0usize));
+                ent.0 += 1;
+                ent.1 = ent.1.min(blk_no);
+                ent.2 = d.len() / 4;
+                if (*id == 0 || *id == 1 || *id == 4) && ent.0 == 1 {
+                    let f: Vec<f32> = d.chunks(4).map(|b| f32::from_le_bytes([b[0], b[1], b[2], b[3]])).collect();
+                    eprintln!("id={id} n={} primeiros={:?} últimos={:?}", f.len(), &f[..f.len().min(5)], &f[f.len().saturating_sub(3)..]);
+                }
+            }
+            if blk_no < 3 || blk_no == 40 {
+                for (id, d) in &e.cpu.sent {
+                    let f: Vec<f32> = d.chunks(4).map(|b| f32::from_le_bytes([b[0], b[1], b[2], b[3]])).collect();
+                    let mx = f.iter().cloned().fold(f32::MIN, f32::max);
+                    let mn = f.iter().cloned().fold(f32::MAX, f32::min);
+                    eprintln!("bloco {blk_no}: envio id={id} n={} min={mn:.4} max={mx:.4} primeiros={:?}", f.len(), &f[..f.len().min(6)]);
+                }
+            }
+            e.cpu.sent.clear();
+        }
+        blk_no += 1;
         for ch in 0..e.n_out {
             let v = e.cpu.mem.read_f32s(ob[ch], m);
             out[ch][pos..pos + m].copy_from_slice(&v);
         }
         pos += m;
+    }
+    if analysis {
+        for (id, (k, first, n)) in &hist {
+            eprintln!("envios id={id}: {k} vezes, primeiro bloco {first}, n={n}");
+        }
     }
     eprintln!("processado: {n} frames, icount={} ({:?})", e.cpu.icount, t0.elapsed());
     if let Some(p) = e.cpu.prof.take() {
