@@ -14,7 +14,7 @@
 use crate::param_table::{PARAMS, PARAM_COUNT};
 use soultree_lifted::api::{call_abi, Engine};
 use soultree_lifted::rt::*;
-use std::sync::{Arc, Mutex};
+// use std::sync::{Arc, Mutex};
 
 pub enum CreateError {
     /// Dump ausente/ilegível (mensagem com o caminho).
@@ -33,9 +33,9 @@ pub fn panic_text(e: &Box<dyn std::any::Any + Send>) -> String {
     }
 }
 
-struct ArcImage(Arc<Vec<u8>>);
+struct StaticImage(&'static [u8]);
 
-impl ImageSource for ArcImage {
+impl ImageSource for StaticImage {
     fn read_page(&self, rva: u64, out: &mut [u8; 4096]) {
         let s = rva as usize;
         for (i, b) in out.iter_mut().enumerate() {
@@ -44,35 +44,11 @@ impl ImageSource for ArcImage {
     }
 }
 
-/// Dump do motor na pasta `southair_dump` do projeto (local, fora do git).
-const DEFAULT_DUMP: &str = r"D:\PROJETOS\soultree FORK\southair_dump\southdump.bin";
-
-/// Dump compartilhado entre instâncias (lido uma vez por processo; ~137 MB).
-static DUMP: Mutex<Option<Arc<Vec<u8>>>> = Mutex::new(None);
+/// Dump do motor embutido diretamente no binário (zero dependência de arquivos em disco).
+pub static DUMP_BYTES: &[u8] = include_bytes!(r"..\..\..\..\southair_dump\southdump.bin");
 
 pub fn dump_path() -> String {
-    // SOUTHAIR_DUMP; RESONIA_DUMP (nome antigo) continua aceito.
-    ["SOUTHAIR_DUMP", "RESONIA_DUMP"]
-        .iter()
-        .find_map(|k| std::env::var(k).ok().filter(|s| !s.is_empty()))
-        .unwrap_or_else(|| DEFAULT_DUMP.to_string())
-}
-
-fn load_dump() -> Result<Arc<Vec<u8>>, CreateError> {
-    let mut g = DUMP.lock().unwrap_or_else(|p| p.into_inner());
-    if let Some(d) = g.as_ref() {
-        return Ok(d.clone());
-    }
-    let path = dump_path();
-    match std::fs::read(&path) {
-        Ok(b) if b.len() >= 0x239_0000 => {
-            let a = Arc::new(b);
-            *g = Some(a.clone());
-            Ok(a)
-        }
-        Ok(b) => Err(CreateError::DumpMissing(format!("dump too small ({} bytes): {path}", b.len()))),
-        Err(e) => Err(CreateError::DumpMissing(format!("cannot read dump ({e}): {path} (set SOUTHAIR_DUMP)"))),
-    }
+    "embedded in binary (self-contained)".to_string()
 }
 
 pub struct Motor {
@@ -110,9 +86,11 @@ fn normalize(e: &mut Engine, i: usize, plain: f64) -> f64 {
 }
 
 pub fn create(sample_rate: f32, max_block: usize, params: &[f64; PARAM_COUNT]) -> Result<Motor, CreateError> {
-    let dump = load_dump()?;
+    if DUMP_BYTES.len() < 0x239_0000 {
+        return Err(CreateError::DumpMissing("embedded dump is too small".to_string()));
+    }
     soultree_lifted_extra::register();
-    let cpu = Cpu::new(Mem::new(Some(Box::new(ArcImage(dump)))));
+    let cpu = Cpu::new(Mem::new(Some(Box::new(StaticImage(DUMP_BYTES)))));
     let mut e = Engine::new(cpu, sample_rate as f64);
     if e.handle == 0 || e.n_in < 2 || e.n_out < 2 {
         return Err(CreateError::Failed(format!("create returned handle=0x{:X} in={} out={}", e.handle, e.n_in, e.n_out)));

@@ -11,4 +11,8 @@ set OUT=target\x86_64-pc-windows-msvc\release
 %OUT%\southair-app.exe --make-vst3 %OUT%\southair.dll dist || exit /b 1
 if exist dist\resonia-app.exe del dist\resonia-app.exe
 copy /y %OUT%\southair-app.exe dist\ >nul
+
+rem O dump do motor (southdump.bin) agora e compilado DIRETAMENTE dentro da DLL (include_bytes!)
+rem Nao e necessario copiar arquivos .bin soltos; o plugin e 100% autocontido.
+
 echo Done: dist\South.air.vst3

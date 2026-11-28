@@ -801,6 +801,42 @@ fn graph(ui: &mut Ui, a: &Assets, p: &mut dyn ParamAccess, st: &mut UiState, inf
     if let Some(b) = st.band.filter(|&b| band_on(p, b)) {
         band_inspector(ui, a, p, st, b, Rect::from_min_size(Pos2::new(rect.left() + 10.0, rect.bottom() - 74.0), Vec2::new(560.0, 64.0)));
     }
+
+    // Alerta visual discreto se o motor estiver em Bypass / DumpMissing / Falha
+    if info.engine.contains("DUMP NOT FOUND") || info.engine.contains("ERROR") || info.engine.contains("pass-through") {
+        let is_err = info.engine.contains("DUMP NOT FOUND") || info.engine.contains("ERROR");
+        let bg_col = if is_err {
+            Color32::from_rgba_unmultiplied(0x3d, 0x14, 0x14, 210)
+        } else {
+            Color32::from_rgba_unmultiplied(0x22, 0x22, 0x24, 200)
+        };
+        let text_col = if is_err {
+            Color32::from_rgb(0xfb, 0x71, 0x71)
+        } else {
+            pal::DIM
+        };
+        let banner_w = 340.0;
+        let banner_h = 24.0;
+        let banner_rect = Rect::from_center_size(
+            Pos2::new(rect.center().x, rect.top() + 42.0),
+            Vec2::new(banner_w, banner_h),
+        );
+        painter.rect_filled(banner_rect, CornerRadius::same(6), bg_col);
+        painter.rect_stroke(
+            banner_rect,
+            CornerRadius::same(6),
+            Stroke::new(1.0_f32, if is_err { text_col } else { pal::EDGE }),
+            StrokeKind::Inside,
+        );
+        let msg = if info.engine.contains("DUMP NOT FOUND") {
+            "southdump.bin nao encontrado — BYPASS"
+        } else if info.engine.contains("ERROR") {
+            "ERRO NO MOTOR — BYPASS"
+        } else {
+            "MOTOR DESATIVADO — PASSA-DIRETO"
+        };
+        painter.text(banner_rect.center(), Align2::CENTER_CENTER, msg, med(12.0), text_col);
+    }
 }
 
 /// Interpolação linear de `ys` (um canal) nas frequências `xs` (espaçamento uniforme).

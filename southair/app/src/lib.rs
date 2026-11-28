@@ -132,6 +132,7 @@ impl Plugin for Resonia {
                 state.reset_assets();
             },
             move |ctx, setter, state| {
+                status.editor_open.store(true, Ordering::Relaxed);
                 let detail = status.detail();
                 let info = ui::UiInfo {
                     engine: status.engine_text(),

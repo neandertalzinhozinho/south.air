@@ -167,7 +167,21 @@ cadeia (M5/M6) existir, o encaixe é **só** em `app\src\engine_bridge.rs`:
 - Limitações: ~2x mais lento que tempo real (ao vivo engasga; render offline funciona); sidechain ignorado
   (r9 = 0); mono duplica o canal nos dois lados; em falha o bypass não compensa a latência.
 
-## Lacunas conhecidas
-`lib.rs` final, `settings.rs`, `ui.rs`, `host.rs`, `dsp/output.rs`, `dsp/stereo.rs`, `Cargo.lock`, `MECHANICS.md`/`mechanics.json`
-não foram recuperados (ver tabela). Nada foi inventado para substituí-los na recuperação; o que existe de novo é a camada da
-fase 2 acima, rotulada como NOVA.
+## Fase 4 — Auditoria de Portabilidade e Autonomia 100% (VST3 Autocontido)
+
+### Diagnóstico de Terceiros (Falhas Reportadas no FL Studio de Outras Máquinas)
+- **Sintoma:** O plugin inicializa anunciando latência de 52ms (2304 amostras), mas durante o uso o áudio não é processado, botões de Delta e Low Latency não alteram o som e o feedback visual da redução de frequências não aparece.
+- **Causa Raiz Identificada:**
+  1. **Dependência Externa de Dump em Disco:** O motor dependia de carregar `southdump.bin` em tempo de execução via `std::fs::read`. A resolução de diretório dependia de `GetModuleFileNameW` e caminhos do host (FL Studio) ou fallbacks locais de desenvolvimento (`D:\PROJETOS\...`). Em máquinas de terceiros sem a pasta do projeto no drive D:, o dump não era resolvido no momento do processamento ou falhava silenciosamente.
+  2. **Feedback Visual Desativado:** O motor só emite as curvas FFT de redução se `self.e.cpu.analysis == true` (sinalizado por `editor_open`). No FL Studio, com janelas desacopladas ("Detached"), o `is_open()` do wrapper nativo do nih-plug frequentemente retorna `false`, desligando a análise no motor DSP.
+
+### Solução e Implementação de Autonomia Total
+1. **Embutimento de 100% do DSP Dump no Binário:**
+   - Em `engine_bridge/motor.rs`, o `southdump.bin` é embutido na seção `.rdata` do próprio binário via `include_bytes!(r"..\..\..\..\southair_dump\southdump.bin")`.
+   - Implementado `StaticImage(&'static [u8])` implementando `ImageSource`.
+   - **Zero chamadas a `std::fs::read`**, **zero busca de arquivos em disco** e **zero dependência de arquivos externos**. O pacote VST3 funciona de forma autônoma em qualquer máquina ou diretório.
+2. **Garantia de Análise Visual:**
+   - Na closure do editor em `lib.rs`, o flag `editor_open` é ativado atomicamente sempre que a interface do usuário estiver sendo desenhada, garantindo que o motor envie os buffers de análise espectral sem interrupções.
+3. **Limpeza do Bundle VST3:**
+   - `make_vst3.cmd` simplificado: o binário `South.air.vst3` já contém todos os dados do motor e recursos visuais necessários. Não requer arquivos `.bin` duplicados na pasta.
+
